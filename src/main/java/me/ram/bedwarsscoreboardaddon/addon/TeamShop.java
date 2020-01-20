@@ -20,6 +20,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+
+import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
+
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
@@ -486,7 +489,8 @@ public class TeamShop {
 			if (e.getRawSlot() == 13) {
 				Team team = game.getPlayerTeam(player);
 				if (!haste.containsKey(team.getName()) || haste.get(team.getName()) == 1) {
-					String[] ary = Config.teamshop_upgrade_fast_dig_level_1_cost.split(",");
+					String[] ary = Config.teamshop_upgrade_fast_dig_level_cost
+							.get(haste.getOrDefault(team.getName(), 0) + 1).split(",");
 					if (ary[0].equals("XP")) {
 						if (Bukkit.getPluginManager().isPluginEnabled("BedwarsXP")) {
 							if (XPManager.getXPManager(game.getName()).getXP(player) >= Integer.valueOf(ary[1])) {
@@ -497,7 +501,7 @@ public class TeamShop {
 									p.sendMessage(Config.teamshop_message.replace("{player}", player.getName())
 											.replace("{upgrade}",
 													ColorUtil.remcolor(Config.teamshop_upgrade_fast_dig_name))
-											.replace("{level}", "I"));
+											.replace("{level}", getLevel(haste.get(team.getName()))));
 								}
 							} else {
 								player.sendMessage(Config.teamshop_no_resource);
@@ -511,7 +515,7 @@ public class TeamShop {
 						for (Player p : team.getPlayers()) {
 							p.sendMessage(Config.teamshop_message.replace("{player}", player.getName())
 									.replace("{upgrade}", ColorUtil.remcolor(Config.teamshop_upgrade_fast_dig_name))
-									.replace("{level}", "I"));
+									.replace("{level}", getLevel(haste.get(team.getName()))));
 						}
 					} else {
 						player.sendMessage(Config.teamshop_no_resource);
@@ -530,7 +534,8 @@ public class TeamShop {
 			if (e.getRawSlot() == 11) {
 				Team team = game.getPlayerTeam(player);
 				if (!sharpness.containsKey(team.getName()) || sharpness.get(team.getName()) == 1) {
-					String[] ary = Config.teamshop_upgrade_sword_sharpness_level_1_cost.split(",");
+					String[] ary = Config.teamshop_upgrade_sword_sharpness_level_cost
+							.get(sharpness.getOrDefault(team.getName(), 0) + 1).split(",");
 					if (ary[0].equals("XP")) {
 						if (Bukkit.getPluginManager().isPluginEnabled("BedwarsXP")) {
 							if (XPManager.getXPManager(game.getName()).getXP(player) >= Integer.valueOf(ary[1])) {
@@ -541,7 +546,7 @@ public class TeamShop {
 									p.sendMessage(Config.teamshop_message.replace("{player}", player.getName())
 											.replace("{upgrade}",
 													ColorUtil.remcolor(Config.teamshop_upgrade_sword_sharpness_name))
-											.replace("{level}", "I"));
+											.replace("{level}", getLevel(sharpness.get(team.getName()))));
 								}
 							} else {
 								player.sendMessage(Config.teamshop_no_resource);
@@ -556,7 +561,7 @@ public class TeamShop {
 							p.sendMessage(Config.teamshop_message.replace("{player}", player.getName())
 									.replace("{upgrade}",
 											ColorUtil.remcolor(Config.teamshop_upgrade_sword_sharpness_name))
-									.replace("{level}", "I"));
+									.replace("{level}", getLevel(sharpness.get(team.getName()))));
 						}
 					} else {
 						player.sendMessage(Config.teamshop_no_resource);
@@ -575,7 +580,8 @@ public class TeamShop {
 			if (e.getRawSlot() == 12) {
 				Team team = game.getPlayerTeam(player);
 				if (!protection.containsKey(team.getName()) || protection.get(team.getName()) < 4) {
-					String[] ary = Config.teamshop_upgrade_armor_protection_level_1_cost.split(",");
+					String[] ary = Config.teamshop_upgrade_armor_protection_level_cost
+							.get(protection.getOrDefault(team.getName(), 0) + 1).split(",");
 					if (ary[0].equals("XP")) {
 						if (Bukkit.getPluginManager().isPluginEnabled("BedwarsXP")) {
 							if (XPManager.getXPManager(game.getName()).getXP(player) >= Integer.valueOf(ary[1])) {
@@ -586,7 +592,7 @@ public class TeamShop {
 									p.sendMessage(Config.teamshop_message.replace("{player}", player.getName())
 											.replace("{upgrade}",
 													ColorUtil.remcolor(Config.teamshop_upgrade_armor_protection_name))
-											.replace("{level}", "I"));
+											.replace("{level}", getLevel(protection.get(team.getName()))));
 								}
 							} else {
 								player.sendMessage(Config.teamshop_no_resource);
@@ -601,7 +607,7 @@ public class TeamShop {
 							p.sendMessage(Config.teamshop_message.replace("{player}", player.getName())
 									.replace("{upgrade}",
 											ColorUtil.remcolor(Config.teamshop_upgrade_armor_protection_name))
-									.replace("{level}", "I"));
+									.replace("{level}", getLevel(protection.get(team.getName()))));
 						}
 					} else {
 						player.sendMessage(Config.teamshop_no_resource);
@@ -865,6 +871,21 @@ public class TeamShop {
 					}
 				}
 			}
+		}
+	}
+
+	private String getLevel(int i) {
+		switch (i) {
+		case 1:
+			return "I";
+		case 2:
+			return "II";
+		case 3:
+			return "III";
+		case 4:
+			return "IV";
+		default:
+			return "";
 		}
 	}
 

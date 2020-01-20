@@ -172,11 +172,16 @@ public class Rejoin {
 								player.getInventory().setBoots(armors.get(3));
 							}
 							Arena arena = Main.getInstance().getArenaManager().getArenas().get(game.getName());
-							Respawn respawn = arena.getRespawn();
-							respawn.onDeath(player, true);
-							respawn.onRespawn(player);
 							player.setMaxHealth(arena.getHealthLevel().getNowHealth());
 							player.setHealth(player.getMaxHealth());
+							if (Config.respawn_enabled) {
+								Respawn respawn = arena.getRespawn();
+								respawn.onDeath(player, true);
+								respawn.onRespawn(player);
+							} else {
+								player.setVelocity(new Vector(0, 0, 0));
+								player.teleport(team.getSpawnLocation());
+							}
 						}
 					}
 				}
