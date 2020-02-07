@@ -56,12 +56,12 @@ public class HolographicAPI {
 						loc2.setY(location.getY());
 						if (players.contains(uuid)) {
 							if (!loc2.getWorld().getName().equals(location.getWorld().getName())
-									|| loc2.distance(location) >= 64) {
+									|| loc2.distance(location) >= 63) {
 								Utils.sendPacket(player, packets.get(player.getUniqueId()));
 								players.remove(uuid);
 							}
 						} else if (loc2.getWorld().getName().equals(location.getWorld().getName())
-								&& loc2.distance(location) < 64) {
+								&& loc2.distance(location) < 63) {
 							display(player);
 						}
 					}

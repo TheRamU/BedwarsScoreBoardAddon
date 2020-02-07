@@ -23,7 +23,7 @@ public class UpdateCheck implements Listener {
 				@Override
 				public void run() {
 					String document = URLUtil.getDocumentAt(
-							"https://raw.githubusercontent.com/13527698822/BedwarsScoreBoardAddon/master/plugin.yml");
+							"https://raw.githubusercontent.com/TheRamU/Update/master/BedwarsScoreBoardAddon-Chinese.txt");
 					if (document != null && !document.equals("")) {
 						String[] info = document.split(",");
 						version = info[0];
@@ -60,7 +60,7 @@ public class UpdateCheck implements Listener {
 			@Override
 			public void run() {
 				String document = URLUtil.getDocumentAt(
-						"https://raw.githubusercontent.com/13527698822/BedwarsScoreBoardAddon/master/plugin.yml");
+						"https://raw.githubusercontent.com/TheRamU/Update/master/BedwarsScoreBoardAddon-Chinese.txt");
 				if (document != null && !document.equals("")) {
 					String[] info = document.split(",");
 					if (info[0].equals(Main.getVersion())) {
