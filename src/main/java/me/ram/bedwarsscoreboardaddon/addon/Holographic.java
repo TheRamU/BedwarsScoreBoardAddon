@@ -48,29 +48,31 @@ public class Holographic {
 				this.setArmorStand(game, r);
 			}
 		}
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				for (Team team : game.getTeams().values()) {
-					Location location = team.getTargetHeadBlock().clone().add(0.5, 0, 0.5);
-					HolographicAPI holo = new HolographicAPI(location.clone().add(0, -1.25, 0),
-							Config.holographic_bedtitle_bed_alive);
-					for (Player player : team.getPlayers()) {
-						holo.display(player);
-					}
-					pbtitles.put(team.getName(), holo);
-					new BukkitRunnable() {
-						@Override
-						public void run() {
-							if (game.getState() != GameState.RUNNING || team.isDead(game)) {
-								cancel();
-								holo.remove();
-							}
+		if (Config.holographic_bed_title_enabled) {
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					for (Team team : game.getTeams().values()) {
+						Location location = team.getTargetHeadBlock().clone().add(0.5, 0, 0.5);
+						HolographicAPI holo = new HolographicAPI(location.clone().add(0, -1.25, 0),
+								Config.holographic_bedtitle_bed_alive);
+						for (Player player : team.getPlayers()) {
+							holo.display(player);
 						}
-					}.runTaskTimer(Main.getInstance(), 1L, 1L);
+						pbtitles.put(team.getName(), holo);
+						new BukkitRunnable() {
+							@Override
+							public void run() {
+								if (game.getState() != GameState.RUNNING || team.isDead(game)) {
+									cancel();
+									holo.remove();
+								}
+							}
+						}.runTaskTimer(Main.getInstance(), 1L, 1L);
+					}
 				}
-			}
-		}.runTaskLater(Main.getInstance(), 20L);
+			}.runTaskLater(Main.getInstance(), 20L);
+		}
 		new BukkitRunnable() {
 			@Override
 			public void run() {
