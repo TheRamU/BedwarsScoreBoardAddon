@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,7 +28,7 @@ public class Title implements Listener {
 	private Map<String, Integer> Times = new HashMap<String, Integer>();
 
 	@EventHandler
-	public void start(BedwarsGameStartedEvent e) {
+	public void onStarted(BedwarsGameStartedEvent e) {
 		Game game = e.getGame();
 		Times.put(e.getGame().getName(), e.getGame().getTimeLeft());
 		if (Config.start_title_enabled) {
@@ -148,7 +147,7 @@ public class Title implements Listener {
 	}
 
 	@EventHandler
-	public void Join(BedwarsPlayerJoinedEvent e) {
+	public void onJoined(BedwarsPlayerJoinedEvent e) {
 		for (Player player : e.getGame().getPlayers()) {
 			if (player.getName().contains(",") || player.getName().contains("[") || player.getName().contains("]")) {
 				player.kickPlayer("");
@@ -164,102 +163,99 @@ public class Title implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void DamageTitle(EntityDamageByEntityEvent e) {
-		if (e.isCancelled() || !(e.getDamager() instanceof Player) || !(e.getEntity() instanceof Player)) {
+	public void onDamageTitle(EntityDamageByEntityEvent e) {
+		if (!Config.damagetitle_enabled || e.isCancelled() || !(e.getDamager() instanceof Player)
+				|| !(e.getEntity() instanceof Player)) {
 			return;
 		}
-		Game getGame = BedwarsRel.getInstance().getGameManager().getGameOfPlayer((Player) e.getDamager());
-		if (getGame == null) {
+		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer((Player) e.getDamager());
+		if (game == null || game.getState() != GameState.RUNNING) {
 			return;
 		}
-		if (Config.damagetitle_enabled && getGame.getState() == GameState.RUNNING) {
-			if (!(getGame.getPlayers().contains((Player) e.getDamager())
-					&& getGame.getPlayers().contains((Player) e.getEntity()))) {
-				return;
-			}
-			if (getGame.isSpectator((Player) e.getDamager()) || getGame.isSpectator((Player) e.getEntity())) {
-				return;
-			}
-			Damageable dp = (Damageable) e.getEntity();
-			Player victim = (Player) dp;
-			DecimalFormat df = new DecimalFormat("0.00");
-			DecimalFormat df2 = new DecimalFormat("#");
-			if (e.isCancelled()) {
-				return;
-			}
-			if (!Config.damagetitle_title.equals("") || !Config.damagetitle_subtitle.equals("")) {
-				new BukkitRunnable() {
-					@Override
-					public void run() {
-						Utils.sendTitle((Player) e.getDamager(), victim, 0, 20, 0,
-								Config.damagetitle_title.replace("{player}", victim.getName())
+		if (!(game.getPlayers().contains((Player) e.getDamager())
+				&& game.getPlayers().contains((Player) e.getEntity()))) {
+			return;
+		}
+		Player player = (Player) e.getEntity();
+		Player damager = (Player) e.getDamager();
+		if (game.isSpectator(damager) || game.isSpectator(player)) {
+			return;
+		}
+		if (!Config.damagetitle_title.equals("") || !Config.damagetitle_subtitle.equals("")) {
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					if (player.isOnline()) {
+						DecimalFormat df = new DecimalFormat("0.00");
+						DecimalFormat df2 = new DecimalFormat("#");
+						Utils.sendTitle((Player) e.getDamager(), player, 0, 20, 0,
+								Config.damagetitle_title.replace("{player}", player.getName())
 										.replace("{damage}", df.format(e.getDamage()))
-										.replace("{health}", df2.format(dp.getHealth()))
-										.replace("{maxhealth}", df2.format(dp.getMaxHealth())),
-								Config.damagetitle_subtitle.replace("{player}", victim.getName())
+										.replace("{health}", df2.format(player.getHealth()))
+										.replace("{maxhealth}", df2.format(player.getMaxHealth())),
+								Config.damagetitle_subtitle.replace("{player}", player.getName())
 										.replace("{damage}", df.format(e.getDamage()))
-										.replace("{health}", df2.format(dp.getHealth()))
-										.replace("{maxhealth}", df2.format(dp.getMaxHealth())));
+										.replace("{health}", df2.format(player.getHealth()))
+										.replace("{maxhealth}", df2.format(player.getMaxHealth())));
 					}
-				}.runTaskLater(Main.getInstance(), 0L);
-			}
+				}
+			}.runTaskLater(Main.getInstance(), 0L);
 		}
 	}
 
 	@EventHandler
-	public void BowDamage(EntityDamageByEntityEvent e) {
-		if (!(e.getDamager() instanceof Arrow)) {
+	public void onBowDamage(EntityDamageByEntityEvent e) {
+		if (!Config.bowdamage_enabled || e.isCancelled()) {
 			return;
 		}
-		Arrow a1 = (Arrow) e.getDamager();
-		if (a1.getShooter() instanceof Player) {
-			Player shooter = (Player) a1.getShooter();
-			Game getGame = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(shooter);
-			if (getGame == null) {
-				return;
-			}
-			if (Config.bowdamage_enabled && getGame.getState() != GameState.WAITING
-					&& getGame.getState() == GameState.RUNNING) {
-				Damageable dp = (Damageable) e.getEntity();
-				if (dp instanceof Player) {
-					Player victim = (Player) dp;
-					Integer damage = (int) e.getFinalDamage();
-					DecimalFormat df2 = new DecimalFormat("#");
-					if (getGame.getPlayerTeam(shooter) == getGame.getPlayerTeam(victim)) {
-						e.setCancelled(true);
+		if (!(e.getDamager() instanceof Arrow) || !(e.getEntity() instanceof Player)) {
+			return;
+		}
+		Arrow arrow = (Arrow) e.getDamager();
+		if (!(arrow.getShooter() instanceof Player)) {
+			return;
+		}
+		Player shooter = (Player) arrow.getShooter();
+		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(shooter);
+		if (game == null) {
+			return;
+		}
+		if (game.getState() != GameState.RUNNING) {
+			return;
+		}
+		Player player = (Player) e.getEntity();
+		Integer damage = (int) e.getFinalDamage();
+		if (game.getPlayerTeam(shooter) == game.getPlayerTeam(player)) {
+			e.setCancelled(true);
+		}
+		if (player.isDead()) {
+			return;
+		}
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (player.isOnline()) {
+					DecimalFormat df = new DecimalFormat("#");
+					if (!Config.bowdamage_title.equals("") || !Config.bowdamage_subtitle.equals("")) {
+						Utils.sendTitle(shooter, player, 0, 20, 0,
+								Config.bowdamage_title.replace("{player}", player.getName())
+										.replace("{damage}", damage + "")
+										.replace("{health}", df.format(player.getHealth()))
+										.replace("{maxhealth}", df.format(player.getMaxHealth())),
+								Config.bowdamage_subtitle.replace("{player}", player.getName())
+										.replace("{damage}", damage + "")
+										.replace("{health}", df.format(player.getHealth()))
+										.replace("{maxhealth}", df.format(player.getMaxHealth())));
 					}
-					if (e.isCancelled()) {
-						return;
-					}
-					if (!dp.isDead()) {
-						if (dp.getHealth() > 0) {
-							new BukkitRunnable() {
-								@Override
-								public void run() {
-									if (!Config.bowdamage_title.equals("") || !Config.bowdamage_subtitle.equals("")) {
-										Utils.sendTitle(shooter, victim, 0, 20, 0,
-												Config.bowdamage_title.replace("{player}", victim.getName())
-														.replace("{damage}", damage + "")
-														.replace("{health}", df2.format(dp.getHealth()))
-														.replace("{maxhealth}", df2.format(dp.getMaxHealth())),
-												Config.bowdamage_subtitle.replace("{player}", victim.getName())
-														.replace("{damage}", damage + "")
-														.replace("{health}", df2.format(dp.getHealth()))
-														.replace("{maxhealth}", df2.format(dp.getMaxHealth())));
-									}
-									if (!Config.bowdamage_message.equals("")) {
-										Utils.sendMessage(shooter, victim,
-												Config.bowdamage_message.replace("{player}", victim.getName())
-														.replace("{damage}", damage + "")
-														.replace("{health}", df2.format(dp.getHealth()))
-														.replace("{maxhealth}", df2.format(dp.getMaxHealth())));
-									}
-								}
-							}.runTaskLater(Main.getInstance(), 0L);
-						}
+					if (!Config.bowdamage_message.equals("")) {
+						Utils.sendMessage(shooter, player,
+								Config.bowdamage_message.replace("{player}", player.getName())
+										.replace("{damage}", damage + "")
+										.replace("{health}", df.format(player.getHealth()))
+										.replace("{maxhealth}", df.format(player.getMaxHealth())));
 					}
 				}
 			}
-		}
+		}.runTaskLater(Main.getInstance(), 0L);
 	}
 }

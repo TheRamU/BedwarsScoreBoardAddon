@@ -10,15 +10,26 @@ import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import io.github.bedwarsrel.BedwarsRel;
+import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import java.lang.reflect.*;
-import java.util.*;
 
 public class HolographicAPI {
 
@@ -31,6 +42,8 @@ public class HolographicAPI {
 	private List<ItemStack> equipment;
 	private WrappedDataWatcher.Serializer stringserializer;
 	private WrappedDataWatcher.Serializer booleanserializer;
+	@Getter
+	private boolean removed;
 
 	public HolographicAPI(Location loc, String title) {
 		ids = new HashMap<UUID, Integer>();
@@ -43,6 +56,7 @@ public class HolographicAPI {
 			stringserializer = WrappedDataWatcher.Registry.get(String.class);
 			booleanserializer = WrappedDataWatcher.Registry.get(Boolean.class);
 		}
+		removed = false;
 		task = new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -56,12 +70,12 @@ public class HolographicAPI {
 						loc2.setY(location.getY());
 						if (players.contains(uuid)) {
 							if (!loc2.getWorld().getName().equals(location.getWorld().getName())
-									|| loc2.distance(location) >= 63) {
+									|| loc2.distance(location) >= 64) {
 								Utils.sendPacket(player, packets.get(player.getUniqueId()));
 								players.remove(uuid);
 							}
 						} else if (loc2.getWorld().getName().equals(location.getWorld().getName())
-								&& loc2.distance(location) < 63) {
+								&& loc2.distance(location) < 64) {
 							display(player);
 						}
 					}
@@ -73,9 +87,24 @@ public class HolographicAPI {
 				}
 			}
 		}.runTaskTimer(Main.getInstance(), 1L, 1L);
+		Main.getInstance().getHolographicManager().addHolographic(this);
+	}
+
+	public List<Player> getPlayers() {
+		List<Player> list = new ArrayList<Player>();
+		packets.keySet().forEach(uuid -> {
+			Player player = Bukkit.getPlayer(uuid);
+			if (player != null && player.isOnline()) {
+				list.add(player);
+			}
+		});
+		return list;
 	}
 
 	public void setEquipment(List<ItemStack> equipment) {
+		if (removed) {
+			return;
+		}
 		this.equipment = new ArrayList<ItemStack>();
 		this.equipment.addAll(equipment);
 	}
@@ -89,6 +118,9 @@ public class HolographicAPI {
 	}
 
 	public void setTitle(String title) {
+		if (removed) {
+			return;
+		}
 		if (this.title == null) {
 			this.title = title;
 			for (UUID uuid : packets.keySet()) {
@@ -139,6 +171,9 @@ public class HolographicAPI {
 	}
 
 	public void display(Player player) {
+		if (removed) {
+			return;
+		}
 		if (player == null || task == null) {
 			return;
 		}
@@ -178,6 +213,9 @@ public class HolographicAPI {
 	}
 
 	public void destroy(Player player) {
+		if (removed) {
+			return;
+		}
 		if (player != null && packets.containsKey(player.getUniqueId())) {
 			Utils.sendPacket(player, packets.get(player.getUniqueId()));
 			ids.remove(player.getUniqueId());
@@ -186,7 +224,22 @@ public class HolographicAPI {
 		}
 	}
 
+	public void redisplay() {
+		if (removed) {
+			return;
+		}
+		packets.keySet().forEach(uuid -> {
+			Player player = Bukkit.getPlayer(uuid);
+			if (player != null && player.isOnline()) {
+				display(player);
+			}
+		});
+	}
+
 	public void remove() {
+		if (removed) {
+			return;
+		}
 		task.cancel();
 		for (UUID uuid : packets.keySet()) {
 			Player player = Bukkit.getPlayer(uuid);
@@ -197,9 +250,14 @@ public class HolographicAPI {
 		ids = new HashMap<UUID, Integer>();
 		packets = new HashMap<UUID, Object>();
 		players = new ArrayList<UUID>();
+		removed = true;
+		Main.getInstance().getHolographicManager().removeHolographic(this);
 	}
 
 	public void teleport(Location loc) {
+		if (removed) {
+			return;
+		}
 		if (!loc.getWorld().getName().equals(location.getWorld().getName())) {
 			return;
 		}
@@ -215,6 +273,7 @@ public class HolographicAPI {
 	private void sendTeleportPacket(int id, Location loc, Player player) {
 		if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
 			try {
+				@SuppressWarnings("rawtypes")
 				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityTeleport").getConstructor(int.class,
 						int.class, int.class, int.class, byte.class, byte.class, boolean.class);
 				Method method = Utils.getNMSClass("MathHelper").getMethod("floor", double.class);

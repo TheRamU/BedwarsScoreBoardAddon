@@ -16,6 +16,8 @@ import io.github.bedwarsrel.events.BedwarsTargetBlockDestroyedEvent;
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
+import lombok.Getter;
+import me.ram.bedwarsscoreboardaddon.addon.Actionbar;
 import me.ram.bedwarsscoreboardaddon.addon.DeathMode;
 import me.ram.bedwarsscoreboardaddon.addon.HealthLevel;
 import me.ram.bedwarsscoreboardaddon.addon.Holographic;
@@ -33,99 +35,63 @@ import me.ram.bedwarsscoreboardaddon.storage.PlayerGameStorage;
 
 public class Arena {
 
+	@Getter
 	private Game game;
-	private ScoreBoard scoreboard;
-	private PlayerGameStorage playergamestorage;
-	private DeathMode deathmode;
-	private HealthLevel healthlevel;
-	private NoBreakBed nobreakbed;
-	private ResourceUpgrade resourceupgrade;
+	@Getter
+	private ScoreBoard scoreBoard;
+	@Getter
+	private PlayerGameStorage playerGameStorage;
+	@Getter
+	private DeathMode deathMode;
+	@Getter
+	private HealthLevel healthLevel;
+	@Getter
+	private NoBreakBed noBreakBed;
+	@Getter
+	private ResourceUpgrade resourceUpgrade;
+	@Getter
 	private Holographic holographic;
-	private TeamShop teamshop;
+	@Getter
+	private TeamShop teamShop;
+	@Getter
 	private InvisibilityPlayer invisiblePlayer;
-	private LobbyBlock lobbyblock;
+	@Getter
+	private LobbyBlock lobbyBlock;
+	@Getter
 	private Respawn respawn;
+	@Getter
+	private Actionbar actionbar;
+	@Getter
 	private Rejoin rejoin;
-	private Boolean isover;
+	private Boolean isOver;
 
 	public Arena(Game game) {
 		this.game = game;
-		playergamestorage = new PlayerGameStorage(game);
-		scoreboard = new ScoreBoard(this);
-		deathmode = new DeathMode(game);
-		healthlevel = new HealthLevel(game);
-		nobreakbed = new NoBreakBed(game);
-		resourceupgrade = new ResourceUpgrade(game);
-		holographic = new Holographic(game, resourceupgrade);
-		teamshop = new TeamShop(game);
+		playerGameStorage = new PlayerGameStorage(game);
+		scoreBoard = new ScoreBoard(this);
+		deathMode = new DeathMode(game);
+		healthLevel = new HealthLevel(game);
+		noBreakBed = new NoBreakBed(game);
+		resourceUpgrade = new ResourceUpgrade(game);
+		holographic = new Holographic(game, resourceUpgrade);
+		teamShop = new TeamShop(game);
 		invisiblePlayer = new InvisibilityPlayer(game);
-		lobbyblock = new LobbyBlock(game);
+		lobbyBlock = new LobbyBlock(game);
 		respawn = new Respawn(game);
+		actionbar = new Actionbar(game);
 		rejoin = new Rejoin(game);
-		isover = false;
-	}
-
-	public Game getGame() {
-		return game;
-	}
-
-	public TeamShop getTeamShop() {
-		return teamshop;
-	}
-
-	public ScoreBoard getScoreBoard() {
-		return scoreboard;
-	}
-
-	public PlayerGameStorage getPlayerGameStorage() {
-		return playergamestorage;
-	}
-
-	public DeathMode getDeathMode() {
-		return deathmode;
-	}
-
-	public HealthLevel getHealthLevel() {
-		return healthlevel;
-	}
-
-	public NoBreakBed getNoBreakBed() {
-		return nobreakbed;
-	}
-
-	public ResourceUpgrade getResourceUpgrade() {
-		return resourceupgrade;
-	}
-
-	public Holographic getHolographic() {
-		return holographic;
-	}
-
-	public InvisibilityPlayer getInvisiblePlayer() {
-		return invisiblePlayer;
-	}
-
-	public LobbyBlock getLobbyBlock() {
-		return lobbyblock;
-	}
-
-	public Respawn getRespawn() {
-		return respawn;
-	}
-
-	public Rejoin getRejoin() {
-		return rejoin;
+		isOver = false;
 	}
 
 	public Boolean isOver() {
-		return isover;
+		return isOver;
 	}
 
 	public void onTargetBlockDestroyed(BedwarsTargetBlockDestroyedEvent e) {
 		if (!isGamePlayer(e.getPlayer())) {
 			return;
 		}
-		Map<String, Integer> beds = playergamestorage.getPlayerBeds();
+		Map<String, Integer> beds = playerGameStorage.getPlayerBeds();
 		Player player = e.getPlayer();
 		if (beds.containsKey(player.getName())) {
 			beds.put(player.getName(), beds.get(player.getName()) + 1);
@@ -139,21 +105,21 @@ public class Arena {
 		if (!isGamePlayer(player)) {
 			return;
 		}
-		Map<String, Integer> dies = playergamestorage.getPlayerDies();
+		Map<String, Integer> dies = playerGameStorage.getPlayerDies();
 		if (dies.containsKey(player.getName())) {
 			dies.put(player.getName(), dies.get(player.getName()) + 1);
 		} else {
 			dies.put(player.getName(), 1);
 		}
 		PlaySound.playSound(player, Config.play_sound_sound_death);
-		respawn.onDeath(player, false);
+		respawn.onDeath(player);
 	}
 
 	public void onRespawn(Player player) {
 		if (!isGamePlayer(player)) {
 			return;
 		}
-		respawn.onRespawn(player);
+		respawn.onRespawn(player, false);
 	}
 
 	public void onPlayerKilled(BedwarsPlayerKilledEvent e) {
@@ -166,9 +132,9 @@ public class Arena {
 				|| game.isSpectator(killer)) {
 			return;
 		}
-		Map<String, Integer> totalkills = playergamestorage.getPlayerTotalKills();
-		Map<String, Integer> kills = playergamestorage.getPlayerKills();
-		Map<String, Integer> finalkills = playergamestorage.getPlayerFinalKills();
+		Map<String, Integer> totalkills = playerGameStorage.getPlayerTotalKills();
+		Map<String, Integer> kills = playerGameStorage.getPlayerKills();
+		Map<String, Integer> finalkills = playerGameStorage.getPlayerFinalKills();
 		if (!game.getPlayerTeam(player).isDead(game)) {
 			if (kills.containsKey(killer.getName())) {
 				kills.put(killer.getName(), kills.get(killer.getName()) + 1);
@@ -193,10 +159,10 @@ public class Arena {
 
 	public void onOver(BedwarsGameOverEvent e) {
 		if (e.getGame().getName().equals(this.game.getName())) {
-			isover = true;
+			isOver = true;
 			if (Config.overstats_enabled && e.getWinner() != null) {
 				Team winner = e.getWinner();
-				Map<String, Integer> totalkills = playergamestorage.getPlayerTotalKills();
+				Map<String, Integer> totalkills = playerGameStorage.getPlayerTotalKills();
 				int kills_1 = 0;
 				int kills_2 = 0;
 				int kills_3 = 0;
@@ -244,20 +210,20 @@ public class Arena {
 					}
 				}
 			}
-			nobreakbed.onOver();
+			noBreakBed.onOver();
 			holographic.remove();
-			lobbyblock.recovery();
+			lobbyBlock.recovery();
 		}
 	}
 
 	public void onEnd() {
-		lobbyblock.recovery();
+		lobbyBlock.recovery();
 	}
 
 	public void onDisable(PluginDisableEvent e) {
 		if (e.getPlugin().equals(Main.getInstance())) {
 			holographic.remove();
-			lobbyblock.recovery();
+			lobbyBlock.recovery();
 		}
 	}
 
@@ -266,13 +232,13 @@ public class Arena {
 	}
 
 	public void onClick(InventoryClickEvent e) {
-		teamshop.onClick(e);
-		teamshop.onClickDefense(e);
-		teamshop.onClickHaste(e);
-		teamshop.onClickHeal(e);
-		teamshop.onClickProtection(e);
-		teamshop.onClickSharpness(e);
-		teamshop.onClickTrap(e);
+		teamShop.onClick(e);
+		teamShop.onClickDefense(e);
+		teamShop.onClickHaste(e);
+		teamShop.onClickHeal(e);
+		teamShop.onClickProtection(e);
+		teamShop.onClickSharpness(e);
+		teamShop.onClickTrap(e);
 	}
 
 	public void onItemMerge(ItemMergeEvent e) {
@@ -295,6 +261,7 @@ public class Arena {
 			}
 			rejoin.removePlayer(player.getName());
 		}
+		respawn.onPlayerLeave(player);
 	}
 
 	public void onPlayerJoined(Player player) {

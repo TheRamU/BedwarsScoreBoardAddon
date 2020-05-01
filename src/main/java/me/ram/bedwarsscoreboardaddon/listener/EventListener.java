@@ -33,6 +33,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -125,7 +126,7 @@ public class EventListener implements Listener {
 				Location location = toLocation(loc);
 				if (location != null) {
 					player.teleport(location);
-					Main.getInstance().getHolographicManager().displayGameLocation(player, args[1]);
+					Main.getInstance().getEditHolographicManager().displayGameLocation(player, args[1]);
 				}
 			}
 			return;
@@ -180,7 +181,7 @@ public class EventListener implements Listener {
 				arena.getRejoin().removePlayer(player.getName());
 			}
 		}
-		Main.getInstance().getHolographicManager().remove(player);
+		Main.getInstance().getEditHolographicManager().remove(player);
 	}
 
 	@EventHandler
@@ -231,7 +232,8 @@ public class EventListener implements Listener {
 				ex.printStackTrace();
 			}
 		}
-		Main.getInstance().getHolographicManager().remove(player);
+		Main.getInstance().getEditHolographicManager().remove(player);
+		ScoreboardUtil.removePlayer(player);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -298,6 +300,28 @@ public class EventListener implements Listener {
 		if (game != null && Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
 			Main.getInstance().getArenaManager().getArenas().get(game.getName()).onRespawn(player);
 		}
+		Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+			if (player.isOnline()) {
+				Main.getInstance().getHolographicManager().getPlayerHolographic(player).forEach(holo -> {
+					holo.display(player);
+				});
+			}
+		}, 5L);
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onTeleport(PlayerTeleportEvent e) {
+		if (e.isCancelled()) {
+			return;
+		}
+		Player player = e.getPlayer();
+		Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+			if (player.isOnline()) {
+				Main.getInstance().getHolographicManager().getPlayerHolographic(player).forEach(holo -> {
+					holo.display(player);
+				});
+			}
+		}, 1L);
 	}
 
 	@EventHandler
@@ -391,11 +415,14 @@ public class EventListener implements Listener {
 				if (BedwarsRel.getInstance().getBooleanConfig("hearts-on-death", true)) {
 					hearts = "[" + ChatColor.RED + "\u2764" + format.format(health) + ChatColor.GOLD + "]";
 				}
-				WrappedChatComponent[] chats = WrappedChatComponent.fromChatMessage(ChatWriter
-						.pluginMessage(ChatColor.GOLD + BedwarsRel._l((CommandSender) p, "ingame.player.killed",
-								(Map<String, String>) ImmutableMap.of("killer",
-										Game.getPlayerWithTeamString(killer, killerTeam, ChatColor.GOLD, hearts),
-										"player", Game.getPlayerWithTeamString(player, deathTeam, ChatColor.GOLD)))));
+				WrappedChatComponent[] chats = WrappedChatComponent
+						.fromChatMessage(ChatWriter
+								.pluginMessage(ChatColor.GOLD + BedwarsRel._l((CommandSender) p, "ingame.player.killed",
+										(Map<String, String>) ImmutableMap.of("killer",
+												Game.getPlayerWithTeamString(killer, killerTeam,
+														ChatColor.GOLD, hearts),
+												"player",
+												Game.getPlayerWithTeamString(player, deathTeam, ChatColor.GOLD)))));
 				for (WrappedChatComponent c : chats) {
 					if (chat.getJson().equals(c.getJson())) {
 						e.setCancelled(true);
@@ -414,7 +441,7 @@ public class EventListener implements Listener {
 			for (Arena arena : Main.getInstance().getArenaManager().getArenas().values()) {
 				arena.onDisable(e);
 			}
-			Main.getInstance().getHolographicManager().removeAll();
+			Main.getInstance().getEditHolographicManager().removeAll();
 		}
 	}
 
@@ -654,12 +681,12 @@ public class EventListener implements Listener {
 
 	@EventHandler
 	public void onChangedWorld(PlayerChangedWorldEvent e) {
-		Main.getInstance().getHolographicManager().remove(e.getPlayer());
+		Main.getInstance().getEditHolographicManager().remove(e.getPlayer());
 	}
 
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
-		Main.getInstance().getHolographicManager().remove(e.getPlayer());
+		Main.getInstance().getEditHolographicManager().remove(e.getPlayer());
 	}
 
 	private void onPacketReceiving() {
@@ -677,10 +704,12 @@ public class EventListener implements Listener {
 						return;
 					}
 					e.setCancelled(true);
-					BlockPosition position = packet.getBlockPositionModifier().read(0);
-					Location location = new Location(e.getPlayer().getWorld(), position.getX(), position.getY(),
-							position.getZ());
-					location.getBlock().getState().update();
+					Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
+						BlockPosition position = packet.getBlockPositionModifier().read(0);
+						Location location = new Location(e.getPlayer().getWorld(), position.getX(), position.getY(),
+								position.getZ());
+						location.getBlock().getState().update();
+					});
 				} else if (e.getPacketType() == PacketType.Play.Client.WINDOW_CLICK) {
 					Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
 					if (game == null || game.getState() != GameState.RUNNING || game.isSpectator(player)) {

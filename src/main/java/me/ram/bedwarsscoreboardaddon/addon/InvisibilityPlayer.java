@@ -166,8 +166,6 @@ public class InvisibilityPlayer {
 			try {
 				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE,
 						Integer.TYPE, Utils.getNMSClass("ItemStack"));
-				Object as = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class)
-						.invoke(null, new ItemStack(Material.AIR));
 				Method method = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class);
 				Object packet1 = constructor.newInstance(player.getEntityId(), 1,
 						method.invoke(null, player.getInventory().getBoots()));
@@ -192,8 +190,6 @@ public class InvisibilityPlayer {
 			try {
 				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE,
 						Utils.getNMSClass("EnumItemSlot"), Utils.getNMSClass("ItemStack"));
-				Object as = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class)
-						.invoke(null, new ItemStack(Material.AIR));
 				Method method = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class);
 				Object packet1 = constructor.newInstance(player.getEntityId(),
 						Utils.getNMSClass("EnumItemSlot").getField("FEET").get(null),

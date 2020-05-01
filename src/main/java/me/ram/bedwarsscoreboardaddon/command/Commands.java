@@ -99,7 +99,7 @@ public class Commands implements CommandExecutor {
 									Config.setShop(args[3], player.getLocation(), "item");
 									player.sendMessage(Config.getLanguage("commands.message.prefix")
 											+ Config.getLanguage("commands.message.set_item_shop"));
-									Main.getInstance().getHolographicManager().displayGameLocation(player, args[3]);
+									Main.getInstance().getEditHolographicManager().displayGameLocation(player, args[3]);
 								} else {
 									player.sendMessage(Config.getLanguage("commands.message.prefix")
 											+ Config.getLanguage("commands.message.set_shop_error"));
@@ -120,7 +120,7 @@ public class Commands implements CommandExecutor {
 									Config.setShop(args[3], player.getLocation(), "team");
 									player.sendMessage(Config.getLanguage("commands.message.prefix")
 											+ Config.getLanguage("commands.message.set_item_shop"));
-									Main.getInstance().getHolographicManager().displayGameLocation(player, args[3]);
+									Main.getInstance().getEditHolographicManager().displayGameLocation(player, args[3]);
 								} else {
 									player.sendMessage(Config.getLanguage("commands.message.prefix")
 											+ Config.getLanguage("commands.message.set_shop_error"));
@@ -180,7 +180,7 @@ public class Commands implements CommandExecutor {
 							String shop = Config.shop_shops.get(args[2]);
 							Config.removeShop(shop);
 							String game = shop.split("\\.")[1];
-							Main.getInstance().getHolographicManager().displayGameLocation(player, game);
+							Main.getInstance().getEditHolographicManager().displayGameLocation(player, game);
 							if (args.length > 3 && args[3].equalsIgnoreCase("true")) {
 								sendShopList(player, game);
 							}
@@ -249,17 +249,18 @@ public class Commands implements CommandExecutor {
 					Config.shop_shops.forEach((id, pl) -> {
 						if (pl.equals("shop." + game + ".item - " + loc)) {
 							player.sendMessage("¡ìf ID: ¡ìa" + id + " ¡ìf[¡ìe" + loc.replace(",", "¡ìf,¡ìe") + "¡ìf]");
-							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName()
-									+ " {\"text\":\" \",\"extra\":[{\"text\":\""
-									+ Config.getLanguage("button.shop_list_teleport")
-									+ "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/bwsbatp " + game + " "
-									+ loc + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\""
-									+ Config.getLanguage("show_text.shop_list_teleport")
-									+ "\"}},{\"text\":\"  \"},{\"text\":\""
-									+ Config.getLanguage("button.shop_list_remove")
-									+ "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/bedwarsscoreboardaddon:bwsba shop remove "
-									+ id + " true\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\""
-									+ Config.getLanguage("show_text.shop_list_remove") + "\"}}]}");
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+									"tellraw " + player.getName() + " {\"text\":\" \",\"extra\":[{\"text\":\""
+											+ Config.getLanguage("button.shop_list_teleport")
+											+ "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/bwsbatp "
+											+ game + " " + loc
+											+ "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\""
+											+ Config.getLanguage("show_text.shop_list_teleport")
+											+ "\"}},{\"text\":\"  \"},{\"text\":\""
+											+ Config.getLanguage("button.shop_list_remove")
+											+ "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/bedwarsscoreboardaddon:bwsba shop remove "
+											+ id + " true\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\""
+											+ Config.getLanguage("show_text.shop_list_remove") + "\"}}]}");
 							player.sendMessage("");
 						}
 					});
@@ -273,17 +274,18 @@ public class Commands implements CommandExecutor {
 					Config.shop_shops.forEach((id, pl) -> {
 						if (pl.equals("shop." + game + ".team - " + loc)) {
 							player.sendMessage("¡ìf ID: ¡ìa" + id + " ¡ìf[¡ìe" + loc.replace(",", "¡ìf,¡ìe") + "¡ìf]");
-							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName()
-									+ " {\"text\":\" \",\"extra\":[{\"text\":\""
-									+ Config.getLanguage("button.shop_list_teleport")
-									+ "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/bwsbatp " + game + " "
-									+ loc + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\""
-									+ Config.getLanguage("show_text.shop_list_teleport")
-									+ "\"}},{\"text\":\"  \"},{\"text\":\""
-									+ Config.getLanguage("button.shop_list_remove")
-									+ "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/bedwarsscoreboardaddon:bwsba shop remove "
-									+ id + " true\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\""
-									+ Config.getLanguage("show_text.shop_list_remove") + "\"}}]}");
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+									"tellraw " + player.getName() + " {\"text\":\" \",\"extra\":[{\"text\":\""
+											+ Config.getLanguage("button.shop_list_teleport")
+											+ "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/bwsbatp "
+											+ game + " " + loc
+											+ "\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\""
+											+ Config.getLanguage("show_text.shop_list_teleport")
+											+ "\"}},{\"text\":\"  \"},{\"text\":\""
+											+ Config.getLanguage("button.shop_list_remove")
+											+ "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/bedwarsscoreboardaddon:bwsba shop remove "
+											+ id + " true\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\""
+											+ Config.getLanguage("show_text.shop_list_remove") + "\"}}]}");
 							player.sendMessage("");
 						}
 					});
@@ -291,6 +293,6 @@ public class Commands implements CommandExecutor {
 				}
 			}
 		}
-		Main.getInstance().getHolographicManager().displayGameLocation(player, game);
+		Main.getInstance().getEditHolographicManager().displayGameLocation(player, game);
 	}
 }

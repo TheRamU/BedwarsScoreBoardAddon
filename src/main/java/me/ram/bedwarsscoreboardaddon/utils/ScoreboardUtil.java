@@ -48,41 +48,56 @@ public class ScoreboardUtil {
 		}
 	}
 
-	public static void setScoreboard(Player p, String[] elements) {
+	public static void setLobbyScoreboard(Player p, String[] elements, Game game) {
 		elements = cutUnranked(elements);
+		Scoreboard scoreboard = p.getScoreboard();
 		try {
-			if (p.getScoreboard() == null || p.getScoreboard() == Bukkit.getScoreboardManager().getMainScoreboard()
-					|| p.getScoreboard().getObjectives().size() != 1) {
+			if (scoreboard == null || scoreboard == Bukkit.getScoreboardManager().getMainScoreboard()
+					|| scoreboard.getObjectives().size() != 1) {
 				p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+				scoreboard = p.getScoreboard();
 			}
-			if (p.getScoreboard().getObjective("bwsba-lobby") == null) {
-				p.getScoreboard().registerNewObjective("bwsba-lobby", "dummy");
-				p.getScoreboard().getObjective("bwsba-lobby").setDisplaySlot(DisplaySlot.SIDEBAR);
+			if (scoreboard.getObjective("bwsba-lobby") == null) {
+				scoreboard.registerNewObjective("bwsba-lobby", "dummy");
+				scoreboard.getObjective("bwsba-lobby").setDisplaySlot(DisplaySlot.SIDEBAR);
 			}
-			p.getScoreboard().getObjective(DisplaySlot.SIDEBAR).setDisplayName(elements[0]);
+			scoreboard.getObjective(DisplaySlot.SIDEBAR).setDisplayName(elements[0]);
 			for (int i = 1; i < elements.length; ++i) {
-				if (elements[i] != null && p.getScoreboard().getObjective(DisplaySlot.SIDEBAR).getScore(elements[i])
-						.getScore() != 16 - i) {
-					p.getScoreboard().getObjective(DisplaySlot.SIDEBAR).getScore(elements[i]).setScore(16 - i);
-					for (String string : p.getScoreboard().getEntries()) {
-						if (p.getScoreboard().getObjective("bwsba-lobby").getScore(string).getScore() == 16 - i
+				if (elements[i] != null
+						&& scoreboard.getObjective(DisplaySlot.SIDEBAR).getScore(elements[i]).getScore() != 16 - i) {
+					scoreboard.getObjective(DisplaySlot.SIDEBAR).getScore(elements[i]).setScore(16 - i);
+					for (String string : scoreboard.getEntries()) {
+						if (scoreboard.getObjective("bwsba-lobby").getScore(string).getScore() == 16 - i
 								&& !string.equals(elements[i])) {
-							p.getScoreboard().resetScores(string);
+							scoreboard.resetScores(string);
 						}
 					}
 				}
 			}
-			for (String entry : p.getScoreboard().getEntries()) {
+			for (String entry : scoreboard.getEntries()) {
 				boolean toErase = true;
 				for (String element : elements) {
-					if (element != null && element.equals(entry) && p.getScoreboard().getObjective("bwsba-lobby")
+					if (element != null && element.equals(entry) && scoreboard.getObjective("bwsba-lobby")
 							.getScore(entry).getScore() == 16 - Arrays.asList(elements).indexOf(element)) {
 						toErase = false;
 						break;
 					}
 				}
 				if (toErase) {
-					p.getScoreboard().resetScores(entry);
+					scoreboard.resetScores(entry);
+				}
+			}
+			for (Team t : game.getTeams().values()) {
+				org.bukkit.scoreboard.Team team = scoreboard.getTeam(game.getName() + ":" + t.getName());
+				if (team == null) {
+					team = scoreboard.registerNewTeam(game.getName() + ":" + t.getName());
+				}
+				team.setAllowFriendlyFire(false);
+				team.setPrefix(t.getChatColor().toString());
+				for (Player pl : t.getPlayers()) {
+					if (!team.hasPlayer((OfflinePlayer) pl)) {
+						team.addPlayer((OfflinePlayer) pl);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -90,8 +105,9 @@ public class ScoreboardUtil {
 		}
 	}
 
-	public static void setScoreboard(Player p, String[] elements, Game game) {
-		if (!scoreboards.containsKey(p)) {
+	public static void setGameScoreboard(Player p, String[] elements, Game game) {
+		boolean exist = scoreboards.containsKey(p);
+		if (!exist) {
 			scoreboards.put(p, Bukkit.getScoreboardManager().getNewScoreboard());
 		}
 		elements = cutUnranked(elements);
@@ -102,7 +118,7 @@ public class ScoreboardUtil {
 				scoreboard.getObjective("bwsba-game").setDisplaySlot(DisplaySlot.SIDEBAR);
 			}
 			ProtocolManager m = ProtocolLibrary.getProtocolManager();
-			if (p.getScoreboard() == null || !p.getScoreboard().equals(scoreboard)) {
+			if ((p.getScoreboard() == null || !p.getScoreboard().equals(scoreboard)) && !exist) {
 				if (Config.tab_health) {
 					try {
 						PacketContainer packet = m.createPacket(PacketType.Play.Server.SCOREBOARD_OBJECTIVE);
@@ -214,10 +230,9 @@ public class ScoreboardUtil {
 			List<UUID> players = Main.getInstance().getArenaManager().getArena(game.getName()).getInvisiblePlayer()
 					.getPlayers();
 			for (Team t : game.getTeams().values()) {
-				org.bukkit.scoreboard.Team team = scoreboard
-						.getTeam(String.valueOf(game.getName()) + ":" + t.getName());
+				org.bukkit.scoreboard.Team team = scoreboard.getTeam(game.getName() + ":" + t.getName());
 				if (team == null) {
-					team = scoreboard.registerNewTeam(String.valueOf(game.getName()) + ":" + t.getName());
+					team = scoreboard.registerNewTeam(game.getName() + ":" + t.getName());
 				}
 				if (!Config.playertag_prefix.equals("")) {
 					team.setPrefix(Config.playertag_prefix.replace("{color}", t.getChatColor() + "").replace("{team}",
@@ -234,6 +249,18 @@ public class ScoreboardUtil {
 							team.addPlayer((OfflinePlayer) pl);
 						} else if (playerteam != null && playerteam.getPlayers().contains(pl)) {
 							team.addPlayer((OfflinePlayer) pl);
+						} else {
+							String listName = pl.getPlayerListName();
+							if (listName == null || listName.equals(pl.getName())) {
+								String prefix = team.getPrefix();
+								String suffix = team.getSuffix();
+								prefix = prefix == null ? "" : prefix;
+								suffix = suffix == null ? "" : suffix;
+								String name = prefix + pl.getName() + suffix;
+								if (listName == null || !name.equals(listName)) {
+									pl.setPlayerListName(prefix + pl.getName() + suffix);
+								}
+							}
 						}
 					}
 				}

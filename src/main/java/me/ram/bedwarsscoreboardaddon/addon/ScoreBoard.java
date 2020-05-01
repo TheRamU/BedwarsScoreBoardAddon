@@ -177,6 +177,12 @@ public class ScoreBoard {
 		} else {
 			scoreboard_lines = Arrays.asList("", "{team_status}", "");
 		}
+		int alive_players = 0;
+		for (Player p : game.getPlayers()) {
+			if (!game.isSpectator(p)) {
+				alive_players++;
+			}
+		}
 		for (Player player : game.getPlayers()) {
 			Team playerteam = game.getPlayerTeam(player);
 			lines.clear();
@@ -190,21 +196,11 @@ public class ScoreBoard {
 			Map<String, Integer> finalkills = arena.getPlayerGameStorage().getPlayerFinalKills();
 			Map<String, Integer> dies = arena.getPlayerGameStorage().getPlayerDies();
 			Map<String, Integer> beds = arena.getPlayerGameStorage().getPlayerBeds();
-			if (totalkills.containsKey(player.getName())) {
-				tks = totalkills.get(player.getName()) + "";
-			}
-			if (kills.containsKey(player.getName())) {
-				ks = kills.get(player.getName()) + "";
-			}
-			if (finalkills.containsKey(player.getName())) {
-				fks = finalkills.get(player.getName()) + "";
-			}
-			if (dies.containsKey(player.getName())) {
-				dis = dies.get(player.getName()) + "";
-			}
-			if (beds.containsKey(player.getName())) {
-				bes = beds.get(player.getName()) + "";
-			}
+			tks = totalkills.getOrDefault(player.getName(), 0) + "";
+			ks = kills.getOrDefault(player.getName(), 0) + "";
+			fks = finalkills.getOrDefault(player.getName(), 0) + "";
+			dis = dies.getOrDefault(player.getName(), 0) + "";
+			bes = beds.getOrDefault(player.getName(), 0) + "";
 			String p_t_c = "¡ìf";
 			String p_t_ps = "";
 			String p_t = "";
@@ -238,6 +234,7 @@ public class ScoreBoard {
 					String addline = ls.replace("{planinfo}", plan_info).replace("{plantime}", plan_time)
 							.replace("{death_mode}", arena.getDeathMode().getDeathmodeTime())
 							.replace("{remain_teams}", rts + "").replace("{alive_teams}", ats + "")
+							.replace("{alive_players}", alive_players + "")
 							.replace("{teams}", game.getTeams().size() + "").replace("{color}", p_t_c)
 							.replace("{team_peoples}", p_t_ps).replace("{player_name}", player.getName())
 							.replace("{team}", p_t).replace("{beds}", bes).replace("{dies}", dis)
@@ -340,19 +337,15 @@ public class ScoreBoard {
 			}
 			List<String> ncelements = elementsPro(elements);
 			String[] scoreboardelements = ncelements.toArray(new String[ncelements.size()]);
-			ScoreboardUtil.setScoreboard(player, scoreboardelements, game);
+			ScoreboardUtil.setGameScoreboard(player, scoreboardelements, game);
 		}
 	}
 
 	private String getFormattedTimeLeft(int time) {
-		int min = 0;
-		int sec = 0;
-		String minStr = "";
-		String secStr = "";
-		min = (int) Math.floor(time / 60);
-		sec = time % 60;
-		minStr = ((min < 10) ? ("0" + String.valueOf(min)) : String.valueOf(min));
-		secStr = ((sec < 10) ? ("0" + String.valueOf(sec)) : String.valueOf(sec));
+		int min = (int) Math.floor(time / 60);
+		int sec = time % 60;
+		String minStr = ((min < 10) ? ("0" + String.valueOf(min)) : String.valueOf(min));
+		String secStr = ((sec < 10) ? ("0" + String.valueOf(sec)) : String.valueOf(sec));
 		return minStr + ":" + secStr;
 	}
 

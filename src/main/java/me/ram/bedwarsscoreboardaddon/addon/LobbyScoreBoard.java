@@ -11,7 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import io.github.bedwarsrel.BedwarsRel;
-import io.github.bedwarsrel.events.BedwarsPlayerJoinEvent;
+import io.github.bedwarsrel.events.BedwarsPlayerJoinedEvent;
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -50,7 +50,7 @@ public class LobbyScoreBoard implements Listener {
 	}
 
 	@EventHandler
-	public void onJoin(BedwarsPlayerJoinEvent e) {
+	public void onJoined(BedwarsPlayerJoinedEvent e) {
 		if (!Config.lobby_scoreboard_enabled) {
 			return;
 		}
@@ -90,7 +90,7 @@ public class LobbyScoreBoard implements Listener {
 			}
 		}
 		String[] scoreboardelements = ncelements.toArray(new String[ncelements.size()]);
-		ScoreboardUtil.setScoreboard(player, scoreboardelements);
+		ScoreboardUtil.setLobbyScoreboard(player, scoreboardelements, game);
 	}
 
 	private List<String> getLine(Player player, Game game) {

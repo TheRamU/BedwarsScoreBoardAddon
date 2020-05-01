@@ -3,9 +3,14 @@ package me.ram.bedwarsscoreboardaddon;
 import java.util.concurrent.Callable;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import io.github.bedwarsrel.BedwarsRel;
+import ldcr.BedwarsXP.EventListeners;
+import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.addon.ChatFormat;
 import me.ram.bedwarsscoreboardaddon.addon.Compass;
 import me.ram.bedwarsscoreboardaddon.addon.DeathItem;
@@ -24,7 +29,9 @@ import me.ram.bedwarsscoreboardaddon.command.Commands;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.edit.EditGame;
 import me.ram.bedwarsscoreboardaddon.listener.EventListener;
+import me.ram.bedwarsscoreboardaddon.listener.XPEventListener;
 import me.ram.bedwarsscoreboardaddon.manager.ArenaManager;
+import me.ram.bedwarsscoreboardaddon.manager.EditHolographicManager;
 import me.ram.bedwarsscoreboardaddon.manager.HolographicManager;
 import me.ram.bedwarsscoreboardaddon.metrics.Metrics;
 import me.ram.bedwarsscoreboardaddon.networld.UpdateCheck;
@@ -32,33 +39,34 @@ import me.ram.bedwarsscoreboardaddon.networld.UpdateCheck;
 public class Main extends JavaPlugin {
 
 	private static Main instance;
-	private static ArenaManager arenamanager;
-	private static HolographicManager holographicmanager;
+	private ArenaManager arenamanager;
+	@Getter
+	private EditHolographicManager editHolographicManager;
+	@Getter
+	private HolographicManager holographicManager;
 
 	public static Main getInstance() {
 		return instance;
 	}
 
 	public static String getVersion() {
-		return "2.10.2";
+		return "2.10.3";
 	}
 
 	public ArenaManager getArenaManager() {
 		return arenamanager;
 	}
 
-	public HolographicManager getHolographicManager() {
-		return holographicmanager;
-	}
-
 	public void onEnable() {
-		if (!getDescription().getVersion().equals(getVersion())) {
+		if (!getDescription().getName().equals("BedwarsScoreBoardAddon")
+				|| !getDescription().getVersion().equals(getVersion())) {
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
 		}
 		instance = this;
 		arenamanager = new ArenaManager();
-		holographicmanager = new HolographicManager();
+		editHolographicManager = new EditHolographicManager();
+		holographicManager = new HolographicManager();
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -117,6 +125,23 @@ public class Main extends JavaPlugin {
 			Bukkit.getPluginManager().disablePlugin(instance);
 			return;
 		}
+		if (Bukkit.getPluginManager().isPluginEnabled("BedwarsXP")) {
+			try {
+				Class.forName("ldcr.BedwarsXP.EventListeners").getConstructor().newInstance();
+				Plugin plugin = Bukkit.getPluginManager().getPlugin("BedwarsXP");
+				for (RegisteredListener listener : HandlerList.getRegisteredListeners(plugin)) {
+					if (listener.getListener() instanceof EventListeners) {
+						HandlerList.unregisterAll(listener.getListener());
+					}
+				}
+				Bukkit.getPluginManager().registerEvents(new XPEventListener(), this);
+			} catch (Exception e) {
+				Bukkit.getConsoleSender().sendMessage(prefix + "§c错误: §f暂不支持该版本§aBedwarsXP");
+				Bukkit.getConsoleSender().sendMessage(prefix + "§c插件加载失败！");
+				Bukkit.getPluginManager().disablePlugin(instance);
+				return;
+			}
+		}
 		try {
 			Config.loadConfig();
 		} catch (Exception e) {
@@ -174,6 +199,8 @@ public class Main extends JavaPlugin {
 			}));
 		} catch (Exception e) {
 		}
+		BedwarsRel.getInstance().getConfig().set("teamname-on-tab", false);
+		BedwarsRel.getInstance().saveConfig();
 	}
 
 	private void registerEvents() {

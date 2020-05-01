@@ -198,24 +198,19 @@ public class Config {
 	public static List<String> teamshop_frame;
 	public static String teamshop_upgrade_fast_dig_item;
 	public static String teamshop_upgrade_fast_dig_name;
-	public static String teamshop_upgrade_fast_dig_level_1_cost;
+	public static Map<Integer, String> teamshop_upgrade_fast_dig_level_cost;
 	public static List<String> teamshop_upgrade_fast_dig_level_1_lore;
-	public static String teamshop_upgrade_fast_dig_level_2_cost;
 	public static List<String> teamshop_upgrade_fast_dig_level_2_lore;
 	public static List<String> teamshop_upgrade_fast_dig_level_full_lore;
 	public static String teamshop_upgrade_sword_sharpness_item;
 	public static String teamshop_upgrade_sword_sharpness_name;
-	public static String teamshop_upgrade_sword_sharpness_level_1_cost;
-	public static String teamshop_upgrade_sword_sharpness_level_2_cost;
+	public static Map<Integer, String> teamshop_upgrade_sword_sharpness_level_cost;
 	public static List<String> teamshop_upgrade_sword_sharpness_level_1_lore;
 	public static List<String> teamshop_upgrade_sword_sharpness_level_2_lore;
 	public static List<String> teamshop_upgrade_sword_sharpness_level_full_lore;
 	public static String teamshop_upgrade_armor_protection_item;
 	public static String teamshop_upgrade_armor_protection_name;
-	public static String teamshop_upgrade_armor_protection_level_1_cost;
-	public static String teamshop_upgrade_armor_protection_level_2_cost;
-	public static String teamshop_upgrade_armor_protection_level_3_cost;
-	public static String teamshop_upgrade_armor_protection_level_4_cost;
+	public static Map<Integer, String> teamshop_upgrade_armor_protection_level_cost;
 	public static List<String> teamshop_upgrade_armor_protection_level_1_lore;
 	public static List<String> teamshop_upgrade_armor_protection_level_2_lore;
 	public static List<String> teamshop_upgrade_armor_protection_level_3_lore;
@@ -296,7 +291,7 @@ public class Config {
 	private static FileConfiguration language_config;
 
 	public static void loadConfig() {
-		Main.getInstance().getHolographicManager().removeAll();
+		Main.getInstance().getEditHolographicManager().removeAll();
 		String prefix = "[" + Main.getInstance().getDescription().getName() + "] ";
 		Bukkit.getConsoleSender().sendMessage(prefix + "§f正在加载配置文件...");
 		File folder = new File(Main.getInstance().getDataFolder(), "/");
@@ -534,8 +529,9 @@ public class Config {
 		teamshop_frame = ColorUtil.listcolor(tsfilec.getStringList("frame"));
 		teamshop_upgrade_fast_dig_item = tsfilec.getString("upgrade.fast_dig.item");
 		teamshop_upgrade_fast_dig_name = ColorUtil.color(tsfilec.getString("upgrade.fast_dig.name"));
-		teamshop_upgrade_fast_dig_level_1_cost = tsfilec.getString("upgrade.fast_dig.level_1.cost");
-		teamshop_upgrade_fast_dig_level_2_cost = tsfilec.getString("upgrade.fast_dig.level_2.cost");
+		teamshop_upgrade_fast_dig_level_cost = new HashMap<Integer, String>();
+		teamshop_upgrade_fast_dig_level_cost.put(1, tsfilec.getString("upgrade.fast_dig.level_1.cost"));
+		teamshop_upgrade_fast_dig_level_cost.put(2, tsfilec.getString("upgrade.fast_dig.level_2.cost"));
 		teamshop_upgrade_fast_dig_level_1_lore = ColorUtil
 				.listcolor(tsfilec.getStringList("upgrade.fast_dig.level_1.lore"));
 		teamshop_upgrade_fast_dig_level_2_lore = ColorUtil
@@ -544,8 +540,9 @@ public class Config {
 				.listcolor(tsfilec.getStringList("upgrade.fast_dig.level_full.lore"));
 		teamshop_upgrade_sword_sharpness_item = tsfilec.getString("upgrade.sword_sharpness.item");
 		teamshop_upgrade_sword_sharpness_name = ColorUtil.color(tsfilec.getString("upgrade.sword_sharpness.name"));
-		teamshop_upgrade_sword_sharpness_level_1_cost = tsfilec.getString("upgrade.sword_sharpness.level_1.cost");
-		teamshop_upgrade_sword_sharpness_level_2_cost = tsfilec.getString("upgrade.sword_sharpness.level_2.cost");
+		teamshop_upgrade_sword_sharpness_level_cost = new HashMap<Integer, String>();
+		teamshop_upgrade_sword_sharpness_level_cost.put(1, tsfilec.getString("upgrade.sword_sharpness.level_1.cost"));
+		teamshop_upgrade_sword_sharpness_level_cost.put(2, tsfilec.getString("upgrade.sword_sharpness.level_2.cost"));
 		teamshop_upgrade_sword_sharpness_level_1_lore = ColorUtil
 				.listcolor(tsfilec.getStringList("upgrade.sword_sharpness.level_1.lore"));
 		teamshop_upgrade_sword_sharpness_level_2_lore = ColorUtil
@@ -554,10 +551,11 @@ public class Config {
 				.listcolor(tsfilec.getStringList("upgrade.sword_sharpness.level_full.lore"));
 		teamshop_upgrade_armor_protection_item = tsfilec.getString("upgrade.armor_protection.item");
 		teamshop_upgrade_armor_protection_name = ColorUtil.color(tsfilec.getString("upgrade.armor_protection.name"));
-		teamshop_upgrade_armor_protection_level_1_cost = tsfilec.getString("upgrade.armor_protection.level_1.cost");
-		teamshop_upgrade_armor_protection_level_2_cost = tsfilec.getString("upgrade.armor_protection.level_2.cost");
-		teamshop_upgrade_armor_protection_level_3_cost = tsfilec.getString("upgrade.armor_protection.level_3.cost");
-		teamshop_upgrade_armor_protection_level_4_cost = tsfilec.getString("upgrade.armor_protection.level_4.cost");
+		teamshop_upgrade_armor_protection_level_cost = new HashMap<Integer, String>();
+		teamshop_upgrade_armor_protection_level_cost.put(1, tsfilec.getString("upgrade.armor_protection.level_1.cost"));
+		teamshop_upgrade_armor_protection_level_cost.put(2, tsfilec.getString("upgrade.armor_protection.level_2.cost"));
+		teamshop_upgrade_armor_protection_level_cost.put(3, tsfilec.getString("upgrade.armor_protection.level_3.cost"));
+		teamshop_upgrade_armor_protection_level_cost.put(4, tsfilec.getString("upgrade.armor_protection.level_4.cost"));
 		teamshop_upgrade_armor_protection_level_1_lore = ColorUtil
 				.listcolor(tsfilec.getStringList("upgrade.armor_protection.level_1.lore"));
 		teamshop_upgrade_armor_protection_level_2_lore = ColorUtil

@@ -168,7 +168,7 @@ public class EditGame implements Listener {
 		inventory.setItem(41, itemStack);
 		player.closeInventory();
 		player.openInventory(inventory);
-		Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+		Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 	}
 
 	private static void giveItems(Player player, Game game) {
@@ -384,7 +384,7 @@ public class EditGame implements Listener {
 				case 11:
 					player.closeInventory();
 					Bukkit.dispatchCommand(player, "bedwarsrel:bw setlobby " + game_name);
-					Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+					Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 					break;
 				case 12:
 					openAnvilInventory(player, Config.getLanguage("anvil.edit_game.set_mix_players"),
@@ -402,12 +402,12 @@ public class EditGame implements Listener {
 				case 20:
 					player.closeInventory();
 					Bukkit.dispatchCommand(player, "bedwarsscoreboardaddon:bwsba shop set item " + game_name);
-					Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+					Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 					break;
 				case 21:
 					player.closeInventory();
 					Bukkit.dispatchCommand(player, "bedwarsscoreboardaddon:bwsba shop set team " + game_name);
-					Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+					Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 					break;
 				case 22:
 					openEditSpawner(player, game);
@@ -415,12 +415,12 @@ public class EditGame implements Listener {
 				case 23:
 					player.closeInventory();
 					Bukkit.dispatchCommand(player, "bedwarsrel:bw setregion " + game_name + " loc1");
-					Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+					Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 					break;
 				case 24:
 					player.closeInventory();
 					Bukkit.dispatchCommand(player, "bedwarsrel:bw setregion " + game_name + " loc2");
-					Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+					Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 					break;
 				case 39:
 					player.closeInventory();
@@ -458,7 +458,7 @@ public class EditGame implements Listener {
 						player.closeInventory();
 						Bukkit.dispatchCommand(player, "bedwarsrel:bw removeteam " + game_name + " "
 								+ ColorUtil.remcolor(itemMeta.getDisplayName()));
-						Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+						Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 					}
 				}
 			}
@@ -478,12 +478,12 @@ public class EditGame implements Listener {
 						player.closeInventory();
 						Bukkit.dispatchCommand(player, "bedwarsrel:bw setbed " + game_name + " "
 								+ ColorUtil.remcolor(itemMeta.getDisplayName()));
-						Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+						Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 					} else if (itemMeta.getLore().get(0).equals("¡ì1")) {
 						player.closeInventory();
 						Bukkit.dispatchCommand(player, "bedwarsrel:bw setspawn " + game_name + " "
 								+ ColorUtil.remcolor(itemMeta.getDisplayName()));
-						Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+						Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 					}
 				}
 			}
@@ -502,7 +502,7 @@ public class EditGame implements Listener {
 					player.closeInventory();
 					Bukkit.dispatchCommand(player,
 							"bedwarsrel:bw setspawner " + game_name + " " + itemMeta.getLore().get(0).replace("¡ì", ""));
-					Main.getInstance().getHolographicManager().displayGameLocation(player, game.getName());
+					Main.getInstance().getEditHolographicManager().displayGameLocation(player, game.getName());
 				}
 			}
 		}
@@ -727,7 +727,7 @@ public class EditGame implements Listener {
 										Bukkit.dispatchCommand(player, command);
 										Game game = BedwarsRel.getInstance().getGameManager().getGame(args[2]);
 										if (game != null) {
-											Main.getInstance().getHolographicManager().displayGameLocation(player,
+											Main.getInstance().getEditHolographicManager().displayGameLocation(player,
 													game.getName());
 										}
 									}

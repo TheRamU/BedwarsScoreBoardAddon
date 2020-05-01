@@ -38,7 +38,7 @@ import me.ram.bedwarsscoreboardaddon.events.BoardAddonPlayerOpenTeamShopEvent;
 import io.github.bedwarsrel.events.BedwarsGameOverEvent;
 import io.github.bedwarsrel.events.BedwarsGameStartedEvent;
 import io.github.bedwarsrel.events.BedwarsOpenShopEvent;
-import io.github.bedwarsrel.events.BedwarsPlayerJoinEvent;
+import io.github.bedwarsrel.events.BedwarsPlayerJoinedEvent;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.npc.skin.SkinnableEntity;
@@ -178,7 +178,7 @@ public class Shop implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerJoin(BedwarsPlayerJoinEvent e) {
+	public void onPlayerJoined(BedwarsPlayerJoinedEvent e) {
 		Game game = e.getGame();
 		Player player = e.getPlayer();
 		if (game.getState() == GameState.RUNNING) {

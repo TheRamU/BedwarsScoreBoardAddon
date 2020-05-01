@@ -82,7 +82,7 @@ public class Rejoin {
 		}
 	}
 
-	private class RejoinData {
+	public static class RejoinData {
 		private UUID uuid;
 		private Game game;
 		private Rejoin rejoin;
@@ -176,8 +176,8 @@ public class Rejoin {
 							player.setHealth(player.getMaxHealth());
 							if (Config.respawn_enabled) {
 								Respawn respawn = arena.getRespawn();
-								respawn.onDeath(player, true);
-								respawn.onRespawn(player);
+								respawn.onDeath(player);
+								respawn.onRespawn(player, true);
 							} else {
 								player.setVelocity(new Vector(0, 0, 0));
 								player.teleport(team.getSpawnLocation());

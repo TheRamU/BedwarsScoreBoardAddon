@@ -17,14 +17,23 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.EnumWrappers.EntityUseAction;
+
 import io.github.bedwarsrel.BedwarsRel;
 import io.github.bedwarsrel.events.BedwarsGameStartedEvent;
-import io.github.bedwarsrel.events.BedwarsPlayerJoinEvent;
+import io.github.bedwarsrel.events.BedwarsPlayerJoinedEvent;
 import io.github.bedwarsrel.events.BedwarsPlayerLeaveEvent;
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
-import ldcr.BedwarsXP.api.XPManager;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
@@ -41,10 +50,11 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.WitherSkull;
@@ -58,60 +68,93 @@ public class Spectator implements Listener {
 	private ItemStack joinitem;
 	private List<Material> resitems = new ArrayList<Material>();
 
+	public Spectator() {
+		onPacketReceiving();
+	}
+
+	private void onPacketReceiving() {
+		ProtocolManager pm = ProtocolLibrary.getProtocolManager();
+		pm.addPacketListener(
+				new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST, PacketType.Play.Client.USE_ENTITY) {
+					public void onPacketReceiving(PacketEvent e) {
+						Player player = e.getPlayer();
+						PacketContainer packet = e.getPacket();
+						if (packet.getEntityUseActions().read(0).equals(EntityUseAction.INTERACT_AT)) {
+							return;
+						}
+						Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
+						if (game == null || !game.getState().equals(GameState.RUNNING) || game.isSpectator(player)) {
+							return;
+						}
+
+						int id = packet.getIntegers().read(0);
+						Player target = null;
+						for (Player p : Bukkit.getOnlinePlayers()) {
+							if (p.getEntityId() == id) {
+								target = p;
+								break;
+							}
+						}
+						if (target == null) {
+							return;
+						}
+						if (!game.getPlayers().contains(target) || !game.isSpectator(target)) {
+							return;
+						}
+						target.teleport(target.getLocation().add(0, 5, 0));
+					}
+				});
+	}
+
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
-		e.getPlayer().setFlySpeed((float) 0.1);
-		e.getPlayer().removePotionEffect(PotionEffectType.SPEED);
-		e.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
+		Player player = e.getPlayer();
+		player.setFlySpeed((float) 0.1);
+		player.removePotionEffect(PotionEffectType.SPEED);
+		player.removePotionEffect(PotionEffectType.INVISIBILITY);
 	}
 
 	@EventHandler
 	public void onLeave(BedwarsPlayerLeaveEvent e) {
-		e.getPlayer().setFlySpeed((float) 0.1);
-		e.getPlayer().removePotionEffect(PotionEffectType.SPEED);
-		e.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
+		Player player = e.getPlayer();
+		player.setFlySpeed((float) 0.1);
+		player.removePotionEffect(PotionEffectType.SPEED);
+		player.removePotionEffect(PotionEffectType.INVISIBILITY);
 	}
 
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onPickupItem(PlayerPickupItemEvent e) {
 		if (!Config.spectator_enabled) {
 			return;
 		}
 		Player player = e.getPlayer();
-		Game getGame = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (getGame == null) {
+		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
+		if (game == null || !game.getState().equals(GameState.RUNNING) || !game.isSpectator(player)) {
 			return;
 		}
-		if (getGame.getPlayers().contains(player) && getGame.isSpectator(player)) {
-			e.setCancelled(true);
-			Item entity = e.getItem();
-			if (resitems != null && resitems.contains(entity.getItemStack().getType())) {
-				if (Bukkit.getPluginManager().isPluginEnabled("BedwarsXP")) {
-					XPManager.getXPManager(getGame.getName()).setXP(player, 0);
-				}
-				if (!entity.isDead()) {
-					entity.remove();
-				}
-				Item item = player.getWorld().dropItem(entity.getLocation(), entity.getItemStack());
-				item.setVelocity(entity.getVelocity());
-				item.setPickupDelay(0);
-			}
-		}
+		e.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onDamage(EntityDamageEvent e) {
 		if (e.getEntity() instanceof Player && e.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
 			Player player = (Player) e.getEntity();
-			Game getGame = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-			if (getGame == null) {
+			Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
+			if (game == null || !game.getState().equals(GameState.RUNNING) || !game.isSpectator(player)) {
 				return;
 			}
-			if (getGame.getPlayers().contains(player)) {
-				if (getGame.isSpectator(player)) {
-					player.teleport(player.getLocation().add(0, 5, 0));
-				}
+			Location location = player.getLocation();
+			WorldBorder border = location.getWorld().getWorldBorder();
+			Location center = border.getCenter();
+			double x = location.getX() > center.getX() ? location.getX() - center.getX()
+					: center.getX() - location.getX();
+			double z = location.getZ() > center.getZ() ? location.getZ() - center.getZ()
+					: center.getZ() - location.getZ();
+			double radius = border.getSize() / 2.0;
+			if (x > radius || z > radius) {
+				return;
 			}
+			player.teleport(player.getLocation().add(0, 5, 0));
 		}
 	}
 
@@ -249,7 +292,8 @@ public class Spectator implements Listener {
 						speeditem = itemStack;
 						Game game = e.getGame();
 						for (Player player : game.getPlayers()) {
-							if (game.isSpectator(player)) {
+							if (game.isSpectator(player)
+									&& player.getInventory().getItem(Config.spectator_speed_slot - 1) == null) {
 								player.getInventory().setItem(Config.spectator_speed_slot - 1, itemStack);
 							}
 						}
@@ -263,7 +307,8 @@ public class Spectator implements Listener {
 						joinitem = itemStack;
 						Game game = e.getGame();
 						for (Player player : game.getPlayers()) {
-							if (game.isSpectator(player)) {
+							if (game.isSpectator(player)
+									&& player.getInventory().getItem(Config.spectator_fast_join_slot - 1) == null) {
 								player.getInventory().setItem(Config.spectator_fast_join_slot - 1, itemStack);
 							}
 						}
@@ -287,22 +332,8 @@ public class Spectator implements Listener {
 								}
 								for (Entity entity : player.getWorld().getNearbyEntities(player.getLocation(), 2, 3.5,
 										2)) {
-									if (entity instanceof Item) {
-										Item item = (Item) entity;
-										if (resitems.contains(item.getItemStack().getType())
-												|| item.getItemStack().getType().equals(Material.EXP_BOTTLE)) {
-											if (player.getGameMode() != GameMode.SPECTATOR) {
-												player.teleport(LocationUtil.getPosition(player.getLocation(),
-														item.getLocation()));
-												player.setVelocity(LocationUtil
-														.getPositionVector(player.getLocation(), item.getLocation())
-														.multiply(0.07));
-											}
-											break;
-										}
-									}
-									if (entity instanceof Fireball || entity instanceof WitherSkull
-											|| entity instanceof TNTPrimed) {
+									if (entity instanceof Arrow || entity instanceof Fireball
+											|| entity instanceof WitherSkull || entity instanceof TNTPrimed) {
 										if (player.getGameMode() != GameMode.SPECTATOR) {
 											player.teleport(LocationUtil.getPosition(player.getLocation(),
 													entity.getLocation()));
@@ -372,7 +403,7 @@ public class Spectator implements Listener {
 	}
 
 	@EventHandler
-	public void onJoinGame(BedwarsPlayerJoinEvent e) {
+	public void onJoinGame(BedwarsPlayerJoinedEvent e) {
 		Game game = e.getGame();
 		Player player = e.getPlayer();
 		Arena arena = Main.getInstance().getArenaManager().getArena(game.getName());
@@ -422,17 +453,17 @@ public class Spectator implements Listener {
 			return;
 		}
 		Player player = (Player) e.getWhoClicked();
-		Game getGame = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (getGame == null) {
+		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
+		if (game == null) {
 			return;
 		}
-		if (!getGame.getPlayers().contains(player)) {
+		if (!game.getPlayers().contains(player)) {
 			return;
 		}
-		if (getGame.getState() != GameState.RUNNING) {
+		if (game.getState() != GameState.RUNNING) {
 			return;
 		}
-		if (!getGame.isSpectator(player)) {
+		if (!game.isSpectator(player)) {
 			return;
 		}
 		Inventory inventory = e.getInventory();
@@ -516,17 +547,17 @@ public class Spectator implements Listener {
 			return;
 		}
 		Player player = e.getPlayer();
-		Game getGame = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (getGame == null) {
+		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
+		if (game == null) {
 			return;
 		}
-		if (!getGame.getPlayers().contains(player)) {
+		if (!game.getPlayers().contains(player)) {
 			return;
 		}
-		if (getGame.getState() != GameState.RUNNING) {
+		if (game.getState() != GameState.RUNNING) {
 			return;
 		}
-		if (!getGame.isSpectator(player)) {
+		if (!game.isSpectator(player)) {
 			return;
 		}
 		if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
@@ -534,7 +565,7 @@ public class Spectator implements Listener {
 		}
 		if (players.contains(player)
 				&& (e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
-			getGame.openSpectatorCompass(player);
+			game.openSpectatorCompass(player);
 			e.setCancelled(true);
 			return;
 		}

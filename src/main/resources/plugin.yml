@@ -10,7 +10,7 @@ description: |
   ##############################################
 name: BedwarsScoreBoardAddon
 main: me.ram.bedwarsscoreboardaddon.Main
-version: 2.10.2
+version: 2.10.3
 author: Ram
 depends: [BedwarsRel,ProtocolLib,Citizens]
 softdepends: [PlaceholderAPI,ServerJoiner,WorldEdit]
