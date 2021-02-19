@@ -4,13 +4,9 @@
 
 😄
 
-这是一个依赖BedwarsRel运行的插件  
-它可以拓展你的起床战争  
-为你的起床战争增添更多乐趣  
+这是一个依赖BedwarsRel运行的插件，它可以拓展你的起床战争，为你的起床战争增添更多乐趣  
 
-This is a plugin running on BedwarsRel  
-It can expand your BedWars function  
-Make your BedWars like Hypixel!  
+This is a plugin running on BedwarsRel. It can expand your BedWars function.Make your BedWars like Hypixel!  
 
 ## ✅ 下载/Donwloads
 
