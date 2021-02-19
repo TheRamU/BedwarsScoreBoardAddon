@@ -1,8 +1,6 @@
 # BedwarsScoreBoardAddon
 
-## 介绍
-
-:)
+## 介绍/What's this?
 
 这是一个依赖BedwarsRel运行的插件  
 它可以拓展你的起床战争  
