@@ -1,4 +1,6 @@
-# BedwarsScoreBoardAddon
+
+<p align="center">BedwarsScoreBoardAddon</p>
+#
 
 ## 介绍/What's this?
 
