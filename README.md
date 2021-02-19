@@ -1,6 +1,6 @@
 <h1 align="center">BedwarsScoreBoardAddon</h1>
 
-## 介绍/What's this?
+## 🧡介绍/What's this?
 
 :)
 
@@ -12,7 +12,7 @@ This is a plugin running on BedwarsRel
 It can expand your BedWars function  
 Make your BedWars like Hypixel!  
 
-## 下载/Donwloads
+## ✅下载/Donwloads
 
   下载地址: https://www.mcbbs.net/thread-814322-1-1.html  
   Download: https://www.spigotmc.org/resources/74991/
