@@ -1,6 +1,4 @@
-
-<p align="center">BedwarsScoreBoardAddon</p>
-#
+<h1 align="center">BedwarsScoreBoardAddon</h1>
 
 ## 介绍/What's this?
 
