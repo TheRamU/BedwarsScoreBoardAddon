@@ -1,6 +1,6 @@
 # BedwarsScoreBoardAddon
 
-## 介绍
+### 介绍
 
 :)
 
@@ -9,7 +9,7 @@
 为你的起床战争增添更多乐趣
 
 
-## 下载/Donwloads
+### 下载/Donwloads
 
 下载地址: https://www.mcbbs.net/thread-814322-1-1.html
 Download: https://www.spigotmc.org/resources/74991/
