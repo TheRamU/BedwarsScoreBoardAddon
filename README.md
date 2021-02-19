@@ -1,7 +1,7 @@
 # BedwarsScoreBoardAddon
 
 ## 介绍/What's this?
-```ini
+
 :)
 
 这是一个依赖BedwarsRel运行的插件  
@@ -11,7 +11,6 @@
 This is a plugin running on BedwarsRel  
 It can expand your BedWars function  
 Make your BedWars like Hypixel!  
-```
 
 ## 下载/Donwloads
 
