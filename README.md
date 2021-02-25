@@ -85,11 +85,13 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 
 ### 切换语言/Change language
 
-- 打开目录 "plugins\BedwarsScoreBoardAddon\locale\"  
+- 1.打开目录 "plugins\BedwarsScoreBoardAddon\locale\"  
+
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/locale.png)
 
+- 2.找到要切换的语言并进入目录  
 
-3.找到要切换的语言并进入目录  
+![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/language.png)
 
 5.将目录下的所有文件复制，替换掉 "plugins\BedwarsScoreBoardAddon\" 目录下的原文件  
 
