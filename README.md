@@ -28,5 +28,21 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 | /bwsba shop set team <游戏>  | 设置一个队伍商店 | bedwarsscoreboardaddon.shop.set |
 | /bwsba spawner list <游戏>  | 队伍资源点列表 | bedwarsscoreboardaddon.spawner.list |
 | /bwsba spawner remove <ID>  | 移除队伍资源点 | bedwarsscoreboardaddon.remove.list |
-| /bwsba spawner add <游戏> <队伍>  | 添加队伍资源点 | bedwarsscoreboardaddon.add.list |
+| /bwsba spawner add <游戏> <队伍>  | 添加队伍资源点 | bedwarsscoreboardaddon.add.list |  
+
+
+| Command | Description | Permission |
+| --------- | ----- | ------- |
+| /bwsba  | Plugin info | | |
+| /bwsba help  | Get help | |
+| /bwsba reload  | Reload configuration | bedwarsscoreboardaddon.reload |
+| /bwsba upcheck  | Update check | bedwarsscoreboardaddon.updatecheck |
+| /bwsba edit <Game>  | Edit game | bedwarsscoreboardaddon.edit |
+| /bwsba shop list <Game>  | Shop list | bedwarsscoreboardaddon.shop.list |
+| /bwsba shop remove <ID>  | Remove a shop | bedwarsscoreboardaddon.shop.remove |
+| /bwsba shop set item <Game>  | Add a item shop | bedwarsscoreboardaddon.shop.set |
+| /bwsba shop set team <Game>  | Add a team shop | bedwarsscoreboardaddon.shop.set |
+| /bwsba spawner list <Game>  | Team spawner list | bedwarsscoreboardaddon.spawner.list |
+| /bwsba spawner remove <ID>  | Remove a team spawner | bedwarsscoreboardaddon.remove.list |
+| /bwsba spawner add <Game> <Team>  | Add a team spawner | bedwarsscoreboardaddon.add.list |
 
