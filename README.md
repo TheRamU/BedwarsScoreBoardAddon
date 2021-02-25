@@ -91,22 +91,16 @@ Open folder "plugins\BedwarsScoreBoardAddon\locale\"
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/locale.png)
 
 - 2.找到要切换的语言并进入目录  
+Find the language you want to change, and enter this folder  
 
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/language.png)
 
 - 3.将目录下的所有文件复制，替换掉 "plugins\BedwarsScoreBoardAddon\" 目录下的原文件  
+Copy all files in this folder, replace the original file in the "plugins\BedwarsScoreBoardAddon\" folder  
 
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/replace_language.png)
 
 - 4.输入指令 "/bwsba reload" 重载配置文件  
+Use command "/bwsba reload" to reload configuration  
 
-```ini
-1.Open folder "plugins\BedwarsScoreBoardAddon\locale\"  
-
-3.Find the language you want to change, and enter this folder  
-
-5.Copy all files in this folder, replace the original file in the "plugins\BedwarsScoreBoardAddon\" folder  
-
-7.Use command "/bwsba reload" to reload configuration  
-```
 
