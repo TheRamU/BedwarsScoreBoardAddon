@@ -10,9 +10,18 @@
 This is a plugin running on BedwarsRel. It can expand your BedWars function. Make your BedWars like Hypixel!  
 
 ## ✅ 下载/Donwloads
+> 插件/Plugin:
 - 下载地址: https://www.mcbbs.net/thread-814322-1-1.html  
 - Download: https://www.spigotmc.org/resources/74991/
 
+> 前置依赖/Depends：
+- [BedwarsRel 1.3.6](https://www.spigotmc.org/resources/6799/)
+- [ProtocolLib](https://www.spigotmc.org/resources/1997/)
+- [Citizens](https://dev.bukkit.org/bukkit-plugins/citizens)
+
+> 软依赖/SoftDepends：
+- [PlaceholderAPI](https://www.spigotmc.org/resources/6245/)
+- [ServerJoiner](https://www.spigotmc.org/resources/53694/)
 
 ## 📒 命令/Commands
 | 命令 | 描述 | 权限 |
