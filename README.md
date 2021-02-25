@@ -160,4 +160,3 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 ```
 
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/diamond_generator.png)
-
