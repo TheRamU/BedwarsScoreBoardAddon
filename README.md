@@ -24,4 +24,9 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 | /bwsba edit <游戏>  | 编辑游戏|
 | /bwsba shop list <游戏>  | 已设置商店列表|
 | /bwsba shop remove <ID>  | 移除一个商店|
+| /bwsba shop set item <游戏>  | 设置一个道具商店|
+| /bwsba shop set team <游戏>  | 设置一个队伍商店|
+| /bwsba spawner list <游戏>  | 队伍资源点列表|
+| /bwsba spawner remove <ID>  | 移除队伍资源点|
+| /bwsba spawner add <游戏> <队伍>  | 添加队伍资源点|
 
