@@ -71,10 +71,14 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 2.将下载的插件(Jar文件)放入服务器目录下的 "plugins" 文件夹内  
 3.重启(启动)服务器  
 
+1.Confirm your server is running BedwarsRel 1.3.6, ProtocolLib, Citizens  
+2.Put the downloaded plugin (Jar file) into the "plugins" folder under the server root directory
+3.Restart(Start) server
+
 ### 切换语言/Change language
 
-1.打开目录 "plugins\BedwarsScoreBoardAddon\locale\"
-2.找到要切换的语言并进入目录
-3.将目录下的所有文件复制，替换掉 "plugins\BedwarsScoreBoardAddon\" 目录下的原文件
-4.输入 "/bwsba reload" 重载配置文件。
+1.打开目录 "plugins\BedwarsScoreBoardAddon\locale\"  
+2.找到要切换的语言并进入目录  
+3.将目录下的所有文件复制，替换掉 "plugins\BedwarsScoreBoardAddon\" 目录下的原文件  
+4.输入 "/bwsba reload" 重载配置文件。  
 
