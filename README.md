@@ -111,7 +111,7 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 4.Use command "/bwsba reload" to reload configuration  
 ```
 
-###  > Add Shop
+###  > 添加商店/Add Shop
 
 ```ini
 1.执行命令 "/bwsba edit <游戏>" 进入游戏编辑模式，点击 "设置游戏/队伍商店"
@@ -125,4 +125,6 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 1.Use command "/bw join <Game>" to test
 ```
 
-![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/sshop.png)
+![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/shop.png)
+
+
