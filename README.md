@@ -107,8 +107,22 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/replace_language.png)
 
 ```ini
-4.输入指令 "/bwsba reload" 重载配置文件  
+4.执行指令 "/bwsba reload" 重载配置文件  
 4.Use command "/bwsba reload" to reload configuration  
 ```
 
+###  > Add Shop
 
+```ini
+1.执行命令 "/bwsba edit <游戏>" 进入游戏编辑模式，点击 "设置游戏/队伍商店"
+1.Use command "/bwsba edit <Game>" to enter game edit mode，Click "Set item/team shop"
+```
+
+![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/set_shop.png)
+
+```ini
+2.执行命令 "/bw join <游戏>" 就行测试
+1.Use command "/bw join <Game>" to test
+```
+
+![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/sshop.png)
