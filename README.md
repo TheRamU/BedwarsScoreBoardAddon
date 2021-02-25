@@ -27,6 +27,12 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 - [WorldEdit](https://dev.bukkit.org/projects/worldedit)
 
 ## 📒 命令/Commands
+
+<details>
+ <summary>点击查看命令</summary>
+<details open=“open”>
+ <summary>点击关闭命令列表</summary>
+
 | 命令 | 描述 | 权限 |
 | --------- | ----- | ------- |
 | /bwsba  | 显示插件信息 | | |
@@ -57,6 +63,7 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 | /bwsba spawner list <Game>  | Team spawner list | bedwarsscoreboardaddon.spawner.list |
 | /bwsba spawner remove <ID>  | Remove a team spawner | bedwarsscoreboardaddon.remove.list |
 | /bwsba spawner add <Game> <Team>  | Add a team spawner | bedwarsscoreboardaddon.add.list |
+</details>
 
 ## ⚙ 安装与设置/Install & Settings
 ### 如何安装？/How to install?
