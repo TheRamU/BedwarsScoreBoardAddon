@@ -23,6 +23,8 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 > 依赖/SoftDepends：
 - [PlaceholderAPI](https://www.spigotmc.org/resources/6245/)
 - [ServerJoiner](https://www.spigotmc.org/resources/53694/)
+- [BedwarsXP](https://www.mcbbs.net/thread-667617-1-1.html)
+- [WorldEdit](https://dev.bukkit.org/projects/worldedit)
 
 ## 📒 命令/Commands
 | 命令 | 描述 | 权限 |
