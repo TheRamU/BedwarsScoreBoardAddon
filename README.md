@@ -69,29 +69,39 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 
 ```ini
 1.确保服务器安装了前置插件BedwarsRel 1.3.6, ProtocolLib, Citizens  
-2.将下载的插件(Jar文件)放入服务器目录下的 "plugins" 文件夹内  
-3.重启(启动)服务器  
+
+3.将下载的插件(Jar文件)放入服务器目录下的 "plugins" 文件夹内  
+
+5.重启(启动)服务器  
 ```
 
 ```ini
 1.Confirm your server is running BedwarsRel 1.3.6, ProtocolLib, Citizens  
-2.Put the downloaded plugin (Jar file) into the "plugins" folder under the server root directory  
-3.Restart(Start) server  
+
+3.Put the downloaded plugin (Jar file) into the "plugins" folder under the server root directory  
+
+5.Restart(Start) server  
 ```
 
 ### 切换语言/Change language
 
 ```ini
 1.打开目录 "plugins\BedwarsScoreBoardAddon\locale\"  
-2.找到要切换的语言并进入目录  
-3.将目录下的所有文件复制，替换掉 "plugins\BedwarsScoreBoardAddon\" 目录下的原文件  
-4.输入指令 "/bwsba reload" 重载配置文件  
+
+3.找到要切换的语言并进入目录  
+
+5.将目录下的所有文件复制，替换掉 "plugins\BedwarsScoreBoardAddon\" 目录下的原文件  
+
+7.输入指令 "/bwsba reload" 重载配置文件  
 ```
 
 ```ini
 1.Open folder "plugins\BedwarsScoreBoardAddon\locale\"  
-2.Find the language you want to change, and enter this folder  
-3.Copy all files in this folder, replace the original file in the "plugins\BedwarsScoreBoardAddon\" folder  
-4.Use command "/bwsba reload" to reload configuration  
+
+3.Find the language you want to change, and enter this folder  
+
+5.Copy all files in this folder, replace the original file in the "plugins\BedwarsScoreBoardAddon\" folder  
+
+7.Use command "/bwsba reload" to reload configuration  
 ```
 
