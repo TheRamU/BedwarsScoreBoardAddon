@@ -27,8 +27,7 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 - [WorldEdit](https://dev.bukkit.org/projects/worldedit)
 
 ## 📒 命令/Commands
-<details open=“open”>
-  <br/>
+<details>
   <summary>点击查看命令</summary>
  
 | 命令 | 描述 | 权限 |
