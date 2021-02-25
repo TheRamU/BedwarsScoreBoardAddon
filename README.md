@@ -145,7 +145,19 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 
 ```
 
+![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/edit_bwr_config.png)
+
+```ini
+2.执行命令 "/bwsba edit <游戏>" 进入游戏编辑模式，点击 "设置资源生成点-游戏资源生成点-钻石"
+3.Use command "/bwsba edit <Game>" to enter game edit mode，Click "Set resource spawner-Game resource spawner-Diamond"
+```
+
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/add_diamond.png)
 
+```ini
+2.执行命令 "/bw join <游戏>" 就行测试
+2.Use command "/bw join <Game>" to test
+```
 
+![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/diamond_generator.png)
 
