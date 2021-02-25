@@ -65,7 +65,7 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 </details>
 
 ## ⚙ 安装与设置/Install & Settings
-### 安装/Install
+### > 安装/Install
 
 ```ini
 1.确保服务器安装了前置插件BedwarsRel 1.3.6, ProtocolLib, Citizens  
@@ -83,7 +83,7 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 5.Restart(Start) server  
 ```
 
-### 切换语言/Change language
+###  > 切换语言/Change language
 
 - 1.打开目录 "plugins\BedwarsScoreBoardAddon\locale\"  
 Open folder "plugins\BedwarsScoreBoardAddon\locale\"  
