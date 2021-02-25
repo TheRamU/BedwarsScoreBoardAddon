@@ -72,8 +72,8 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 3.重启(启动)服务器  
 
 1.Confirm your server is running BedwarsRel 1.3.6, ProtocolLib, Citizens  
-2.Put the downloaded plugin (Jar file) into the "plugins" folder under the server root directory
-3.Restart(Start) server
+2.Put the downloaded plugin (Jar file) into the "plugins" folder under the server root directory  
+3.Restart(Start) server  
 
 ### 切换语言/Change language
 
