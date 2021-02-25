@@ -32,11 +32,7 @@ public class BedwarsRelCommandTabCompleter implements TabCompleter {
 
 	private List<String> getSuggest(CommandSender sender, String[] args) {
 		if (args.length == 1) {
-			return Arrays.asList("help", "setspawner", "addgame", "start", "stop", "addteam", "save", "setregion",
-					"join", "setspawn", "setlobby", "settarget", "setbed", "leave", "reload", "setmainlobby", "list",
-					"regionname", "removeteam", "removegame", "clearspawner", "gametime", "stats", "setminplayers",
-					"setgameblock", "setbuilder", "setautobalance", "kick", "addteamjoin", "addholo", "removeholo",
-					"debugpaste", "itemspaste");
+			return Arrays.asList("help", "setspawner", "addgame", "start", "stop", "addteam", "save", "setregion", "join", "setspawn", "setlobby", "settarget", "setbed", "leave", "reload", "setmainlobby", "list", "regionname", "removeteam", "removegame", "clearspawner", "gametime", "stats", "setminplayers", "setgameblock", "setbuilder", "setautobalance", "kick", "addteamjoin", "addholo", "removeholo", "debugpaste", "itemspaste");
 		}
 		List<String> games = new ArrayList<String>();
 		BedwarsRel.getInstance().getGameManager().getGames().forEach(game -> {
@@ -149,8 +145,7 @@ public class BedwarsRelCommandTabCompleter implements TabCompleter {
 			}
 			if (args[0].equalsIgnoreCase("setspawner")) {
 				if (sender.hasPermission("bw.setup")) {
-					List<String> list = new ArrayList<String>(
-							BedwarsRel.getInstance().getConfig().getConfigurationSection("resource").getKeys(false));
+					List<String> list = new ArrayList<String>(BedwarsRel.getInstance().getConfig().getConfigurationSection("resource").getKeys(false));
 					return list;
 				}
 			} else if (args[0].equalsIgnoreCase("setregion")) {

@@ -6,7 +6,7 @@ import io.github.bedwarsrel.game.Game;
 import me.ram.bedwarsscoreboardaddon.addon.Rejoin;
 
 public class BoardAddonPlayerRemoveRejoinEvent extends Event {
-	
+
 	private static HandlerList handlers = new HandlerList();
 	private Game game;
 	private String player;

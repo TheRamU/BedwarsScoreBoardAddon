@@ -1,38 +1,61 @@
 package me.ram.bedwarsscoreboardaddon.config;
 
 import net.citizensnpcs.api.CitizensAPI;
+
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
+
 import org.bukkit.*;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.map.MapCanvas;
+import org.bukkit.map.MapRenderer;
+import org.bukkit.map.MapView;
+import org.bukkit.map.MapView.Scale;
+
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.addon.teamshop.upgrades.UpgradeType;
 import me.ram.bedwarsscoreboardaddon.utils.ColorUtil;
 
 public class Config {
 
-	public static boolean update_check;
+	private static FileConfiguration file_config;
+	private static FileConfiguration language_config;
+	public static boolean update_check_enabled;
+	public static boolean update_check_report;
 	public static boolean hide_player;
 	public static boolean tab_health;
 	public static boolean tag_health;
 	public static boolean item_merge;
 	public static boolean hunger_change;
 	public static boolean clear_bottle;
+	public static boolean fast_respawn;
 	public static String date_format;
-	public static boolean chatformat_enabled;
-	public static String chatformat_lobby;
-	public static String chatformat_lobby_team;
-	public static List<String> chatformat_all_prefix;
-	public static String chatformat_ingame;
-	public static String chatformat_ingame_all;
-	public static String chatformat_spectator;
+	public static boolean chat_format_enabled;
+	public static boolean chat_format_chat_lobby;
+	public static boolean chat_format_chat_all;
+	public static boolean chat_format_chat_spectator;
+	public static String chat_format_lobby;
+	public static String chat_format_lobby_team;
+	public static List<String> chat_format_all_prefix;
+	public static String chat_format_ingame;
+	public static String chat_format_ingame_all;
+	public static String chat_format_spectator;
 	public static boolean final_killed_enabled;
 	public static String final_killed_message;
 	public static List<String> timecommand_startcommand;
@@ -142,6 +165,9 @@ public class Config {
 	public static String compass_message_V_III;
 	public static String compass_message_VI_III;
 	public static String compass_message_VII_III;
+	public static boolean graffiti_enabled;
+	public static boolean graffiti_holographic_enabled;
+	public static String graffiti_holographic_text;
 	public static boolean shop_enabled;
 	public static String shop_item_shop_type;
 	public static String shop_item_shop_skin;
@@ -154,33 +180,38 @@ public class Config {
 	public static boolean respawn_enabled;
 	public static boolean respawn_centre_enabled;
 	public static double respawn_centre_height;
+	public static boolean respawn_protected_enabled;
+	public static int respawn_protected_time;
 	public static int respawn_respawn_delay;
-	public static String respawn_respawning_title;
-	public static String respawn_respawning_subtitle;
-	public static String respawn_respawning_message;
-	public static String respawn_respawned_title;
-	public static String respawn_respawned_subtitle;
-	public static String respawn_respawned_message;
+	public static String respawn_countdown_title;
+	public static String respawn_countdown_subtitle;
+	public static String respawn_countdown_message;
+	public static String respawn_respawn_title;
+	public static String respawn_respawn_subtitle;
+	public static String respawn_respawn_message;
 	public static boolean giveitem_keeparmor;
 	public static Map<String, Object> giveitem_armor_helmet_item;
 	public static Map<String, Object> giveitem_armor_chestplate_item;
 	public static Map<String, Object> giveitem_armor_leggings_item;
 	public static Map<String, Object> giveitem_armor_boots_item;
-	public static boolean giveitem_armor_helmet_give;
-	public static boolean giveitem_armor_chestplate_give;
-	public static boolean giveitem_armor_leggings_give;
-	public static boolean giveitem_armor_boots_give;
+	public static String giveitem_armor_helmet_give;
+	public static String giveitem_armor_chestplate_give;
+	public static String giveitem_armor_leggings_give;
+	public static String giveitem_armor_boots_give;
 	public static boolean giveitem_armor_helmet_move;
 	public static boolean giveitem_armor_chestplate_move;
 	public static boolean giveitem_armor_leggings_move;
 	public static boolean giveitem_armor_boots_move;
 	public static boolean sethealth_start_enabled;
 	public static int sethealth_start_health;
-	public static String sethealth_start_title;
-	public static String sethealth_start_subtitle;
-	public static String sethealth_start_message;
 	public static boolean resourcelimit_enabled;
 	public static List<String[]> resourcelimit_limit;
+	public static boolean spread_resource_enabled;
+	public static boolean spread_resource_launch;
+	public static double spread_resource_range;
+	public static boolean game_chest_enabled;
+	public static int game_chest_range;
+	public static String game_chest_message;
 	public static boolean invisibility_player_enabled;
 	public static boolean invisibility_player_footstep;
 	public static boolean invisibility_player_hide_particles;
@@ -192,52 +223,44 @@ public class Config {
 	public static String witherbow_subtitle;
 	public static String witherbow_message;
 	public static boolean teamshop_enabled;
-	public static String teamshop_title;
-	public static String teamshop_message;
-	public static String teamshop_no_resource;
-	public static List<String> teamshop_frame;
-	public static String teamshop_upgrade_fast_dig_item;
-	public static String teamshop_upgrade_fast_dig_name;
-	public static Map<Integer, String> teamshop_upgrade_fast_dig_level_cost;
-	public static List<String> teamshop_upgrade_fast_dig_level_1_lore;
-	public static List<String> teamshop_upgrade_fast_dig_level_2_lore;
-	public static List<String> teamshop_upgrade_fast_dig_level_full_lore;
-	public static String teamshop_upgrade_sword_sharpness_item;
-	public static String teamshop_upgrade_sword_sharpness_name;
-	public static Map<Integer, String> teamshop_upgrade_sword_sharpness_level_cost;
-	public static List<String> teamshop_upgrade_sword_sharpness_level_1_lore;
-	public static List<String> teamshop_upgrade_sword_sharpness_level_2_lore;
-	public static List<String> teamshop_upgrade_sword_sharpness_level_full_lore;
-	public static String teamshop_upgrade_armor_protection_item;
-	public static String teamshop_upgrade_armor_protection_name;
-	public static Map<Integer, String> teamshop_upgrade_armor_protection_level_cost;
-	public static List<String> teamshop_upgrade_armor_protection_level_1_lore;
-	public static List<String> teamshop_upgrade_armor_protection_level_2_lore;
-	public static List<String> teamshop_upgrade_armor_protection_level_3_lore;
-	public static List<String> teamshop_upgrade_armor_protection_level_4_lore;
-	public static List<String> teamshop_upgrade_armor_protection_level_full_lore;
-	public static String teamshop_upgrade_trap_item;
-	public static String teamshop_upgrade_trap_name;
+	public static String teamshop_upgrade_shop_title;
+	public static List<String> teamshop_upgrade_shop_frame;
+	public static String teamshop_upgrade_shop_trap_item;
+	public static String teamshop_upgrade_shop_trap_name;
+	public static List<String> teamshop_upgrade_shop_trap_lore;
+	public static String teamshop_trap_shop_title;
+	public static List<String> teamshop_trap_shop_back;
+	public static String teamshop_message_upgrade;
+	public static String teamshop_message_no_resource;
+	public static String teamshop_state_no_resource;
+	public static String teamshop_state_lock;
+	public static String teamshop_state_unlock;
+	public static int teamshop_trap_cooldown;
+	public static List<String> teamshop_trap_trap_list_trap_1_lock;
+	public static List<String> teamshop_trap_trap_list_trap_1_unlock;
+	public static List<String> teamshop_trap_trap_list_trap_2_lock;
+	public static List<String> teamshop_trap_trap_list_trap_2_unlock;
+	public static List<String> teamshop_trap_trap_list_trap_3_lock;
+	public static List<String> teamshop_trap_trap_list_trap_3_unlock;
+	public static Map<Integer, String> teamshop_trap_level_cost;
+	public static Map<UpgradeType, Boolean> teamshop_upgrade_enabled;
+	public static Map<UpgradeType, String> teamshop_upgrade_item;
+	public static Map<UpgradeType, String> teamshop_upgrade_name;
+	public static Map<UpgradeType, Map<Integer, String>> teamshop_upgrade_level_cost;
+	public static Map<UpgradeType, Map<Integer, List<String>>> teamshop_upgrade_level_lore;
+	public static Map<Integer, List<String>> teamshop_upgrade_iron_forge_level_resources;
+	public static int teamshop_upgrade_defense_trigger_range;
+	public static int teamshop_upgrade_heal_trigger_range;
 	public static int teamshop_upgrade_trap_trigger_range;
 	public static String teamshop_upgrade_trap_trigger_title;
 	public static String teamshop_upgrade_trap_trigger_subtitle;
 	public static String teamshop_upgrade_trap_trigger_message;
-	public static String teamshop_upgrade_trap_level_1_cost;
-	public static List<String> teamshop_upgrade_trap_level_1_lore;
-	public static List<String> teamshop_upgrade_trap_level_full_lore;
-	public static Boolean teamshop_upgrade_defense_permanent;
-	public static String teamshop_upgrade_defense_item;
-	public static String teamshop_upgrade_defense_name;
-	public static int teamshop_upgrade_defense_trigger_range;
-	public static String teamshop_upgrade_defense_level_1_cost;
-	public static List<String> teamshop_upgrade_defense_level_1_lore;
-	public static List<String> teamshop_upgrade_defense_level_full_lore;
-	public static String teamshop_upgrade_heal_item;
-	public static String teamshop_upgrade_heal_name;
-	public static int teamshop_upgrade_heal_trigger_range;
-	public static String teamshop_upgrade_heal_level_1_cost;
-	public static List<String> teamshop_upgrade_heal_level_1_lore;
-	public static List<String> teamshop_upgrade_heal_level_full_lore;
+	public static int teamshop_upgrade_counter_offensive_trap_trigger_range;
+	public static int teamshop_upgrade_counter_offensive_trap_effect_range;
+	public static int teamshop_upgrade_alarm_trap_trigger_range;
+	public static String teamshop_upgrade_alarm_trap_trigger_title;
+	public static String teamshop_upgrade_alarm_trap_trigger_subtitle;
+	public static String teamshop_upgrade_alarm_trap_trigger_message;
 	public static boolean deathmode_enabled;
 	public static int deathmode_gametime;
 	public static String deathmode_title;
@@ -253,16 +276,18 @@ public class Config {
 	public static String nobreakbed_title;
 	public static String nobreakbed_subtitle;
 	public static String nobreakbed_message;
-	public static boolean spawn_no_build_enabled;
+	public static boolean spawn_no_build_spawn_enabled;
 	public static int spawn_no_build_spawn_range;
+	public static boolean spawn_no_build_resource_enabled;
 	public static int spawn_no_build_resource_range;
 	public static String spawn_no_build_message;
 	public static boolean holographic_resource_enabled;
-	public static boolean holographic_bed_title_enabled;
+	public static boolean holographic_bed_title_bed_alive_enabled;
+	public static boolean holographic_bed_title_bed_destroyed_enabled;
 	public static double holographic_resource_speed;
 	public static List<String> holographic_resource;
-	public static String holographic_bedtitle_bed_alive;
-	public static String holographic_bedtitle_bed_destroyed;
+	public static String holographic_bedtitle_bed_alive_title;
+	public static String holographic_bedtitle_bed_destroyed_title;
 	public static boolean overstats_enabled;
 	public static List<String> overstats_message;
 	public static String actionbar;
@@ -285,67 +310,73 @@ public class Config {
 	public static String lobby_scoreboard_state_countdown;
 	public static List<String> lobby_scoreboard_title;
 	public static List<String> lobby_scoreboard_lines;
-	public static Map<String, List<String>> shop_item;
-	public static Map<String, List<String>> shop_team;
-	public static Map<String, String> shop_shops;
-	private static FileConfiguration language_config;
+	public static Map<String, List<String>> game_shop_item;
+	public static Map<String, List<String>> game_shop_team;
+	public static Map<String, String> game_shop_shops;
+	public static Map<String, Map<String, List<Location>>> game_team_spawner;
+	public static Map<String, String> game_team_spawners;
+	public static List<MapView> image_maps;
 
 	public static void loadConfig() {
 		Main.getInstance().getEditHolographicManager().removeAll();
 		String prefix = "[" + Main.getInstance().getDescription().getName() + "] ";
-		Bukkit.getConsoleSender().sendMessage(prefix + "§f正在加载配置文件...");
+		Bukkit.getConsoleSender().sendMessage(prefix + Main.getInstance().getLocaleConfig().getLanguage("loading_config"));
 		File folder = new File(Main.getInstance().getDataFolder(), "/");
 		if (!folder.exists()) {
 			folder.mkdirs();
 		}
-		File cfile = new File(folder.getAbsolutePath() + "/config.yml");
-		if (!cfile.exists()) {
-			Main.getInstance().saveResource("config.yml", false);
+		Main.getInstance().getLocaleConfig().loadLocaleConfig();
+		File config_file = new File(folder.getAbsolutePath() + "/config.yml");
+		File team_shop_file = new File(folder.getAbsolutePath() + "/team_shop.yml");
+		if (!config_file.exists()) {
+			Main.getInstance().getLocaleConfig().saveResource("config.yml");
 		}
-		File tsfile = new File(folder.getAbsolutePath() + "/team_shop.yml");
-		if (!tsfile.exists()) {
-			Main.getInstance().saveResource("team_shop.yml", false);
+		if (!team_shop_file.exists()) {
+			Main.getInstance().getLocaleConfig().saveResource("team_shop.yml");
 		}
-		FileConfiguration cfilec = YamlConfiguration.loadConfiguration(cfile);
-		if (cfilec.getString("version") == null || !cfilec.getString("version").equals(Main.getVersion())) {
-			cfile.renameTo(new File(folder.getAbsolutePath() + "/config_"
-					+ new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()) + ".yml"));
-			Main.getInstance().saveResource("config.yml", false);
-			cfilec = YamlConfiguration.loadConfiguration(cfile);
+		file_config = YamlConfiguration.loadConfiguration(config_file);
+		if (file_config.getString("version") == null || !file_config.getString("version").equals(Main.getVersion())) {
+			config_file.renameTo(new File(folder.getAbsolutePath() + "/config_" + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()) + ".yml"));
+			Main.getInstance().getLocaleConfig().saveResource("config.yml");
+			file_config = YamlConfiguration.loadConfiguration(config_file);
 		}
 		language_config = YamlConfiguration.loadConfiguration(getLanguageFile());
-		FileConfiguration tsfilec = YamlConfiguration.loadConfiguration(tsfile);
-		Bukkit.getConsoleSender().sendMessage(prefix + "§a默认配置文件已保存！");
+		FileConfiguration team_shop_config = YamlConfiguration.loadConfiguration(team_shop_file);
+		Bukkit.getConsoleSender().sendMessage(prefix + Main.getInstance().getLocaleConfig().getLanguage("saved_config"));
 		Main.getInstance().reloadConfig();
 		FileConfiguration config = Main.getInstance().getConfig();
-		update_check = config.getBoolean("update_check");
+		update_check_enabled = config.getBoolean("update_check.enabled");
+		update_check_report = config.getBoolean("update_check.report");
 		hide_player = config.getBoolean("hide_player");
 		tab_health = config.getBoolean("tab_health");
 		tag_health = config.getBoolean("tag_health");
 		item_merge = config.getBoolean("item_merge");
 		hunger_change = config.getBoolean("hunger_change");
 		clear_bottle = config.getBoolean("clear_bottle");
+		fast_respawn = config.getBoolean("fast_respawn");
 		date_format = config.getString("date_format");
-		chatformat_enabled = config.getBoolean("chatformat.enabled");
-		chatformat_all_prefix = config.getStringList("chatformat.all_prefix");
-		chatformat_lobby = ColorUtil.color(Main.getInstance().getConfig().getString("chatformat.lobby"));
-		chatformat_lobby_team = ColorUtil.color(Main.getInstance().getConfig().getString("chatformat.lobby_team"));
-		chatformat_ingame = ColorUtil.color(Main.getInstance().getConfig().getString("chatformat.ingame"));
-		chatformat_ingame_all = ColorUtil.color(Main.getInstance().getConfig().getString("chatformat.ingame_all"));
-		chatformat_spectator = ColorUtil.color(Main.getInstance().getConfig().getString("chatformat.spectator"));
+		chat_format_enabled = config.getBoolean("chat_format.enabled");
+		chat_format_chat_lobby = config.getBoolean("chat_format.chat.lobby");
+		chat_format_chat_all = config.getBoolean("chat_format.chat.all");
+		chat_format_chat_spectator = config.getBoolean("chat_format.chat.spectator");
+		chat_format_all_prefix = config.getStringList("chat_format.all_prefix");
+		chat_format_lobby = ColorUtil.color(config.getString("chat_format.lobby"));
+		chat_format_lobby_team = ColorUtil.color(config.getString("chat_format.lobby_team"));
+		chat_format_ingame = ColorUtil.color(config.getString("chat_format.ingame"));
+		chat_format_ingame_all = ColorUtil.color(config.getString("chat_format.ingame_all"));
+		chat_format_spectator = ColorUtil.color(config.getString("chat_format.spectator"));
 		final_killed_enabled = config.getBoolean("final_killed.enabled");
 		final_killed_message = ColorUtil.color(config.getString("final_killed.message"));
-		timecommand_startcommand = ColorUtil
-				.listcolor(Main.getInstance().getConfig().getStringList("timecommand.startcommand"));
+		timecommand_startcommand = ColorUtil.colorList(config.getStringList("timecommand.startcommand"));
 		giveitem_keeparmor = config.getBoolean("giveitem.keeparmor");
 		giveitem_armor_helmet_item = (Map<String, Object>) config.getList("giveitem.armor.helmet.item").get(0);
 		giveitem_armor_chestplate_item = (Map<String, Object>) config.getList("giveitem.armor.chestplate.item").get(0);
 		giveitem_armor_leggings_item = (Map<String, Object>) config.getList("giveitem.armor.leggings.item").get(0);
 		giveitem_armor_boots_item = (Map<String, Object>) config.getList("giveitem.armor.boots.item").get(0);
-		giveitem_armor_helmet_give = config.getBoolean("giveitem.armor.helmet.give");
-		giveitem_armor_chestplate_give = config.getBoolean("giveitem.armor.chestplate.give");
-		giveitem_armor_leggings_give = config.getBoolean("giveitem.armor.leggings.give");
-		giveitem_armor_boots_give = config.getBoolean("giveitem.armor.boots.give");
+		giveitem_armor_helmet_give = config.getString("giveitem.armor.helmet.give");
+		giveitem_armor_chestplate_give = config.getString("giveitem.armor.chestplate.give");
+		giveitem_armor_leggings_give = config.getString("giveitem.armor.leggings.give");
+		giveitem_armor_boots_give = config.getString("giveitem.armor.boots.give");
 		giveitem_armor_helmet_move = config.getBoolean("giveitem.armor.helmet.move");
 		giveitem_armor_chestplate_move = config.getBoolean("giveitem.armor.chestplate.move");
 		giveitem_armor_leggings_move = config.getBoolean("giveitem.armor.leggings.move");
@@ -356,7 +387,7 @@ public class Config {
 		select_team_status_team_full = ColorUtil.color(config.getString("select_team.status.team_full"));
 		select_team_no_players = ColorUtil.color(config.getString("select_team.no_players"));
 		select_team_item_name = ColorUtil.color(config.getString("select_team.item.name"));
-		select_team_item_lore = ColorUtil.listcolor(config.getStringList("select_team.item.lore"));
+		select_team_item_lore = ColorUtil.colorList(config.getStringList("select_team.item.lore"));
 		lobby_block_enabled = config.getBoolean("lobby_block.enabled");
 		lobby_block_position_1_x = config.getInt("lobby_block.position_1.x");
 		lobby_block_position_1_y = config.getInt("lobby_block.position_1.y");
@@ -365,31 +396,30 @@ public class Config {
 		lobby_block_position_2_y = config.getInt("lobby_block.position_2.y");
 		lobby_block_position_2_z = config.getInt("lobby_block.position_2.z");
 		rejoin_enabled = config.getBoolean("rejoin.enabled");
-		rejoin_message_rejoin = ColorUtil.color(Main.getInstance().getConfig().getString("rejoin.message.rejoin"));
-		rejoin_message_error = ColorUtil.color(Main.getInstance().getConfig().getString("rejoin.message.error"));
+		rejoin_message_rejoin = ColorUtil.color(config.getString("rejoin.message.rejoin"));
+		rejoin_message_error = ColorUtil.color(config.getString("rejoin.message.error"));
 		bowdamage_enabled = config.getBoolean("bowdamage.enabled");
-		bowdamage_title = ColorUtil.color(Main.getInstance().getConfig().getString("bowdamage.title"));
-		bowdamage_subtitle = ColorUtil.color(Main.getInstance().getConfig().getString("bowdamage.subtitle"));
-		bowdamage_message = ColorUtil.color(Main.getInstance().getConfig().getString("bowdamage.message"));
+		bowdamage_title = ColorUtil.color(config.getString("bowdamage.title"));
+		bowdamage_subtitle = ColorUtil.color(config.getString("bowdamage.subtitle"));
+		bowdamage_message = ColorUtil.color(config.getString("bowdamage.message"));
 		damagetitle_enabled = config.getBoolean("damagetitle.enabled");
-		damagetitle_title = ColorUtil.color(Main.getInstance().getConfig().getString("damagetitle.title"));
-		damagetitle_subtitle = ColorUtil.color(Main.getInstance().getConfig().getString("damagetitle.subtitle"));
+		damagetitle_title = ColorUtil.color(config.getString("damagetitle.title"));
+		damagetitle_subtitle = ColorUtil.color(config.getString("damagetitle.subtitle"));
 		jointitle_enabled = config.getBoolean("jointitle.enabled");
-		jointitle_title = ColorUtil.color(Main.getInstance().getConfig().getString("jointitle.title"));
-		jointitle_subtitle = ColorUtil.color(Main.getInstance().getConfig().getString("jointitle.subtitle"));
+		jointitle_title = ColorUtil.color(config.getString("jointitle.title"));
+		jointitle_subtitle = ColorUtil.color(config.getString("jointitle.subtitle"));
 		die_out_title_enabled = config.getBoolean("die_out_title.enabled");
-		die_out_title_title = ColorUtil.color(Main.getInstance().getConfig().getString("die_out_title.title"));
-		die_out_title_subtitle = ColorUtil.color(Main.getInstance().getConfig().getString("die_out_title.subtitle"));
+		die_out_title_title = ColorUtil.color(config.getString("die_out_title.title"));
+		die_out_title_subtitle = ColorUtil.color(config.getString("die_out_title.subtitle"));
 		destroyed_title_enabled = config.getBoolean("destroyed_title.enabled");
-		destroyed_title_title = ColorUtil.color(Main.getInstance().getConfig().getString("destroyed_title.title"));
-		destroyed_title_subtitle = ColorUtil
-				.color(Main.getInstance().getConfig().getString("destroyed_title.subtitle"));
+		destroyed_title_title = ColorUtil.color(config.getString("destroyed_title.title"));
+		destroyed_title_subtitle = ColorUtil.color(config.getString("destroyed_title.subtitle"));
 		start_title_enabled = config.getBoolean("start_title.enabled");
-		start_title_title = ColorUtil.listcolor(Main.getInstance().getConfig().getStringList("start_title.title"));
-		start_title_subtitle = ColorUtil.color(Main.getInstance().getConfig().getString("start_title.subtitle"));
+		start_title_title = ColorUtil.colorList(config.getStringList("start_title.title"));
+		start_title_subtitle = ColorUtil.color(config.getString("start_title.subtitle"));
 		victory_title_enabled = config.getBoolean("victory_title.enabled");
-		victory_title_title = ColorUtil.listcolor(Main.getInstance().getConfig().getStringList("victory_title.title"));
-		victory_title_subtitle = ColorUtil.color(Main.getInstance().getConfig().getString("victory_title.subtitle"));
+		victory_title_title = ColorUtil.colorList(config.getStringList("victory_title.title"));
+		victory_title_subtitle = ColorUtil.color(config.getString("victory_title.subtitle"));
 		play_sound_enabled = config.getBoolean("play_sound.enabled");
 		play_sound_sound_start = config.getStringList("play_sound.sound.start");
 		play_sound_sound_death = config.getStringList("play_sound.sound.death");
@@ -404,77 +434,66 @@ public class Config {
 		spectator_enabled = config.getBoolean("spectator.enabled");
 		spectator_centre_enabled = config.getBoolean("spectator.centre.enabled");
 		spectator_centre_height = config.getDouble("spectator.centre.height");
-		spectator_spectator_target_title = ColorUtil
-				.color(Main.getInstance().getConfig().getString("spectator.spectator_target.title"));
-		spectator_spectator_target_subtitle = ColorUtil
-				.color(Main.getInstance().getConfig().getString("spectator.spectator_target.subtitle"));
-		spectator_quit_spectator_title = ColorUtil
-				.color(Main.getInstance().getConfig().getString("spectator.quit_spectator.title"));
-		spectator_quit_spectator_subtitle = ColorUtil
-				.color(Main.getInstance().getConfig().getString("spectator.quit_spectator.subtitle"));
+		spectator_spectator_target_title = ColorUtil.color(config.getString("spectator.spectator_target.title"));
+		spectator_spectator_target_subtitle = ColorUtil.color(config.getString("spectator.spectator_target.subtitle"));
+		spectator_quit_spectator_title = ColorUtil.color(config.getString("spectator.quit_spectator.title"));
+		spectator_quit_spectator_subtitle = ColorUtil.color(config.getString("spectator.quit_spectator.subtitle"));
 		spectator_speed_enabled = config.getBoolean("spectator.speed.enabled");
 		spectator_speed_slot = config.getInt("spectator.speed.slot");
 		spectator_speed_item = config.getInt("spectator.speed.item");
-		spectator_speed_item_name = ColorUtil
-				.color(Main.getInstance().getConfig().getString("spectator.speed.item_name")) + "§7";
-		spectator_speed_item_lore = ColorUtil
-				.listcolor(Main.getInstance().getConfig().getStringList("spectator.speed.item_lore"));
-		spectator_speed_gui_title = ColorUtil
-				.color(Main.getInstance().getConfig().getString("spectator.speed.gui_title")) + "§s§s";
-		spectator_speed_no_speed = ColorUtil
-				.color(Main.getInstance().getConfig().getString("spectator.speed.no_speed"));
-		spectator_speed_speed_1 = ColorUtil.color(Main.getInstance().getConfig().getString("spectator.speed.speed_1"));
-		spectator_speed_speed_2 = ColorUtil.color(Main.getInstance().getConfig().getString("spectator.speed.speed_2"));
-		spectator_speed_speed_3 = ColorUtil.color(Main.getInstance().getConfig().getString("spectator.speed.speed_3"));
-		spectator_speed_speed_4 = ColorUtil.color(Main.getInstance().getConfig().getString("spectator.speed.speed_4"));
+		spectator_speed_item_name = ColorUtil.color(config.getString("spectator.speed.item_name")) + "搂7";
+		spectator_speed_item_lore = ColorUtil.colorList(config.getStringList("spectator.speed.item_lore"));
+		spectator_speed_gui_title = ColorUtil.color(config.getString("spectator.speed.gui_title")) + "搂s搂s";
+		spectator_speed_no_speed = ColorUtil.color(config.getString("spectator.speed.no_speed"));
+		spectator_speed_speed_1 = ColorUtil.color(config.getString("spectator.speed.speed_1"));
+		spectator_speed_speed_2 = ColorUtil.color(config.getString("spectator.speed.speed_2"));
+		spectator_speed_speed_3 = ColorUtil.color(config.getString("spectator.speed.speed_3"));
+		spectator_speed_speed_4 = ColorUtil.color(config.getString("spectator.speed.speed_4"));
 		spectator_fast_join_enabled = config.getBoolean("spectator.fast_join.enabled");
 		spectator_fast_join_slot = config.getInt("spectator.fast_join.slot");
 		spectator_fast_join_item = config.getInt("spectator.fast_join.item");
-		spectator_fast_join_item_name = ColorUtil
-				.color(Main.getInstance().getConfig().getString("spectator.fast_join.item_name")) + "§7";
-		spectator_fast_join_item_lore = ColorUtil
-				.listcolor(Main.getInstance().getConfig().getStringList("spectator.fast_join.item_lore"));
+		spectator_fast_join_item_name = ColorUtil.color(config.getString("spectator.fast_join.item_name")) + "搂7";
+		spectator_fast_join_item_lore = ColorUtil.colorList(config.getStringList("spectator.fast_join.item_lore"));
 		spectator_fast_join_group = config.getString("spectator.fast_join.group");
 		compass_enabled = config.getBoolean("compass.enabled");
-		compass_item_name = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item_name"));
-		compass_item_lore = ColorUtil.listcolor(Main.getInstance().getConfig().getStringList("compass.item_lore"));
-		compass_lore_send_message = ColorUtil
-				.listcolor(Main.getInstance().getConfig().getStringList("compass.lore.send_message"));
-		compass_lore_select_team = ColorUtil
-				.listcolor(Main.getInstance().getConfig().getStringList("compass.lore.select_team"));
-		compass_lore_select_resources = ColorUtil
-				.listcolor(Main.getInstance().getConfig().getStringList("compass.lore.select_resources"));
+		compass_item_name = ColorUtil.color(config.getString("compass.item_name"));
+		compass_item_lore = ColorUtil.colorList(config.getStringList("compass.item_lore"));
+		compass_lore_send_message = ColorUtil.colorList(config.getStringList("compass.lore.send_message"));
+		compass_lore_select_team = ColorUtil.colorList(config.getStringList("compass.lore.select_team"));
+		compass_lore_select_resources = ColorUtil.colorList(config.getStringList("compass.lore.select_resources"));
 		compass_resources_name = new HashMap<String, String>();
 		compass_resources = new ArrayList<String>();
-		for (String type : Main.getInstance().getConfig().getConfigurationSection("compass.resources").getKeys(false)) {
-			compass_resources_name.put(type,
-					ColorUtil.color(Main.getInstance().getConfig().getString("compass.resources." + type)));
+		for (String type : config.getConfigurationSection("compass.resources").getKeys(false)) {
+			compass_resources_name.put(type, ColorUtil.color(config.getString("compass.resources." + type)));
 			compass_resources.add(type);
 		}
-		compass_back = ColorUtil.color(Main.getInstance().getConfig().getString("compass.back"));
-		compass_gui_title = ColorUtil.color(Main.getInstance().getConfig().getString("compass.gui_title")) + "§c§g";
-		compass_item_III_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.III_II"));
-		compass_item_IV_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.IV_II"));
-		compass_item_V_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.V_II"));
-		compass_item_VI_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.VI_II"));
-		compass_item_VII_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.VII_II"));
-		compass_item_VIII_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.VIII_II"));
-		compass_item_III_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.III_III"));
-		compass_item_IV_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.IV_III"));
-		compass_item_V_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.V_III"));
-		compass_item_VI_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.VI_III"));
-		compass_item_VII_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.item.VII_III"));
-		compass_message_III_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.III_II"));
-		compass_message_IV_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.IV_II"));
-		compass_message_V_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.V_II"));
-		compass_message_VI_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.VI_II"));
-		compass_message_VII_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.VII_II"));
-		compass_message_VIII_II = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.VIII_II"));
-		compass_message_III_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.III_III"));
-		compass_message_IV_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.IV_III"));
-		compass_message_V_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.V_III"));
-		compass_message_VI_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.VI_III"));
-		compass_message_VII_III = ColorUtil.color(Main.getInstance().getConfig().getString("compass.message.VII_III"));
+		compass_back = ColorUtil.color(config.getString("compass.back"));
+		compass_gui_title = ColorUtil.color(config.getString("compass.gui_title")) + "搂c搂g";
+		compass_item_III_II = ColorUtil.color(config.getString("compass.item.III_II"));
+		compass_item_IV_II = ColorUtil.color(config.getString("compass.item.IV_II"));
+		compass_item_V_II = ColorUtil.color(config.getString("compass.item.V_II"));
+		compass_item_VI_II = ColorUtil.color(config.getString("compass.item.VI_II"));
+		compass_item_VII_II = ColorUtil.color(config.getString("compass.item.VII_II"));
+		compass_item_VIII_II = ColorUtil.color(config.getString("compass.item.VIII_II"));
+		compass_item_III_III = ColorUtil.color(config.getString("compass.item.III_III"));
+		compass_item_IV_III = ColorUtil.color(config.getString("compass.item.IV_III"));
+		compass_item_V_III = ColorUtil.color(config.getString("compass.item.V_III"));
+		compass_item_VI_III = ColorUtil.color(config.getString("compass.item.VI_III"));
+		compass_item_VII_III = ColorUtil.color(config.getString("compass.item.VII_III"));
+		compass_message_III_II = ColorUtil.color(config.getString("compass.message.III_II"));
+		compass_message_IV_II = ColorUtil.color(config.getString("compass.message.IV_II"));
+		compass_message_V_II = ColorUtil.color(config.getString("compass.message.V_II"));
+		compass_message_VI_II = ColorUtil.color(config.getString("compass.message.VI_II"));
+		compass_message_VII_II = ColorUtil.color(config.getString("compass.message.VII_II"));
+		compass_message_VIII_II = ColorUtil.color(config.getString("compass.message.VIII_II"));
+		compass_message_III_III = ColorUtil.color(config.getString("compass.message.III_III"));
+		compass_message_IV_III = ColorUtil.color(config.getString("compass.message.IV_III"));
+		compass_message_V_III = ColorUtil.color(config.getString("compass.message.V_III"));
+		compass_message_VI_III = ColorUtil.color(config.getString("compass.message.VI_III"));
+		compass_message_VII_III = ColorUtil.color(config.getString("compass.message.VII_III"));
+		graffiti_enabled = config.getBoolean("graffiti.enabled");
+		graffiti_holographic_enabled = config.getBoolean("graffiti.holographic.enabled");
+		graffiti_holographic_text = ColorUtil.color(config.getString("graffiti.holographic.text"));
 		shop_enabled = config.getBoolean("shop.enabled");
 		shop_item_shop_type = config.getString("shop.item_shop.type");
 		shop_item_shop_skin = config.getString("shop.item_shop.skin");
@@ -482,197 +501,235 @@ public class Config {
 		shop_team_shop_type = config.getString("shop.team_shop.type");
 		shop_team_shop_skin = config.getString("shop.team_shop.skin");
 		shop_team_shop_look = config.getBoolean("shop.team_shop.look");
-		shop_item_shop_name = ColorUtil.listcolor(Main.getInstance().getConfig().getStringList("shop.item_shop.name"));
-		shop_team_shop_name = ColorUtil.listcolor(Main.getInstance().getConfig().getStringList("shop.team_shop.name"));
+		shop_item_shop_name = ColorUtil.colorList(config.getStringList("shop.item_shop.name"));
+		shop_team_shop_name = ColorUtil.colorList(config.getStringList("shop.team_shop.name"));
 		respawn_enabled = config.getBoolean("respawn.enabled");
 		respawn_centre_enabled = config.getBoolean("respawn.centre.enabled");
 		respawn_centre_height = config.getDouble("respawn.centre.height");
+		respawn_protected_enabled = config.getBoolean("respawn.protected.enabled");
+		respawn_protected_time = config.getInt("respawn.protected.time");
 		respawn_respawn_delay = config.getInt("respawn.respawn_delay");
-		respawn_respawning_title = ColorUtil
-				.color(Main.getInstance().getConfig().getString("respawn.respawning.title"));
-		respawn_respawning_subtitle = ColorUtil
-				.color(Main.getInstance().getConfig().getString("respawn.respawning.subtitle"));
-		respawn_respawning_message = ColorUtil
-				.color(Main.getInstance().getConfig().getString("respawn.respawning.message"));
-		respawn_respawned_title = ColorUtil.color(Main.getInstance().getConfig().getString("respawn.respawned.title"));
-		respawn_respawned_subtitle = ColorUtil
-				.color(Main.getInstance().getConfig().getString("respawn.respawned.subtitle"));
-		respawn_respawned_message = ColorUtil
-				.color(Main.getInstance().getConfig().getString("respawn.respawned.message"));
+		respawn_countdown_title = ColorUtil.color(config.getString("respawn.countdown.title"));
+		respawn_countdown_subtitle = ColorUtil.color(config.getString("respawn.countdown.subtitle"));
+		respawn_countdown_message = ColorUtil.color(config.getString("respawn.countdown.message"));
+		respawn_respawn_title = ColorUtil.color(config.getString("respawn.respawn.title"));
+		respawn_respawn_subtitle = ColorUtil.color(config.getString("respawn.respawn.subtitle"));
+		respawn_respawn_message = ColorUtil.color(config.getString("respawn.respawn.message"));
 		sethealth_start_enabled = config.getBoolean("sethealth.start.enabled");
 		sethealth_start_health = config.getInt("sethealth.start.health");
-		sethealth_start_title = ColorUtil.color(Main.getInstance().getConfig().getString("sethealth.start.title"));
-		sethealth_start_subtitle = ColorUtil
-				.color(Main.getInstance().getConfig().getString("sethealth.start.subtitle"));
-		sethealth_start_message = ColorUtil.color(Main.getInstance().getConfig().getString("sethealth.start.message"));
 		resourcelimit_enabled = config.getBoolean("resourcelimit.enabled");
 		resourcelimit_limit = new ArrayList<String[]>();
-		for (String w : Main.getInstance().getConfig().getStringList("resourcelimit.limit")) {
+		for (String w : config.getStringList("resourcelimit.limit")) {
 			String[] ary = w.split(",");
 			resourcelimit_limit.add(ary);
 		}
+		spread_resource_enabled = config.getBoolean("spread_resource.enabled");
+		spread_resource_launch = config.getBoolean("spread_resource.launch");
+		spread_resource_range = config.getDouble("spread_resource.range");
+		game_chest_enabled = config.getBoolean("game_chest.enabled");
+		game_chest_range = config.getInt("game_chest.range");
+		game_chest_message = ColorUtil.color(config.getString("game_chest.message"));
 		invisibility_player_enabled = config.getBoolean("invisibility_player.enabled");
 		invisibility_player_footstep = config.getBoolean("invisibility_player.footstep");
 		invisibility_player_hide_particles = config.getBoolean("invisibility_player.hide_particles");
 		invisibility_player_damage_show_player = config.getBoolean("invisibility_player.damage_show_player");
 		witherbow_enabled = config.getBoolean("witherbow.enabled");
 		witherbow_gametime = config.getInt("witherbow.gametime");
-		witherbow_already_starte = ColorUtil
-				.color(Main.getInstance().getConfig().getString("witherbow.already_starte"));
-		witherbow_title = ColorUtil.color(Main.getInstance().getConfig().getString("witherbow.title"));
-		witherbow_subtitle = ColorUtil.color(Main.getInstance().getConfig().getString("witherbow.subtitle"));
-		witherbow_message = ColorUtil.color(Main.getInstance().getConfig().getString("witherbow.message"));
-		teamshop_enabled = tsfilec.getBoolean("enabled");
-		teamshop_title = ColorUtil.color(tsfilec.getString("title") + "§1§0§0§0§0§0");
-		teamshop_message = ColorUtil.color(tsfilec.getString("message"));
-		teamshop_no_resource = ColorUtil.color(tsfilec.getString("no_resource"));
-		teamshop_frame = ColorUtil.listcolor(tsfilec.getStringList("frame"));
-		teamshop_upgrade_fast_dig_item = tsfilec.getString("upgrade.fast_dig.item");
-		teamshop_upgrade_fast_dig_name = ColorUtil.color(tsfilec.getString("upgrade.fast_dig.name"));
-		teamshop_upgrade_fast_dig_level_cost = new HashMap<Integer, String>();
-		teamshop_upgrade_fast_dig_level_cost.put(1, tsfilec.getString("upgrade.fast_dig.level_1.cost"));
-		teamshop_upgrade_fast_dig_level_cost.put(2, tsfilec.getString("upgrade.fast_dig.level_2.cost"));
-		teamshop_upgrade_fast_dig_level_1_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.fast_dig.level_1.lore"));
-		teamshop_upgrade_fast_dig_level_2_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.fast_dig.level_2.lore"));
-		teamshop_upgrade_fast_dig_level_full_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.fast_dig.level_full.lore"));
-		teamshop_upgrade_sword_sharpness_item = tsfilec.getString("upgrade.sword_sharpness.item");
-		teamshop_upgrade_sword_sharpness_name = ColorUtil.color(tsfilec.getString("upgrade.sword_sharpness.name"));
-		teamshop_upgrade_sword_sharpness_level_cost = new HashMap<Integer, String>();
-		teamshop_upgrade_sword_sharpness_level_cost.put(1, tsfilec.getString("upgrade.sword_sharpness.level_1.cost"));
-		teamshop_upgrade_sword_sharpness_level_cost.put(2, tsfilec.getString("upgrade.sword_sharpness.level_2.cost"));
-		teamshop_upgrade_sword_sharpness_level_1_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.sword_sharpness.level_1.lore"));
-		teamshop_upgrade_sword_sharpness_level_2_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.sword_sharpness.level_2.lore"));
-		teamshop_upgrade_sword_sharpness_level_full_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.sword_sharpness.level_full.lore"));
-		teamshop_upgrade_armor_protection_item = tsfilec.getString("upgrade.armor_protection.item");
-		teamshop_upgrade_armor_protection_name = ColorUtil.color(tsfilec.getString("upgrade.armor_protection.name"));
-		teamshop_upgrade_armor_protection_level_cost = new HashMap<Integer, String>();
-		teamshop_upgrade_armor_protection_level_cost.put(1, tsfilec.getString("upgrade.armor_protection.level_1.cost"));
-		teamshop_upgrade_armor_protection_level_cost.put(2, tsfilec.getString("upgrade.armor_protection.level_2.cost"));
-		teamshop_upgrade_armor_protection_level_cost.put(3, tsfilec.getString("upgrade.armor_protection.level_3.cost"));
-		teamshop_upgrade_armor_protection_level_cost.put(4, tsfilec.getString("upgrade.armor_protection.level_4.cost"));
-		teamshop_upgrade_armor_protection_level_1_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.armor_protection.level_1.lore"));
-		teamshop_upgrade_armor_protection_level_2_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.armor_protection.level_2.lore"));
-		teamshop_upgrade_armor_protection_level_3_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.armor_protection.level_3.lore"));
-		teamshop_upgrade_armor_protection_level_4_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.armor_protection.level_4.lore"));
-		teamshop_upgrade_armor_protection_level_full_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.armor_protection.level_full.lore"));
-		teamshop_upgrade_trap_item = tsfilec.getString("upgrade.trap.item");
-		teamshop_upgrade_trap_name = ColorUtil.color(tsfilec.getString("upgrade.trap.name"));
-		teamshop_upgrade_trap_trigger_range = tsfilec.getInt("upgrade.trap.trigger_range");
-		teamshop_upgrade_trap_level_1_cost = tsfilec.getString("upgrade.trap.level_1.cost");
-		teamshop_upgrade_trap_trigger_title = ColorUtil.color(tsfilec.getString("upgrade.trap.trigger.title"));
-		teamshop_upgrade_trap_trigger_subtitle = ColorUtil.color(tsfilec.getString("upgrade.trap.trigger.subtitle"));
-		teamshop_upgrade_trap_trigger_message = ColorUtil.color(tsfilec.getString("upgrade.trap.trigger.message"));
-		teamshop_upgrade_trap_level_1_lore = ColorUtil.listcolor(tsfilec.getStringList("upgrade.trap.level_1.lore"));
-		teamshop_upgrade_trap_level_full_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.trap.level_full.lore"));
-		teamshop_upgrade_defense_permanent = tsfilec.getBoolean("upgrade.defense.permanent");
-		teamshop_upgrade_defense_item = tsfilec.getString("upgrade.defense.item");
-		teamshop_upgrade_defense_name = ColorUtil.color(tsfilec.getString("upgrade.defense.name"));
-		teamshop_upgrade_defense_trigger_range = tsfilec.getInt("upgrade.defense.trigger_range");
-		teamshop_upgrade_defense_level_1_cost = tsfilec.getString("upgrade.defense.level_1.cost");
-		teamshop_upgrade_defense_level_1_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.defense.level_1.lore"));
-		teamshop_upgrade_defense_level_full_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.defense.level_full.lore"));
-		teamshop_upgrade_heal_item = tsfilec.getString("upgrade.heal.item");
-		teamshop_upgrade_heal_name = ColorUtil.color(tsfilec.getString("upgrade.heal.name"));
-		teamshop_upgrade_heal_trigger_range = tsfilec.getInt("upgrade.heal.trigger_range");
-		teamshop_upgrade_heal_level_1_cost = tsfilec.getString("upgrade.heal.level_1.cost");
-		teamshop_upgrade_heal_level_1_lore = ColorUtil.listcolor(tsfilec.getStringList("upgrade.heal.level_1.lore"));
-		teamshop_upgrade_heal_level_full_lore = ColorUtil
-				.listcolor(tsfilec.getStringList("upgrade.heal.level_full.lore"));
+		witherbow_already_starte = ColorUtil.color(config.getString("witherbow.already_starte"));
+		witherbow_title = ColorUtil.color(config.getString("witherbow.title"));
+		witherbow_subtitle = ColorUtil.color(config.getString("witherbow.subtitle"));
+		witherbow_message = ColorUtil.color(config.getString("witherbow.message"));
+		teamshop_enabled = team_shop_config.getBoolean("enabled");
+		teamshop_upgrade_shop_title = ColorUtil.color(team_shop_config.getString("upgrade_shop.title"));
+		teamshop_upgrade_shop_frame = ColorUtil.colorList(team_shop_config.getStringList("upgrade_shop.frame"));
+		teamshop_upgrade_shop_trap_item = team_shop_config.getString("upgrade_shop.trap.item");
+		teamshop_upgrade_shop_trap_name = ColorUtil.color(team_shop_config.getString("upgrade_shop.trap.name"));
+		teamshop_upgrade_shop_trap_lore = ColorUtil.colorList(team_shop_config.getStringList("upgrade_shop.trap.lore"));
+		teamshop_trap_shop_title = ColorUtil.color(team_shop_config.getString("trap_shop.title"));
+		teamshop_trap_shop_back = ColorUtil.colorList(team_shop_config.getStringList("trap_shop.back"));
+		teamshop_message_upgrade = ColorUtil.color(team_shop_config.getString("message.upgrade"));
+		teamshop_message_no_resource = ColorUtil.color(team_shop_config.getString("message.no_resource"));
+		teamshop_state_no_resource = ColorUtil.color(team_shop_config.getString("state.no_resource"));
+		teamshop_state_lock = ColorUtil.color(team_shop_config.getString("state.lock"));
+		teamshop_state_unlock = ColorUtil.color(team_shop_config.getString("state.unlock"));
+		teamshop_trap_cooldown = team_shop_config.getInt("trap_cooldown");
+		teamshop_trap_trap_list_trap_1_lock = ColorUtil.colorList(team_shop_config.getStringList("trap.trap_list.trap_1.lock"));
+		teamshop_trap_trap_list_trap_1_unlock = ColorUtil.colorList(team_shop_config.getStringList("trap.trap_list.trap_1.unlock"));
+		teamshop_trap_trap_list_trap_2_lock = ColorUtil.colorList(team_shop_config.getStringList("trap.trap_list.trap_2.lock"));
+		teamshop_trap_trap_list_trap_2_unlock = ColorUtil.colorList(team_shop_config.getStringList("trap.trap_list.trap_2.unlock"));
+		teamshop_trap_trap_list_trap_3_lock = ColorUtil.colorList(team_shop_config.getStringList("trap.trap_list.trap_3.lock"));
+		teamshop_trap_trap_list_trap_3_unlock = ColorUtil.colorList(team_shop_config.getStringList("trap.trap_list.trap_3.unlock"));
+		teamshop_trap_level_cost = new HashMap<Integer, String>();
+		teamshop_trap_level_cost.put(1, team_shop_config.getString("trap.cost.level_1"));
+		teamshop_trap_level_cost.put(2, team_shop_config.getString("trap.cost.level_2"));
+		teamshop_trap_level_cost.put(3, team_shop_config.getString("trap.cost.level_3"));
+		teamshop_upgrade_enabled = new LinkedHashMap<UpgradeType, Boolean>();
+		teamshop_upgrade_item = new HashMap<UpgradeType, String>();
+		teamshop_upgrade_name = new HashMap<UpgradeType, String>();
+		teamshop_upgrade_level_cost = new HashMap<UpgradeType, Map<Integer, String>>();
+		teamshop_upgrade_level_lore = new HashMap<UpgradeType, Map<Integer, List<String>>>();
+		Map<Integer, List<String>> teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		Map<Integer, String> teamshop_upgrade_level_cost_map = new HashMap<Integer, String>();
+		teamshop_upgrade_enabled.put(UpgradeType.SHARPNESS, team_shop_config.getBoolean("upgrade.sword_sharpness.enabled"));
+		teamshop_upgrade_item.put(UpgradeType.SHARPNESS, team_shop_config.getString("upgrade.sword_sharpness.item"));
+		teamshop_upgrade_name.put(UpgradeType.SHARPNESS, ColorUtil.color(team_shop_config.getString("upgrade.sword_sharpness.name")));
+		teamshop_upgrade_level_cost_map.put(1, team_shop_config.getString("upgrade.sword_sharpness.level_1.cost"));
+		teamshop_upgrade_level_cost_map.put(2, team_shop_config.getString("upgrade.sword_sharpness.level_2.cost"));
+		teamshop_upgrade_level_cost.put(UpgradeType.SHARPNESS, teamshop_upgrade_level_cost_map);
+		teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		teamshop_upgrade_level_lore_map.put(1, ColorUtil.colorList(team_shop_config.getStringList("upgrade.sword_sharpness.level_1.lore")));
+		teamshop_upgrade_level_lore_map.put(2, ColorUtil.colorList(team_shop_config.getStringList("upgrade.sword_sharpness.level_2.lore")));
+		teamshop_upgrade_level_lore_map.put(3, ColorUtil.colorList(team_shop_config.getStringList("upgrade.sword_sharpness.level_full.lore")));
+		teamshop_upgrade_level_lore.put(UpgradeType.SHARPNESS, teamshop_upgrade_level_lore_map);
+		teamshop_upgrade_enabled.put(UpgradeType.PROTECTION, team_shop_config.getBoolean("upgrade.armor_protection.enabled"));
+		teamshop_upgrade_item.put(UpgradeType.PROTECTION, team_shop_config.getString("upgrade.armor_protection.item"));
+		teamshop_upgrade_name.put(UpgradeType.PROTECTION, ColorUtil.color(team_shop_config.getString("upgrade.armor_protection.name")));
+		teamshop_upgrade_level_cost_map = new HashMap<Integer, String>();
+		teamshop_upgrade_level_cost_map.put(1, team_shop_config.getString("upgrade.armor_protection.level_1.cost"));
+		teamshop_upgrade_level_cost_map.put(2, team_shop_config.getString("upgrade.armor_protection.level_2.cost"));
+		teamshop_upgrade_level_cost_map.put(3, team_shop_config.getString("upgrade.armor_protection.level_3.cost"));
+		teamshop_upgrade_level_cost_map.put(4, team_shop_config.getString("upgrade.armor_protection.level_4.cost"));
+		teamshop_upgrade_level_cost.put(UpgradeType.PROTECTION, teamshop_upgrade_level_cost_map);
+		teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		teamshop_upgrade_level_lore_map.put(1, ColorUtil.colorList(team_shop_config.getStringList("upgrade.armor_protection.level_1.lore")));
+		teamshop_upgrade_level_lore_map.put(2, ColorUtil.colorList(team_shop_config.getStringList("upgrade.armor_protection.level_2.lore")));
+		teamshop_upgrade_level_lore_map.put(3, ColorUtil.colorList(team_shop_config.getStringList("upgrade.armor_protection.level_3.lore")));
+		teamshop_upgrade_level_lore_map.put(4, ColorUtil.colorList(team_shop_config.getStringList("upgrade.armor_protection.level_4.lore")));
+		teamshop_upgrade_level_lore_map.put(5, ColorUtil.colorList(team_shop_config.getStringList("upgrade.armor_protection.level_full.lore")));
+		teamshop_upgrade_level_lore.put(UpgradeType.PROTECTION, teamshop_upgrade_level_lore_map);
+		teamshop_upgrade_enabled.put(UpgradeType.FAST_DIG, team_shop_config.getBoolean("upgrade.fast_dig.enabled"));
+		teamshop_upgrade_item.put(UpgradeType.FAST_DIG, team_shop_config.getString("upgrade.fast_dig.item"));
+		teamshop_upgrade_name.put(UpgradeType.FAST_DIG, ColorUtil.color(team_shop_config.getString("upgrade.fast_dig.name")));
+		Map<Integer, String> teamshop_upgrade_fast_dig_level_cost = new HashMap<Integer, String>();
+		teamshop_upgrade_fast_dig_level_cost.put(1, team_shop_config.getString("upgrade.fast_dig.level_1.cost"));
+		teamshop_upgrade_fast_dig_level_cost.put(2, team_shop_config.getString("upgrade.fast_dig.level_2.cost"));
+		teamshop_upgrade_level_cost.put(UpgradeType.FAST_DIG, teamshop_upgrade_fast_dig_level_cost);
+		teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		teamshop_upgrade_level_lore_map.put(1, ColorUtil.colorList(team_shop_config.getStringList("upgrade.fast_dig.level_1.lore")));
+		teamshop_upgrade_level_lore_map.put(2, ColorUtil.colorList(team_shop_config.getStringList("upgrade.fast_dig.level_2.lore")));
+		teamshop_upgrade_level_lore_map.put(3, ColorUtil.colorList(team_shop_config.getStringList("upgrade.fast_dig.level_full.lore")));
+		teamshop_upgrade_level_lore.put(UpgradeType.FAST_DIG, teamshop_upgrade_level_lore_map);
+		teamshop_upgrade_enabled.put(UpgradeType.IRON_FORGE, team_shop_config.getBoolean("upgrade.iron_forge.enabled"));
+		teamshop_upgrade_item.put(UpgradeType.IRON_FORGE, team_shop_config.getString("upgrade.iron_forge.item"));
+		teamshop_upgrade_name.put(UpgradeType.IRON_FORGE, ColorUtil.color(team_shop_config.getString("upgrade.iron_forge.name")));
+		teamshop_upgrade_iron_forge_level_resources = new HashMap<Integer, List<String>>();
+		teamshop_upgrade_level_cost_map = new HashMap<Integer, String>();
+		teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		for (int i = 1; i < 5; i++) {
+			teamshop_upgrade_level_cost_map.put(i, team_shop_config.getString("upgrade.iron_forge.level_" + i + ".cost"));
+			teamshop_upgrade_level_lore_map.put(i, ColorUtil.colorList(team_shop_config.getStringList("upgrade.iron_forge.level_" + i + ".lore")));
+			teamshop_upgrade_iron_forge_level_resources.put(i, team_shop_config.getStringList("upgrade.iron_forge.level_" + i + ".resources"));
+		}
+		teamshop_upgrade_iron_forge_level_resources.put(0, team_shop_config.getStringList("upgrade.iron_forge.level_0.resources"));
+		teamshop_upgrade_level_cost.put(UpgradeType.IRON_FORGE, teamshop_upgrade_level_cost_map);
+		teamshop_upgrade_level_lore_map.put(5, ColorUtil.colorList(team_shop_config.getStringList("upgrade.iron_forge.level_full.lore")));
+		teamshop_upgrade_level_lore.put(UpgradeType.IRON_FORGE, teamshop_upgrade_level_lore_map);
+		teamshop_upgrade_enabled.put(UpgradeType.HEAL, team_shop_config.getBoolean("upgrade.heal.enabled"));
+		teamshop_upgrade_item.put(UpgradeType.HEAL, team_shop_config.getString("upgrade.heal.item"));
+		teamshop_upgrade_name.put(UpgradeType.HEAL, ColorUtil.color(team_shop_config.getString("upgrade.heal.name")));
+		teamshop_upgrade_heal_trigger_range = team_shop_config.getInt("upgrade.heal.trigger_range");
+		teamshop_upgrade_level_cost_map = new HashMap<Integer, String>();
+		teamshop_upgrade_level_cost_map.put(1, team_shop_config.getString("upgrade.heal.level_1.cost"));
+		teamshop_upgrade_level_cost.put(UpgradeType.HEAL, teamshop_upgrade_level_cost_map);
+		teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		teamshop_upgrade_level_lore_map.put(1, ColorUtil.colorList(team_shop_config.getStringList("upgrade.heal.level_1.lore")));
+		teamshop_upgrade_level_lore_map.put(2, ColorUtil.colorList(team_shop_config.getStringList("upgrade.heal.level_full.lore")));
+		teamshop_upgrade_level_lore.put(UpgradeType.HEAL, teamshop_upgrade_level_lore_map);
+		teamshop_upgrade_enabled.put(UpgradeType.TRAP, team_shop_config.getBoolean("upgrade.trap.enabled"));
+		teamshop_upgrade_item.put(UpgradeType.TRAP, team_shop_config.getString("upgrade.trap.item"));
+		teamshop_upgrade_name.put(UpgradeType.TRAP, ColorUtil.color(team_shop_config.getString("upgrade.trap.name")));
+		teamshop_upgrade_trap_trigger_range = team_shop_config.getInt("upgrade.trap.trigger_range");
+		teamshop_upgrade_trap_trigger_title = ColorUtil.color(team_shop_config.getString("upgrade.trap.trigger.title"));
+		teamshop_upgrade_trap_trigger_subtitle = ColorUtil.color(team_shop_config.getString("upgrade.trap.trigger.subtitle"));
+		teamshop_upgrade_trap_trigger_message = ColorUtil.color(team_shop_config.getString("upgrade.trap.trigger.message"));
+		teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		teamshop_upgrade_level_lore_map.put(1, ColorUtil.colorList(team_shop_config.getStringList("upgrade.trap.level_1.lore")));
+		teamshop_upgrade_level_lore_map.put(2, ColorUtil.colorList(team_shop_config.getStringList("upgrade.trap.level_full.lore")));
+		teamshop_upgrade_level_lore.put(UpgradeType.TRAP, teamshop_upgrade_level_lore_map);
+		teamshop_upgrade_enabled.put(UpgradeType.COUNTER_OFFENSIVE_TRAP, team_shop_config.getBoolean("upgrade.counter_offensive_trap.enabled"));
+		teamshop_upgrade_item.put(UpgradeType.COUNTER_OFFENSIVE_TRAP, team_shop_config.getString("upgrade.counter_offensive_trap.item"));
+		teamshop_upgrade_name.put(UpgradeType.COUNTER_OFFENSIVE_TRAP, ColorUtil.color(team_shop_config.getString("upgrade.counter_offensive_trap.name")));
+		teamshop_upgrade_counter_offensive_trap_trigger_range = team_shop_config.getInt("upgrade.counter_offensive_trap.trigger_range");
+		teamshop_upgrade_counter_offensive_trap_effect_range = team_shop_config.getInt("upgrade.counter_offensive_trap.effect_range");
+		teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		teamshop_upgrade_level_lore_map.put(1, ColorUtil.colorList(team_shop_config.getStringList("upgrade.counter_offensive_trap.level_1.lore")));
+		teamshop_upgrade_level_lore_map.put(2, ColorUtil.colorList(team_shop_config.getStringList("upgrade.counter_offensive_trap.level_full.lore")));
+		teamshop_upgrade_level_lore.put(UpgradeType.COUNTER_OFFENSIVE_TRAP, teamshop_upgrade_level_lore_map);
+		teamshop_upgrade_enabled.put(UpgradeType.ALARM_TRAP, team_shop_config.getBoolean("upgrade.alarm_trap.enabled"));
+		teamshop_upgrade_item.put(UpgradeType.ALARM_TRAP, team_shop_config.getString("upgrade.alarm_trap.item"));
+		teamshop_upgrade_name.put(UpgradeType.ALARM_TRAP, ColorUtil.color(team_shop_config.getString("upgrade.alarm_trap.name")));
+		teamshop_upgrade_alarm_trap_trigger_range = team_shop_config.getInt("upgrade.alarm_trap.trigger_range");
+		teamshop_upgrade_alarm_trap_trigger_title = ColorUtil.color(team_shop_config.getString("upgrade.alarm_trap.trigger.title"));
+		teamshop_upgrade_alarm_trap_trigger_subtitle = ColorUtil.color(team_shop_config.getString("upgrade.alarm_trap.trigger.subtitle"));
+		teamshop_upgrade_alarm_trap_trigger_message = ColorUtil.color(team_shop_config.getString("upgrade.alarm_trap.trigger.message"));
+		teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		teamshop_upgrade_level_lore_map.put(1, ColorUtil.colorList(team_shop_config.getStringList("upgrade.alarm_trap.level_1.lore")));
+		teamshop_upgrade_level_lore_map.put(2, ColorUtil.colorList(team_shop_config.getStringList("upgrade.alarm_trap.level_full.lore")));
+		teamshop_upgrade_level_lore.put(UpgradeType.ALARM_TRAP, teamshop_upgrade_level_lore_map);
+		teamshop_upgrade_enabled.put(UpgradeType.DEFENSE, team_shop_config.getBoolean("upgrade.defense.enabled"));
+		teamshop_upgrade_item.put(UpgradeType.DEFENSE, team_shop_config.getString("upgrade.defense.item"));
+		teamshop_upgrade_name.put(UpgradeType.DEFENSE, ColorUtil.color(team_shop_config.getString("upgrade.defense.name")));
+		teamshop_upgrade_defense_trigger_range = team_shop_config.getInt("upgrade.defense.trigger_range");
+		teamshop_upgrade_level_lore_map = new HashMap<Integer, List<String>>();
+		teamshop_upgrade_level_lore_map.put(1, ColorUtil.colorList(team_shop_config.getStringList("upgrade.defense.level_1.lore")));
+		teamshop_upgrade_level_lore_map.put(2, ColorUtil.colorList(team_shop_config.getStringList("upgrade.defense.level_full.lore")));
+		teamshop_upgrade_level_lore.put(UpgradeType.DEFENSE, teamshop_upgrade_level_lore_map);
 		deathmode_enabled = config.getBoolean("deathmode.enabled");
 		deathmode_gametime = config.getInt("deathmode.gametime");
-		deathmode_title = ColorUtil.color(Main.getInstance().getConfig().getString("deathmode.title"));
-		deathmode_subtitle = ColorUtil.color(Main.getInstance().getConfig().getString("deathmode.subtitle"));
-		deathmode_message = ColorUtil.color(Main.getInstance().getConfig().getString("deathmode.message"));
+		deathmode_title = ColorUtil.color(config.getString("deathmode.title"));
+		deathmode_subtitle = ColorUtil.color(config.getString("deathmode.subtitle"));
+		deathmode_message = ColorUtil.color(config.getString("deathmode.message"));
 		deathitem_enabled = config.getBoolean("deathitem.enabled");
 		deathitem_items = config.getStringList("deathitem.items");
 		deathitem_item_name_chinesize = config.getBoolean("deathitem.item_name_chinesize");
-		deathitem_message = ColorUtil.color(Main.getInstance().getConfig().getString("deathitem.message"));
-		nobreakbed_nobreakmessage = ColorUtil
-				.color(Main.getInstance().getConfig().getString("nobreakbed.nobreakmessage"));
+		deathitem_message = ColorUtil.color(config.getString("deathitem.message"));
+		nobreakbed_nobreakmessage = ColorUtil.color(config.getString("nobreakbed.nobreakmessage"));
 		nobreakbed_enabled = config.getBoolean("nobreakbed.enabled");
 		nobreakbed_gametime = config.getInt("nobreakbed.gametime");
-		nobreakbed_title = ColorUtil.color(Main.getInstance().getConfig().getString("nobreakbed.title"));
-		nobreakbed_subtitle = ColorUtil.color(Main.getInstance().getConfig().getString("nobreakbed.subtitle"));
-		nobreakbed_message = ColorUtil.color(Main.getInstance().getConfig().getString("nobreakbed.message"));
-		spawn_no_build_enabled = config.getBoolean("spawn_no_build.enabled");
-		spawn_no_build_spawn_range = config.getInt("spawn_no_build.spawn_range");
-		spawn_no_build_resource_range = config.getInt("spawn_no_build.resource_range");
-		spawn_no_build_message = ColorUtil.color(Main.getInstance().getConfig().getString("spawn_no_build.message"));
+		nobreakbed_title = ColorUtil.color(config.getString("nobreakbed.title"));
+		nobreakbed_subtitle = ColorUtil.color(config.getString("nobreakbed.subtitle"));
+		nobreakbed_message = ColorUtil.color(config.getString("nobreakbed.message"));
+		spawn_no_build_spawn_enabled = config.getBoolean("spawn_no_build.spawn.enabled");
+		spawn_no_build_spawn_range = config.getInt("spawn_no_build.spawn.range");
+		spawn_no_build_resource_enabled = config.getBoolean("spawn_no_build.resource.enabled");
+		spawn_no_build_resource_range = config.getInt("spawn_no_build.resource.range");
+		spawn_no_build_message = ColorUtil.color(config.getString("spawn_no_build.message"));
 		holographic_resource_enabled = config.getBoolean("holographic.resource.enabled");
-		holographic_bed_title_enabled = config.getBoolean("holographic.bed_title.enabled");
+		holographic_bed_title_bed_alive_enabled = config.getBoolean("holographic.bed_title.bed_alive.enabled");
+		holographic_bed_title_bed_destroyed_enabled = config.getBoolean("holographic.bed_title.bed_destroyed.enabled");
 		holographic_resource_speed = config.getDouble("holographic.resource.speed");
-		holographic_resource = new ArrayList<String>();
-		for (String s : Main.getInstance().getConfig().getConfigurationSection("holographic.resource.resources")
-				.getKeys(false)) {
-			holographic_resource.add(s);
-		}
-		holographic_bedtitle_bed_destroyed = ColorUtil
-				.color(Main.getInstance().getConfig().getString("holographic.bed_title.bed_destroyed"));
-		holographic_bedtitle_bed_alive = ColorUtil
-				.color(Main.getInstance().getConfig().getString("holographic.bed_title.bed_alive"));
+		holographic_resource = new ArrayList<String>(config.getConfigurationSection("holographic.resource.resources").getKeys(false));
+		holographic_bedtitle_bed_destroyed_title = ColorUtil.color(config.getString("holographic.bed_title.bed_destroyed.title"));
+		holographic_bedtitle_bed_alive_title = ColorUtil.color(config.getString("holographic.bed_title.bed_alive.title"));
 		overstats_enabled = config.getBoolean("overstats.enabled");
-		overstats_message = ColorUtil.listcolor(Main.getInstance().getConfig().getStringList("overstats.message"));
-		actionbar = ColorUtil.color(Main.getInstance().getConfig().getString("actionbar"));
+		overstats_message = ColorUtil.colorList(config.getStringList("overstats.message"));
+		actionbar = ColorUtil.color(config.getString("actionbar"));
 		timer = new HashMap<String, Integer>();
-		for (String w : Main.getInstance().getConfig().getConfigurationSection("timer").getKeys(false)) {
-			timer.put(w, Main.getInstance().getConfig().getInt("timer." + w));
+		for (String w : config.getConfigurationSection("timer").getKeys(false)) {
+			timer.put(w, config.getInt("timer." + w));
 		}
-		planinfo = new ArrayList<String>();
-		for (String w : Main.getInstance().getConfig().getConfigurationSection("planinfo").getKeys(false)) {
-			planinfo.add(w);
-		}
-		playertag_prefix = ColorUtil.color(Main.getInstance().getConfig().getString("playertag.prefix"));
-		playertag_suffix = ColorUtil.color(Main.getInstance().getConfig().getString("playertag.suffix"));
+		planinfo = new ArrayList<String>(config.getConfigurationSection("planinfo").getKeys(false));
+		playertag_prefix = ColorUtil.color(config.getString("playertag.prefix"));
+		playertag_suffix = ColorUtil.color(config.getString("playertag.suffix"));
 		scoreboard_interval = config.getInt("scoreboard.interval");
-		scoreboard_title = ColorUtil.listcolor(Main.getInstance().getConfig().getStringList("scoreboard.title"));
-		scoreboard_you = ColorUtil.color(Main.getInstance().getConfig().getString("scoreboard.you"));
-		scoreboard_team_bed_status_bed_alive = ColorUtil
-				.color(Main.getInstance().getConfig().getString("scoreboard.team_bed_status.bed_alive"));
-		scoreboard_team_bed_status_bed_destroyed = ColorUtil
-				.color(Main.getInstance().getConfig().getString("scoreboard.team_bed_status.bed_destroyed"));
-		scoreboard_team_status_format_bed_alive = ColorUtil
-				.color(Main.getInstance().getConfig().getString("scoreboard.team_status_format.bed_alive"));
-		scoreboard_team_status_format_bed_destroyed = ColorUtil
-				.color(Main.getInstance().getConfig().getString("scoreboard.team_status_format.bed_destroyed"));
-		scoreboard_team_status_format_team_dead = ColorUtil
-				.color(Main.getInstance().getConfig().getString("scoreboard.team_status_format.team_dead"));
+		scoreboard_title = ColorUtil.colorList(config.getStringList("scoreboard.title"));
+		scoreboard_you = ColorUtil.color(config.getString("scoreboard.you"));
+		scoreboard_team_bed_status_bed_alive = ColorUtil.color(config.getString("scoreboard.team_bed_status.bed_alive"));
+		scoreboard_team_bed_status_bed_destroyed = ColorUtil.color(config.getString("scoreboard.team_bed_status.bed_destroyed"));
+		scoreboard_team_status_format_bed_alive = ColorUtil.color(config.getString("scoreboard.team_status_format.bed_alive"));
+		scoreboard_team_status_format_bed_destroyed = ColorUtil.color(config.getString("scoreboard.team_status_format.bed_destroyed"));
+		scoreboard_team_status_format_team_dead = ColorUtil.color(config.getString("scoreboard.team_status_format.team_dead"));
 		scoreboard_lines = new HashMap<String, List<String>>();
-		for (String key : Main.getInstance().getConfig().getConfigurationSection("scoreboard.lines").getKeys(false)) {
-			scoreboard_lines.put(key,
-					ColorUtil.listcolor(Main.getInstance().getConfig().getStringList("scoreboard.lines." + key)));
+		for (String key : config.getConfigurationSection("scoreboard.lines").getKeys(false)) {
+			scoreboard_lines.put(key, ColorUtil.colorList(config.getStringList("scoreboard.lines." + key)));
 		}
-		/*
-		 * for (String w :
-		 * Main.getInstance().getConfig().getStringList("scoreboard.lines")) { String
-		 * line = ColorUtil.color(w); if (scoreboard_lines.size() < 15) { if
-		 * (scoreboard_lines.contains(line)) {
-		 * scoreboard_lines.add(conflict(scoreboard_lines, line)); } else {
-		 * scoreboard_lines.add(line); } } }
-		 */
 		lobby_scoreboard_enabled = config.getBoolean("lobby_scoreboard.enabled");
 		lobby_scoreboard_interval = config.getInt("lobby_scoreboard.interval");
-		lobby_scoreboard_state_waiting = ColorUtil
-				.color(Main.getInstance().getConfig().getString("lobby_scoreboard.state.waiting"));
-		lobby_scoreboard_state_countdown = ColorUtil
-				.color(Main.getInstance().getConfig().getString("lobby_scoreboard.state.countdown"));
-		lobby_scoreboard_title = ColorUtil
-				.listcolor(Main.getInstance().getConfig().getStringList("lobby_scoreboard.title"));
+		lobby_scoreboard_state_waiting = ColorUtil.color(config.getString("lobby_scoreboard.state.waiting"));
+		lobby_scoreboard_state_countdown = ColorUtil.color(config.getString("lobby_scoreboard.state.countdown"));
+		lobby_scoreboard_title = ColorUtil.colorList(config.getStringList("lobby_scoreboard.title"));
 		lobby_scoreboard_lines = new ArrayList<String>();
-		for (String w : Main.getInstance().getConfig().getStringList("lobby_scoreboard.lines")) {
+		for (String w : config.getStringList("lobby_scoreboard.lines")) {
 			String line = ColorUtil.color(w);
 			if (lobby_scoreboard_lines.size() < 15) {
 				if (lobby_scoreboard_lines.contains(line)) {
@@ -682,14 +739,19 @@ public class Config {
 				}
 			}
 		}
-		updataShop();
-		Bukkit.getConsoleSender().sendMessage(prefix + "§a配置文件加载成功！");
+		loadGameConfig();
+		loadImages();
+		Bukkit.getConsoleSender().sendMessage(prefix + Main.getInstance().getLocaleConfig().getLanguage("config_success"));
+	}
+
+	public static FileConfiguration getConfig() {
+		return file_config;
 	}
 
 	private static String conflict(List<String> lines, String line) {
 		String l = line;
 		for (int i = 0; i == 0;) {
-			l = l + "§r";
+			l = l + "搂r";
 			if (!lines.contains(l)) {
 				return l;
 			}
@@ -701,18 +763,17 @@ public class Config {
 		File file = getGameFile();
 		FileConfiguration filec = YamlConfiguration.loadConfiguration(file);
 		List<String> loc = new ArrayList<String>();
-		if (filec.getStringList("shop." + game + "." + type) != null) {
-			loc.addAll(filec.getStringList("shop." + game + "." + type));
+		if (filec.getStringList(game + ".shop." + type) != null) {
+			loc.addAll(filec.getStringList(game + ".shop." + type));
 		}
-		loc.add(location.getWorld().getName() + ", " + location.getX() + ", " + location.getY() + ", " + location.getZ()
-				+ ", " + location.getYaw() + ", " + location.getPitch());
-		filec.set("shop." + game + "." + type, loc);
+		loc.add(location.getWorld().getName() + ", " + location.getX() + ", " + location.getY() + ", " + location.getZ() + ", " + location.getYaw() + ", " + location.getPitch());
+		filec.set(game + ".shop." + type, loc);
 		try {
 			filec.save(file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		updataShop();
+		loadGameConfig();
 	}
 
 	public static void removeShop(String data) {
@@ -730,42 +791,99 @@ public class Config {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		updataShop();
+		loadGameConfig();
 	}
 
-	private static void updataShop() {
+	public static void setTeamSpawner(String game, String team, Location location) {
+		File file = getGameFile();
+		FileConfiguration filec = YamlConfiguration.loadConfiguration(file);
+		List<String> loc = new ArrayList<String>();
+		if (filec.getStringList(game + ".team_spawner." + team) != null) {
+			loc.addAll(filec.getStringList(game + ".team_spawner." + team));
+		}
+		loc.add(location.getWorld().getName() + ", " + location.getX() + ", " + location.getY() + ", " + location.getZ() + ", " + location.getYaw() + ", " + location.getPitch());
+		filec.set(game + ".team_spawner." + team, loc);
+		try {
+			filec.save(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		loadGameConfig();
+	}
+
+	private static void loadGameConfig() {
 		File folder = new File(Main.getInstance().getDataFolder(), "/");
 		if (!folder.exists()) {
 			folder.mkdirs();
 		}
 		File file = new File(folder.getAbsolutePath() + "/game.yml");
-		shop_item = new HashMap<String, List<String>>();
-		shop_team = new HashMap<String, List<String>>();
-		shop_shops = new HashMap<String, String>();
-		int i = 0;
+		game_shop_item = new HashMap<String, List<String>>();
+		game_shop_team = new HashMap<String, List<String>>();
+		game_shop_shops = new HashMap<String, String>();
+		game_team_spawner = new HashMap<String, Map<String, List<Location>>>();
+		game_team_spawners = new HashMap<String, String>();
+		int shopId = 0;
+		int spawnerId = 0;
 		if (!file.exists()) {
 			return;
 		}
-		FileConfiguration filec = YamlConfiguration.loadConfiguration(file);
-		if (!filec.getKeys(false).contains("shop")) {
-			return;
-		}
-		for (String game : filec.getConfigurationSection("shop").getKeys(false)) {
-			if (filec.getStringList("shop." + game + ".item") != null) {
-				shop_item.put(game, filec.getStringList("shop." + game + ".item"));
-				for (String shop : filec.getStringList("shop." + game + ".item")) {
-					shop_shops.put(i + "", "shop." + game + ".item - " + shop);
-					i++;
+		FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+		for (String game : config.getKeys(false)) {
+			ConfigurationSection configSec = config.getConfigurationSection(game);
+			if (configSec.contains("shop")) {
+				ConfigurationSection configss = configSec.getConfigurationSection("shop");
+				if (configss.contains("item")) {
+					game_shop_item.put(game, configss.getStringList("item"));
+					for (String shop : configss.getStringList("item")) {
+						game_shop_shops.put(shopId + "", game + ".shop.item - " + shop);
+						shopId++;
+					}
+				}
+				if (configss.contains("team")) {
+					game_shop_team.put(game, configss.getStringList("team"));
+					for (String shop : configss.getStringList("team")) {
+						game_shop_shops.put(shopId + "", game + ".shop.team - " + shop);
+						shopId++;
+					}
 				}
 			}
-			if (filec.getStringList("shop." + game + ".team") != null) {
-				shop_team.put(game, filec.getStringList("shop." + game + ".team"));
-				for (String shop : filec.getStringList("shop." + game + ".team")) {
-					shop_shops.put(i + "", "shop." + game + ".team - " + shop);
-					i++;
+			if (configSec.contains("team_spawner")) {
+				ConfigurationSection configst = configSec.getConfigurationSection("team_spawner");
+				Map<String, List<Location>> map = new HashMap<String, List<Location>>();
+				for (String team : configst.getKeys(false)) {
+					List<Location> locs = new ArrayList<Location>();
+					for (String loc : configst.getStringList(team)) {
+						Location location = toLocation(loc);
+						if (location != null) {
+							locs.add(location);
+						}
+					}
+					map.put(team, locs);
+					for (String spawner : configst.getStringList(team)) {
+						game_team_spawners.put(spawnerId + "", game + ".team_spawner." + team + " - " + spawner);
+						spawnerId++;
+					}
 				}
+				game_team_spawner.put(game, map);
 			}
 		}
+	}
+
+	private static Location toLocation(String loc) {
+		try {
+			String[] ary = loc.split(", ");
+			if (Bukkit.getWorld(ary[0]) != null) {
+				Location location = new Location(Bukkit.getWorld(ary[0]), Double.valueOf(ary[1]), Double.valueOf(ary[2]), Double.valueOf(ary[3]));
+				if (ary.length > 4) {
+					location.setYaw(Float.valueOf(ary[4]));
+					location.setPitch(Float.valueOf(ary[5]));
+				}
+				return location;
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		return null;
 	}
 
 	public static void addShopNPC(Integer id) {
@@ -781,6 +899,62 @@ public class Config {
 			config.save(folder);
 		} catch (IOException e) {
 		}
+	}
+
+	private static void loadImages() {
+		image_maps = new ArrayList<MapView>();
+		File folder = new File(Main.getInstance().getDataFolder(), "/images");
+		if (!folder.exists()) {
+			folder.mkdirs();
+			try {
+				writeToLocal(folder.getPath() + "/intro.txt", Main.getInstance().getResource("images/intro.txt"));
+				writeToLocal(folder.getPath() + "/1.jpg", Main.getInstance().getResource("images/1.jpg"));
+			} catch (Exception e) {
+			}
+		}
+		for (File file : folder.listFiles()) {
+			if (!isImage(file)) {
+				continue;
+			}
+			try {
+				MapView map = Bukkit.createMap(Bukkit.getWorlds().get(0));
+				map.setCenterX(Integer.MAX_VALUE);
+				map.setCenterZ(Integer.MAX_VALUE);
+				BufferedImage bufferedImage = ImageIO.read(file);
+				int x = (128 - bufferedImage.getWidth()) / 2;
+				int y = (128 - bufferedImage.getHeight()) / 2;
+				map.addRenderer(new MapRenderer() {
+
+					@Override
+					public void render(MapView mapView, MapCanvas mapCanvas, Player p) {
+						mapCanvas.drawImage(x, y, bufferedImage);
+					}
+				});
+				map.setScale(Scale.CLOSEST);
+				image_maps.add(map);
+			} catch (IOException e) {
+			}
+		}
+	}
+
+	private static boolean isImage(File file) {
+		try {
+			return ImageIO.read(file) != null;
+		} catch (Exception ex) {
+			return false;
+		}
+	}
+
+	private static void writeToLocal(String destination, InputStream input) throws IOException {
+		int index;
+		byte[] bytes = new byte[1024];
+		FileOutputStream downloadFile = new FileOutputStream(destination);
+		while ((index = input.read(bytes)) != -1) {
+			downloadFile.write(bytes, 0, index);
+			downloadFile.flush();
+		}
+		downloadFile.close();
+		input.close();
 	}
 
 	public static File getNPCFile() {
@@ -814,15 +988,12 @@ public class Config {
 	}
 
 	public static String getLanguage(String path) {
-		if (language_config.contains(path) && language_config.isString(path)) {
-			return ColorUtil.color(language_config.getString(path));
-		}
-		return "null";
+		return ColorUtil.color(language_config.getString(path, "null"));
 	}
 
 	public static List<String> getLanguageList(String path) {
 		if (language_config.contains(path) && language_config.isList(path)) {
-			return ColorUtil.listcolor(language_config.getStringList(path));
+			return ColorUtil.colorList(language_config.getStringList(path));
 		}
 		return Arrays.asList("null");
 	}
@@ -834,7 +1005,7 @@ public class Config {
 		}
 		File file = new File(folder.getAbsolutePath() + "/language.yml");
 		if (!file.exists()) {
-			Main.getInstance().saveResource("language.yml", false);
+			Main.getInstance().getLocaleConfig().saveResource("language.yml");
 		}
 		return file;
 	}

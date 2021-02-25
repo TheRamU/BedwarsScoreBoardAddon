@@ -2,12 +2,10 @@ package me.ram.bedwarsscoreboardaddon.addon;
 
 import java.util.List;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import io.github.bedwarsrel.BedwarsRel;
 import io.github.bedwarsrel.events.BedwarsPlayerJoinedEvent;
@@ -18,6 +16,7 @@ import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.config.Config;
+import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 
 public class HidePlayer implements Listener {
 
@@ -58,7 +57,7 @@ public class HidePlayer implements Listener {
 			List<Player> list = game.getPlayers();
 			Bukkit.getOnlinePlayers().forEach(p -> {
 				if (list.contains(p)) {
-					if (game.isSpectator(p)) {
+					if (BedwarsUtil.isSpectator(game, p)) {
 						hidePlayer(p, player);
 						hidePlayer(player, p);
 					} else {
@@ -105,24 +104,6 @@ public class HidePlayer implements Listener {
 		if (team.isDead(game)) {
 			Bukkit.getOnlinePlayers().forEach(p -> {
 				hidePlayer(p, player);
-			});
-		}
-	}
-
-	@EventHandler
-	public void onGameModeChange(PlayerGameModeChangeEvent e) {
-		Player player = e.getPlayer();
-		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (game == null) {
-			return;
-		}
-		if (e.getNewGameMode().equals(GameMode.SPECTATOR)) {
-			game.getPlayers().forEach(p -> {
-				hidePlayer(p, player);
-			});
-		} else if (!game.isSpectator(player)) {
-			game.getPlayers().forEach(p -> {
-				showPlayer(p, player);
 			});
 		}
 	}

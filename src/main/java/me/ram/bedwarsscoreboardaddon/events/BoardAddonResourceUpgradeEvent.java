@@ -6,7 +6,7 @@ import org.bukkit.event.HandlerList;
 import io.github.bedwarsrel.game.Game;
 
 public class BoardAddonResourceUpgradeEvent extends Event {
-	
+
 	private static HandlerList handlers = new HandlerList();
 	private Game game;
 	private List<String> upgrade;
@@ -33,7 +33,7 @@ public class BoardAddonResourceUpgradeEvent extends Event {
 		return this.cancelled;
 	}
 
-	public void setCancelled(final boolean cancel) {
+	public void setCancelled(boolean cancel) {
 		this.cancelled = cancel;
 	}
 

@@ -1,8 +1,11 @@
 package me.ram.bedwarsscoreboardaddon;
 
 import java.util.concurrent.Callable;
+
+import org.bstats.metrics.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
@@ -23,73 +26,102 @@ import me.ram.bedwarsscoreboardaddon.addon.Spectator;
 import me.ram.bedwarsscoreboardaddon.addon.TimeTask;
 import me.ram.bedwarsscoreboardaddon.addon.Title;
 import me.ram.bedwarsscoreboardaddon.addon.WitherBow;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.command.BedwarsRelCommandTabCompleter;
 import me.ram.bedwarsscoreboardaddon.command.CommandTabCompleter;
 import me.ram.bedwarsscoreboardaddon.command.Commands;
 import me.ram.bedwarsscoreboardaddon.config.Config;
+import me.ram.bedwarsscoreboardaddon.config.LocaleConfig;
 import me.ram.bedwarsscoreboardaddon.edit.EditGame;
 import me.ram.bedwarsscoreboardaddon.listener.EventListener;
 import me.ram.bedwarsscoreboardaddon.listener.XPEventListener;
 import me.ram.bedwarsscoreboardaddon.manager.ArenaManager;
 import me.ram.bedwarsscoreboardaddon.manager.EditHolographicManager;
 import me.ram.bedwarsscoreboardaddon.manager.HolographicManager;
-import me.ram.bedwarsscoreboardaddon.metrics.Metrics;
+import me.ram.bedwarsscoreboardaddon.menu.MenuManager;
 import me.ram.bedwarsscoreboardaddon.networld.UpdateCheck;
 
+/**
+ * @author Ram
+ * @version 2.12.0
+ */
 public class Main extends JavaPlugin {
 
+	@Getter
 	private static Main instance;
-	private ArenaManager arenamanager;
+	@Getter
+	private ArenaManager arenaManager;
 	@Getter
 	private EditHolographicManager editHolographicManager;
 	@Getter
 	private HolographicManager holographicManager;
-
-	public static Main getInstance() {
-		return instance;
-	}
+	@Getter
+	private MenuManager menuManager;
+	@Getter
+	private LocaleConfig localeConfig;
 
 	public static String getVersion() {
-		return "2.10.3";
+		return "2.12.0";
 	}
 
-	public ArenaManager getArenaManager() {
-		return arenamanager;
+	@Override
+	public FileConfiguration getConfig() {
+		FileConfiguration config = Config.getConfig();
+		return config == null ? super.getConfig() : config;
 	}
 
 	public void onEnable() {
-		if (!getDescription().getName().equals("BedwarsScoreBoardAddon")
-				|| !getDescription().getVersion().equals(getVersion())) {
+		if (!getDescription().getName().equals("BedwarsScoreBoardAddon") || !getDescription().getVersion().equals(getVersion()) || !getDescription().getAuthors().contains("Ram")) {
+			try {
+				new Exception("Please don't edit plugin.yml!").printStackTrace();
+			} catch (Exception e) {
+			}
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
 		}
 		instance = this;
-		arenamanager = new ArenaManager();
+		arenaManager = new ArenaManager();
 		editHolographicManager = new EditHolographicManager();
 		holographicManager = new HolographicManager();
+		menuManager = new MenuManager();
+		localeConfig = new LocaleConfig();
+		Main.getInstance().getLocaleConfig().loadLocaleConfig();
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (Bukkit.getPluginManager().getPlugin("BedwarsRel") == null
-						|| Bukkit.getPluginManager().getPlugin("Citizens") == null
-						|| Bukkit.getPluginManager().getPlugin("ProtocolLib") == null
-						|| (Bukkit.getPluginManager().isPluginEnabled("BedwarsRel")
-								&& Bukkit.getPluginManager().isPluginEnabled("Citizens")
-								&& Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))) {
+				if (Bukkit.getPluginManager().getPlugin("BedwarsRel") == null || Bukkit.getPluginManager().getPlugin("Citizens") == null || Bukkit.getPluginManager().getPlugin("ProtocolLib") == null || (Bukkit.getPluginManager().isPluginEnabled("BedwarsRel") && Bukkit.getPluginManager().isPluginEnabled("Citizens") && Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))) {
 					cancel();
-					Bukkit.getConsoleSender().sendMessage("§f========================================");
-					Bukkit.getConsoleSender().sendMessage("§7");
-					Bukkit.getConsoleSender().sendMessage("         §bBedwarsScoreBoardAddon");
-					Bukkit.getConsoleSender().sendMessage("§7");
-					Bukkit.getConsoleSender().sendMessage(" §a版本: " + Main.getVersion());
-					Bukkit.getConsoleSender().sendMessage("§7");
-					Bukkit.getConsoleSender().sendMessage(" §a作者: Ram");
-					Bukkit.getConsoleSender().sendMessage("§7");
-					Bukkit.getConsoleSender().sendMessage("§f========================================");
+					printMessage("搂f===========================================================");
+					printMessage("搂7 ");
+					printMessage("搂b                  BedwarsScoreBoardAddon");
+					printMessage("搂7 ");
+					printMessage("搂7 ");
+					printMessage("搂f  " + getLocaleConfig().getLanguage("version") + ": 搂a" + Main.getVersion());
+					printMessage("搂7 ");
+					printMessage("搂f  " + getLocaleConfig().getLanguage("author") + ": 搂aRam");
+					printMessage("搂7 ");
+					printMessage("搂f  " + getLocaleConfig().getLanguage("website") + ": 搂ehttps://github.com/TheRamU/BedwarsScoreBoardAddon");
+					printMessage("搂7 ");
+					printMessage("搂f===========================================================");
 					init();
 				}
 			}
 		}.runTaskTimer(this, 0L, 0L);
+	}
+
+	public void onDisable() {
+		if (instance == null) {
+			return;
+		}
+		menuManager.getPlayers().forEach(player -> {
+			if (player.isOnline()) {
+				player.closeInventory();
+			}
+		});
+		for (Arena arena : arenaManager.getArenas().values()) {
+			arena.onDisable();
+		}
+		editHolographicManager.removeAll();
 	}
 
 	private void init() {
@@ -99,29 +131,29 @@ public class Main extends JavaPlugin {
 		} catch (Exception e) {
 		}
 		String prefix = "[" + this.getDescription().getName() + "] ";
-		Bukkit.getConsoleSender().sendMessage(prefix + "§f开始加载插件...");
+		printMessage(prefix + getLocaleConfig().getLanguage("loading"));
 		if (Bukkit.getPluginManager().getPlugin("BedwarsRel") != null) {
 			if (!Bukkit.getPluginManager().getPlugin("BedwarsRel").getDescription().getVersion().equals("1.3.6")) {
-				Bukkit.getConsoleSender().sendMessage(prefix + "§c错误: §fBedwarsRel版本过低！");
-				Bukkit.getConsoleSender().sendMessage(prefix + "§c插件加载失败！");
+				printMessage(prefix + getLocaleConfig().getLanguage("bedwarsrel_old"));
+				printMessage(prefix + getLocaleConfig().getLanguage("loading_failed"));
 				Bukkit.getPluginManager().disablePlugin(instance);
 				return;
 			}
 		} else {
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c错误: §f缺少必要前置 §aBedwarsRel");
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c插件加载失败！");
+			printMessage(prefix + getLocaleConfig().getLanguage("no_bedwarsrel"));
+			printMessage(prefix + getLocaleConfig().getLanguage("loading_failed"));
 			Bukkit.getPluginManager().disablePlugin(instance);
 			return;
 		}
 		if (Bukkit.getPluginManager().getPlugin("Citizens") == null) {
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c错误: §f缺少必要前置 §aCitizens");
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c插件加载失败！");
+			printMessage(prefix + getLocaleConfig().getLanguage("no_citizens"));
+			printMessage(prefix + getLocaleConfig().getLanguage("loading_failed"));
 			Bukkit.getPluginManager().disablePlugin(instance);
 			return;
 		}
 		if (Bukkit.getPluginManager().getPlugin("ProtocolLib") == null) {
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c错误: §f缺少必要前置 §aProtocolLib");
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c插件加载失败！");
+			printMessage(prefix + getLocaleConfig().getLanguage("no_protocollib"));
+			printMessage(prefix + getLocaleConfig().getLanguage("loading_failed"));
 			Bukkit.getPluginManager().disablePlugin(instance);
 			return;
 		}
@@ -136,8 +168,8 @@ public class Main extends JavaPlugin {
 				}
 				Bukkit.getPluginManager().registerEvents(new XPEventListener(), this);
 			} catch (Exception e) {
-				Bukkit.getConsoleSender().sendMessage(prefix + "§c错误: §f暂不支持该版本§aBedwarsXP");
-				Bukkit.getConsoleSender().sendMessage(prefix + "§c插件加载失败！");
+				printMessage(prefix + getLocaleConfig().getLanguage("bedwarsxp"));
+				printMessage(prefix + getLocaleConfig().getLanguage("loading_failed"));
 				Bukkit.getPluginManager().disablePlugin(instance);
 				return;
 			}
@@ -145,8 +177,8 @@ public class Main extends JavaPlugin {
 		try {
 			Config.loadConfig();
 		} catch (Exception e) {
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c错误: §f配置文件加载失败！");
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c插件加载失败！");
+			printMessage(prefix + getLocaleConfig().getLanguage("config_failed"));
+			printMessage(prefix + getLocaleConfig().getLanguage("loading_failed"));
 			Bukkit.getPluginManager().disablePlugin(instance);
 			if (debug) {
 				e.printStackTrace();
@@ -154,12 +186,12 @@ public class Main extends JavaPlugin {
 			return;
 		}
 		try {
-			Bukkit.getConsoleSender().sendMessage(prefix + "§f正在注册监听器...");
+			printMessage(prefix + getLocaleConfig().getLanguage("register_listener"));
 			this.registerEvents();
-			Bukkit.getConsoleSender().sendMessage(prefix + "§a监听器注册成功！");
+			printMessage(prefix + getLocaleConfig().getLanguage("listener_success"));
 		} catch (Exception e) {
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c错误: §f监听器注册失败！");
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c插件加载失败！");
+			printMessage(prefix + getLocaleConfig().getLanguage("listener_failed"));
+			printMessage(prefix + getLocaleConfig().getLanguage("loading_failed"));
 			Bukkit.getPluginManager().disablePlugin(instance);
 			if (debug) {
 				e.printStackTrace();
@@ -167,40 +199,44 @@ public class Main extends JavaPlugin {
 			return;
 		}
 		try {
-			Bukkit.getConsoleSender().sendMessage(prefix + "§f正在注册指令...");
+			printMessage(prefix + getLocaleConfig().getLanguage("register_command"));
 			Bukkit.getPluginCommand("bedwarsscoreboardaddon").setExecutor(new Commands());
 			Bukkit.getPluginCommand("bedwarsscoreboardaddon").setTabCompleter(new CommandTabCompleter());
 			Bukkit.getPluginCommand("bw").setTabCompleter(new BedwarsRelCommandTabCompleter());
-			Bukkit.getConsoleSender().sendMessage(prefix + "§a指令注册成功！");
+			printMessage(prefix + getLocaleConfig().getLanguage("command_success"));
 		} catch (Exception e) {
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c错误: §f指令注册失败！");
-			Bukkit.getConsoleSender().sendMessage(prefix + "§c插件加载失败！");
+			printMessage(prefix + getLocaleConfig().getLanguage("command_failed"));
+			printMessage(prefix + getLocaleConfig().getLanguage("loading_failed"));
 			Bukkit.getPluginManager().disablePlugin(instance);
 			if (debug) {
 				e.printStackTrace();
 			}
 			return;
 		}
-		Bukkit.getConsoleSender().sendMessage(prefix + "§a插件加载成功！");
+		printMessage(prefix + getLocaleConfig().getLanguage("load_success"));
 		try {
 			Metrics metrics = new Metrics(this);
 			metrics.addCustomChart(new Metrics.SimplePie("pluginPrefix", new Callable<String>() {
 				@Override
 				public String call() throws Exception {
-					return BedwarsRel.getInstance().getConfig().getString("chat-prefix",
-							ChatColor.GRAY + "[" + ChatColor.AQUA + "BedWars" + ChatColor.GRAY + "]");
+					return BedwarsRel.getInstance().getConfig().getString("chat-prefix", ChatColor.GRAY + "[" + ChatColor.AQUA + "BedWars" + ChatColor.GRAY + "]");
 				}
 			}));
 			metrics.addCustomChart(new Metrics.SimplePie("language", new Callable<String>() {
 				@Override
 				public String call() throws Exception {
-					return "Chinese";
+					return localeConfig.getPluginLocale().getName();
 				}
 			}));
 		} catch (Exception e) {
 		}
 		BedwarsRel.getInstance().getConfig().set("teamname-on-tab", false);
+		BedwarsRel.getInstance().getConfig().set("die-on-void", false);
 		BedwarsRel.getInstance().saveConfig();
+	}
+
+	private void printMessage(String str) {
+		Bukkit.getConsoleSender().sendMessage(str);
 	}
 
 	private void registerEvents() {

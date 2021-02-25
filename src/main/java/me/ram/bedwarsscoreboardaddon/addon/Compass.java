@@ -30,6 +30,7 @@ import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.config.Config;
+import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 import me.ram.bedwarsscoreboardaddon.utils.ColorUtil;
 
 public class Compass implements Listener {
@@ -82,11 +83,10 @@ public class Compass implements Listener {
 		if (game.getState() != GameState.RUNNING) {
 			return;
 		}
-		if (game.isSpectator(player)) {
+		if (BedwarsUtil.isSpectator(game, player)) {
 			return;
 		}
-		if (e.getItem() != null && e.getItem().isSimilar(compassItem)
-				&& (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK))) {
+		if (e.getItem() != null && e.getItem().isSimilar(compassItem) && (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK))) {
 			e.setCancelled(true);
 			openMainMenu(player);
 		}
@@ -130,11 +130,11 @@ public class Compass implements Listener {
 			} else if (slot == 13) {
 				sendMessage(player, team, Config.compass_message_V_II.replace("{player}", player.getName()));
 			} else if (slot == 14) {
-				openSelectTeamMenu(player, "¡ìa¡ìi");
+				openSelectTeamMenu(player, "Â§aÂ§i");
 			} else if (slot == 15) {
-				openSelectResourcesMenu(player, "¡ìc");
+				openSelectResourcesMenu(player, "Â§c");
 			} else if (slot == 16) {
-				openSelectResourcesMenu(player, "¡ìh");
+				openSelectResourcesMenu(player, "Â§h");
 			} else if (slot == 20) {
 				sendMessage(player, team, Config.compass_message_III_III.replace("{player}", player.getName()));
 			} else if (slot == 21) {
@@ -142,11 +142,11 @@ public class Compass implements Listener {
 			} else if (slot == 22) {
 				sendMessage(player, team, Config.compass_message_V_III.replace("{player}", player.getName()));
 			} else if (slot == 23) {
-				openSelectTeamMenu(player, "¡ìa");
+				openSelectTeamMenu(player, "Â§a");
 			} else if (slot == 24) {
-				openSelectResourcesMenu(player, "¡ìn");
+				openSelectResourcesMenu(player, "Â§n");
 			}
-		} else if (inventory.getTitle().equals(Config.compass_gui_title + "¡ìa¡ìi")) {
+		} else if (inventory.getTitle().equals(Config.compass_gui_title + "Â§aÂ§i")) {
 			e.setCancelled(true);
 			int slot = e.getRawSlot();
 			if (slot == 31) {
@@ -155,17 +155,14 @@ public class Compass implements Listener {
 			if (e.getCurrentItem() != null) {
 				ItemStack itemStack = e.getCurrentItem();
 				if (itemStack.getType().equals(Material.WOOL)) {
-					String teamname = ColorUtil.remcolor(itemStack.getItemMeta().getDisplayName());
+					String teamname = ColorUtil.removeColor(itemStack.getItemMeta().getDisplayName());
 					if (game.getTeam(teamname) != null) {
 						Team team = game.getTeam(teamname);
-						sendMessage(player, game.getPlayerTeam(player),
-								Config.compass_message_VI_II.replace("{player}", player.getName())
-										.replace("{color}", team.getChatColor() + "")
-										.replace("{team}", team.getName()));
+						sendMessage(player, game.getPlayerTeam(player), Config.compass_message_VI_II.replace("{player}", player.getName()).replace("{color}", team.getChatColor() + "").replace("{team}", team.getName()));
 					}
 				}
 			}
-		} else if (inventory.getTitle().equals(Config.compass_gui_title + "¡ìa")) {
+		} else if (inventory.getTitle().equals(Config.compass_gui_title + "Â§a")) {
 			e.setCancelled(true);
 			int slot = e.getRawSlot();
 			if (slot == 31) {
@@ -174,55 +171,45 @@ public class Compass implements Listener {
 			if (e.getCurrentItem() != null) {
 				ItemStack itemStack = e.getCurrentItem();
 				if (itemStack.getType().equals(Material.WOOL)) {
-					String teamname = ColorUtil.remcolor(itemStack.getItemMeta().getDisplayName());
+					String teamname = ColorUtil.removeColor(itemStack.getItemMeta().getDisplayName());
 					if (game.getTeam(teamname) != null) {
 						Team team = game.getTeam(teamname);
-						sendMessage(player, game.getPlayerTeam(player),
-								Config.compass_message_VI_III.replace("{player}", player.getName())
-										.replace("{color}", team.getChatColor() + "")
-										.replace("{team}", team.getName()));
+						sendMessage(player, game.getPlayerTeam(player), Config.compass_message_VI_III.replace("{player}", player.getName()).replace("{color}", team.getChatColor() + "").replace("{team}", team.getName()));
 					}
 				}
 			}
-		} else if (inventory.getTitle().equals(Config.compass_gui_title + "¡ìc")) {
+		} else if (inventory.getTitle().equals(Config.compass_gui_title + "Â§c")) {
 			e.setCancelled(true);
 			int slot = e.getRawSlot();
 			if (slot == 31) {
 				openMainMenu(player);
 			}
 			if (e.getCurrentItem() != null && Config.compass_resources.contains(e.getCurrentItem().getType().name())) {
-				sendMessage(player, game.getPlayerTeam(player),
-						Config.compass_message_VII_II.replace("{player}", player.getName()).replace("{resource}",
-								e.getCurrentItem().getItemMeta().getDisplayName()));
+				sendMessage(player, game.getPlayerTeam(player), Config.compass_message_VII_II.replace("{player}", player.getName()).replace("{resource}", e.getCurrentItem().getItemMeta().getDisplayName()));
 			}
-		} else if (inventory.getTitle().equals(Config.compass_gui_title + "¡ìn")) {
+		} else if (inventory.getTitle().equals(Config.compass_gui_title + "Â§n")) {
 			e.setCancelled(true);
 			int slot = e.getRawSlot();
 			if (slot == 31) {
 				openMainMenu(player);
 			}
 			if (e.getCurrentItem() != null && Config.compass_resources.contains(e.getCurrentItem().getType().name())) {
-				sendMessage(player, game.getPlayerTeam(player),
-						Config.compass_message_VII_III.replace("{player}", player.getName()).replace("{resource}",
-								e.getCurrentItem().getItemMeta().getDisplayName()));
+				sendMessage(player, game.getPlayerTeam(player), Config.compass_message_VII_III.replace("{player}", player.getName()).replace("{resource}", e.getCurrentItem().getItemMeta().getDisplayName()));
 			}
-		} else if (inventory.getTitle().equals(Config.compass_gui_title + "¡ìh")) {
+		} else if (inventory.getTitle().equals(Config.compass_gui_title + "Â§h")) {
 			e.setCancelled(true);
 			int slot = e.getRawSlot();
 			if (slot == 31) {
 				openMainMenu(player);
 			}
 			if (e.getCurrentItem() != null && Config.compass_resources.contains(e.getCurrentItem().getType().name())) {
-				sendMessage(player, game.getPlayerTeam(player),
-						Config.compass_message_VIII_II.replace("{player}", player.getName()).replace("{resource}",
-								e.getCurrentItem().getItemMeta().getDisplayName()));
+				sendMessage(player, game.getPlayerTeam(player), Config.compass_message_VIII_II.replace("{player}", player.getName()).replace("{resource}", e.getCurrentItem().getItemMeta().getDisplayName()));
 			}
 		}
 	}
 
 	private void onBlockPlace() {
-		PacketListener packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST,
-				new PacketType[] { PacketType.Play.Client.BLOCK_PLACE }) {
+		PacketListener packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Client.BLOCK_PLACE }) {
 			public void onPacketReceiving(PacketEvent e) {
 				Player player = e.getPlayer();
 				Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
@@ -235,11 +222,10 @@ public class Compass implements Listener {
 				if (game.getState() != GameState.RUNNING) {
 					return;
 				}
-				if (game.isSpectator(player)) {
+				if (BedwarsUtil.isSpectator(game, player)) {
 					return;
 				}
-				if (player.getInventory().getItemInHand() != null
-						&& player.getInventory().getItemInHand().isSimilar(compassItem)) {
+				if (player.getInventory().getItemInHand() != null && player.getInventory().getItemInHand().isSimilar(compassItem)) {
 					e.setCancelled(true);
 					if (!player.getOpenInventory().getTitle().equals(Config.compass_gui_title)) {
 						openMainMenu(player);

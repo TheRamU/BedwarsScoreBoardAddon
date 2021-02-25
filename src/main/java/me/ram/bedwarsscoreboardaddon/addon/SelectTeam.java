@@ -40,30 +40,19 @@ public class SelectTeam {
 			} else if (team.getPlayers().size() >= team.getMaxPlayers()) {
 				status = Config.select_team_status_team_full;
 			}
-			itemMeta.setDisplayName(
-					Config.select_team_item_name.replace("{status}", status).replace("{team}", team.getName())
-							.replace("{color}", color).replace("{players}", team.getPlayers().size() + "")
-							.replace("{maxplayers}", team.getMaxPlayers() + ""));
+			itemMeta.setDisplayName(Config.select_team_item_name.replace("{status}", status).replace("{team}", team.getName()).replace("{color}", color).replace("{players}", team.getPlayers().size() + "").replace("{maxplayers}", team.getMaxPlayers() + ""));
 			List<String> lore = new ArrayList<String>();
 			for (String l : Config.select_team_item_lore) {
 				if (l.contains("{players_list}")) {
 					if (team.getPlayers().size() > 0) {
 						for (Player p : team.getPlayers()) {
-							lore.add(l.replace("{status}", status).replace("{team}", team.getName())
-									.replace("{color}", color).replace("{players}", team.getPlayers().size() + "")
-									.replace("{maxplayers}", team.getMaxPlayers() + "")
-									.replace("{players_list}", p.getDisplayName()));
+							lore.add(l.replace("{status}", status).replace("{team}", team.getName()).replace("{color}", color).replace("{players}", team.getPlayers().size() + "").replace("{maxplayers}", team.getMaxPlayers() + "").replace("{players_list}", p.getDisplayName()));
 						}
 					} else {
-						lore.add(l.replace("{status}", status).replace("{team}", team.getName())
-								.replace("{color}", color).replace("{players}", team.getPlayers().size() + "")
-								.replace("{maxplayers}", team.getMaxPlayers() + "")
-								.replace("{players_list}", Config.select_team_no_players));
+						lore.add(l.replace("{status}", status).replace("{team}", team.getName()).replace("{color}", color).replace("{players}", team.getPlayers().size() + "").replace("{maxplayers}", team.getMaxPlayers() + "").replace("{players_list}", Config.select_team_no_players));
 					}
 				} else {
-					lore.add(l.replace("{status}", status).replace("{team}", team.getName()).replace("{color}", color)
-							.replace("{players}", team.getPlayers().size() + "")
-							.replace("{maxplayers}", team.getMaxPlayers() + ""));
+					lore.add(l.replace("{status}", status).replace("{team}", team.getName()).replace("{color}", color).replace("{players}", team.getPlayers().size() + "").replace("{maxplayers}", team.getMaxPlayers() + ""));
 				}
 			}
 			itemMeta.setLore(lore);

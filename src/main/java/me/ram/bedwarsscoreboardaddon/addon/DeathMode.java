@@ -29,8 +29,7 @@ public class DeathMode {
 			public void run() {
 				if (game.getState() != GameState.WAITING && game.getState() == GameState.RUNNING) {
 					int deathmodetime = game.getTimeLeft() - Config.deathmode_gametime;
-					deathmode_time = deathmodetime / 60 + ":"
-							+ ((deathmodetime % 60 < 10) ? ("0" + deathmodetime % 60) : (deathmodetime % 60));
+					deathmode_time = deathmodetime / 60 + ":" + ((deathmodetime % 60 < 10) ? ("0" + deathmodetime % 60) : (deathmodetime % 60));
 					if (Config.deathmode_enabled) {
 						if (isExecuted) {
 							cancel();
@@ -46,8 +45,7 @@ public class DeathMode {
 							}
 							for (Player player : game.getPlayers()) {
 								if (!Config.deathmode_title.equals("") || !Config.deathmode_subtitle.equals("")) {
-									Utils.sendTitle(player, 10, 80, 10, Config.deathmode_title,
-											Config.deathmode_subtitle);
+									Utils.sendTitle(player, 10, 80, 10, Config.deathmode_title, Config.deathmode_subtitle);
 								}
 								if (!Config.deathmode_message.equals("")) {
 									player.sendMessage(Config.deathmode_message);

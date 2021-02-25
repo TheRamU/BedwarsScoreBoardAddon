@@ -57,20 +57,7 @@ public class Actionbar {
 						}
 					}
 					Team playerteam = game.getPlayerTeam(player);
-					String ab = Config.actionbar
-							.replace("{team_peoples}", game.getPlayerTeam(player).getPlayers().size() + "")
-							.replace("{bowtime}", bowtime)
-							.replace("{color}", game.getPlayerTeam(player).getChatColor() + "")
-							.replace("{team}", game.getPlayerTeam(player).getName())
-							.replace("{range}",
-									(int) player.getLocation().distance(game.getPlayerTeam(player).getSpawnLocation())
-											+ "")
-							.replace("{time}", (game.getTimeLeft() / 60) + "")
-							.replace("{formattime}", getFormattedTimeLeft(game.getTimeLeft()))
-							.replace("{game}", game.getName())
-							.replace("{date}", new SimpleDateFormat(Config.date_format).format(new Date()))
-							.replace("{online}", Bukkit.getOnlinePlayers().size() + "")
-							.replace("{alive_players}", alive_players + "");
+					String ab = Config.actionbar.replace("{team_peoples}", game.getPlayerTeam(player).getPlayers().size() + "").replace("{bowtime}", bowtime).replace("{color}", game.getPlayerTeam(player).getChatColor() + "").replace("{team}", game.getPlayerTeam(player).getName()).replace("{range}", (int) player.getLocation().distance(game.getPlayerTeam(player).getSpawnLocation()) + "").replace("{time}", (game.getTimeLeft() / 60) + "").replace("{formattime}", getFormattedTimeLeft(game.getTimeLeft())).replace("{game}", game.getName()).replace("{date}", new SimpleDateFormat(Config.date_format).format(new Date())).replace("{online}", Bukkit.getOnlinePlayers().size() + "").replace("{alive_players}", alive_players + "");
 					for (String placeholder : placeholderManager.getGamePlaceholder().keySet()) {
 						ab = ab.replace(placeholder, placeholderManager.getGamePlaceholder().get(placeholder));
 					}
@@ -81,10 +68,8 @@ public class Actionbar {
 							}
 						}
 					} else if (placeholderManager.getTeamPlaceholders().containsKey(playerteam.getName())) {
-						for (String placeholder : placeholderManager.getTeamPlaceholder(playerteam.getName())
-								.keySet()) {
-							ab = ab.replace(placeholder,
-									placeholderManager.getTeamPlaceholder(playerteam.getName()).get(placeholder));
+						for (String placeholder : placeholderManager.getTeamPlaceholder(playerteam.getName()).keySet()) {
+							ab = ab.replace(placeholder, placeholderManager.getTeamPlaceholder(playerteam.getName()).get(placeholder));
 						}
 					} else {
 						for (String teamname : placeholderManager.getTeamPlaceholders().keySet()) {
@@ -95,13 +80,11 @@ public class Actionbar {
 					}
 					if (placeholderManager.getPlayerPlaceholders().containsKey(player.getName())) {
 						for (String placeholder : placeholderManager.getPlayerPlaceholder(player.getName()).keySet()) {
-							ab = ab.replace(placeholder,
-									placeholderManager.getPlayerPlaceholder(player.getName()).get(placeholder));
+							ab = ab.replace(placeholder, placeholderManager.getPlayerPlaceholder(player.getName()).get(placeholder));
 						}
 					} else {
 						for (String playername : placeholderManager.getPlayerPlaceholders().keySet()) {
-							for (String placeholder : placeholderManager.getPlayerPlaceholders().get(playername)
-									.keySet()) {
+							for (String placeholder : placeholderManager.getPlayerPlaceholders().get(playername).keySet()) {
 								ab = ab.replace(placeholder, "");
 							}
 						}

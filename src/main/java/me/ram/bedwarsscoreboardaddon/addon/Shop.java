@@ -35,6 +35,7 @@ import me.ram.bedwarsscoreboardaddon.api.HolographicAPI;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.events.BoardAddonPlayerOpenItemShopEvent;
 import me.ram.bedwarsscoreboardaddon.events.BoardAddonPlayerOpenTeamShopEvent;
+import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 import io.github.bedwarsrel.events.BedwarsGameOverEvent;
 import io.github.bedwarsrel.events.BedwarsGameStartedEvent;
 import io.github.bedwarsrel.events.BedwarsOpenShopEvent;
@@ -62,8 +63,8 @@ public class Shop implements Listener {
 		npcid = new ArrayList<Integer>();
 		if (!BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
 			booleanserializer = WrappedDataWatcher.Registry.get(Boolean.class);
-			packetListener();
 		}
+		packetListener();
 	}
 
 	@EventHandler
@@ -73,20 +74,20 @@ public class Shop implements Listener {
 		teamshops.put(game.getName(), new ArrayList<NPC>());
 		titles.put(game.getName(), new ArrayList<HolographicAPI>());
 		if (Config.shop_enabled) {
-			if (Config.shop_item.containsKey(game.getName())) {
-				for (String loc : Config.shop_item.get(game.getName())) {
+			if (Config.game_shop_item.containsKey(game.getName())) {
+				for (String loc : Config.game_shop_item.get(game.getName())) {
 					Location location = toLocation(loc);
 					if (location != null) {
-						shops.get(game.getName()).add(spawnShop(game, location.clone()));
+						shops.get(game.getName()).add(spawnShop(game, location.clone(), Config.shop_item_shop_look, Config.shop_item_shop_type, Config.shop_item_shop_skin));
 						setTitle(game, location.clone().add(0, -0.1, 0), Config.shop_item_shop_name);
 					}
 				}
 			}
-			if (Config.shop_team.containsKey(game.getName())) {
-				for (String loc : Config.shop_team.get(game.getName())) {
+			if (Config.game_shop_team.containsKey(game.getName())) {
+				for (String loc : Config.game_shop_team.get(game.getName())) {
 					Location location = toLocation(loc);
 					if (location != null) {
-						teamshops.get(game.getName()).add(spawnTeamShop(game, location.clone()));
+						teamshops.get(game.getName()).add(spawnShop(game, location.clone(), Config.shop_team_shop_look, Config.shop_team_shop_type, Config.shop_team_shop_skin));
 						setTitle(game, location.clone().add(0, -0.1, 0), Config.shop_team_shop_name);
 					}
 				}
@@ -130,8 +131,7 @@ public class Shop implements Listener {
 			if (shops.get(game.getName()).contains(npc)) {
 				if (isGamePlayer(player)) {
 					isCancelled = true;
-					BoardAddonPlayerOpenItemShopEvent openItemhopEvent = new BoardAddonPlayerOpenItemShopEvent(game,
-							player);
+					BoardAddonPlayerOpenItemShopEvent openItemhopEvent = new BoardAddonPlayerOpenItemShopEvent(game, player);
 					Bukkit.getPluginManager().callEvent(openItemhopEvent);
 					if (!openItemhopEvent.isCancelled()) {
 						player.closeInventory();
@@ -143,13 +143,11 @@ public class Shop implements Listener {
 			} else if (teamshops.get(game.getName()).contains(npc)) {
 				if (isGamePlayer(player)) {
 					isCancelled = true;
-					BoardAddonPlayerOpenTeamShopEvent openTeamShopEvent = new BoardAddonPlayerOpenTeamShopEvent(game,
-							player);
+					BoardAddonPlayerOpenTeamShopEvent openTeamShopEvent = new BoardAddonPlayerOpenTeamShopEvent(game, player);
 					Bukkit.getPluginManager().callEvent(openTeamShopEvent);
 					if (!openTeamShopEvent.isCancelled()) {
 						player.closeInventory();
-						Main.getInstance().getArenaManager().getArena(game.getName()).getTeamShop()
-								.openTeamShop(player);
+						Main.getInstance().getArenaManager().getArena(game.getName()).getTeamShop().openTeamShop(player);
 					}
 				}
 			}
@@ -168,8 +166,7 @@ public class Shop implements Listener {
 			return;
 		}
 		if (e.getEntity() instanceof Villager) {
-			if (CitizensAPI.getNPCRegistry().isNPC(e.getEntity()) && teamshops.get(e.getGame().getName())
-					.contains(CitizensAPI.getNPCRegistry().getNPC(e.getEntity()))) {
+			if (CitizensAPI.getNPCRegistry().isNPC(e.getEntity()) && teamshops.get(e.getGame().getName()).contains(CitizensAPI.getNPCRegistry().getNPC(e.getEntity()))) {
 				e.setCancelled(true);
 				player.closeInventory();
 				Main.getInstance().getArenaManager().getArena(e.getGame().getName()).getTeamShop().openTeamShop(player);
@@ -185,8 +182,7 @@ public class Shop implements Listener {
 			new BukkitRunnable() {
 				@Override
 				public void run() {
-					if (game.getState() == GameState.RUNNING && player.isOnline()
-							&& game.getPlayers().contains(player)) {
+					if (game.getState() == GameState.RUNNING && player.isOnline() && game.getPlayers().contains(player)) {
 						for (HolographicAPI holo : titles.get(game.getName())) {
 							holo.display(player);
 						}
@@ -197,16 +193,18 @@ public class Shop implements Listener {
 	}
 
 	private void packetListener() {
-		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(Main.getInstance(),
-				ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Server.ENTITY_METADATA }) {
+		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Server.ENTITY_METADATA }) {
 			@Override
 			public void onPacketSending(PacketEvent e) {
 				PacketContainer packet = e.getPacket();
 				int id = packet.getIntegers().read(0);
 				if (npcid.contains(id)) {
 					WrappedDataWatcher wrappedDataWatcher = new WrappedDataWatcher();
-					wrappedDataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanserializer),
-							false);
+					if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
+						wrappedDataWatcher.setObject(3, (byte) 0);
+					} else {
+						wrappedDataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanserializer), false);
+					}
 					packet.getWatchableCollectionModifier().write(0, wrappedDataWatcher.getWatchableObjects());
 				}
 			}
@@ -218,7 +216,7 @@ public class Shop implements Listener {
 		if (game == null) {
 			return false;
 		}
-		if (game.isSpectator(player)) {
+		if (BedwarsUtil.isSpectator(game, player)) {
 			return false;
 		}
 		if (player.getGameMode() == GameMode.SPECTATOR) {
@@ -227,19 +225,19 @@ public class Shop implements Listener {
 		return true;
 	}
 
-	private NPC spawnShop(Game game, Location location) {
+	private NPC spawnShop(Game game, Location location, boolean look, String type, String skin) {
 		if (!location.getBlock().getChunk().isLoaded()) {
 			location.getBlock().getChunk().load(true);
 		}
 		NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "");
 		npc.setProtected(true);
 		npc.getTrait(Gravity.class).toggle();
-		if (Config.shop_item_shop_look) {
+		if (look) {
 			npc.getTrait(LookClose.class).toggle();
 		}
 		npc.spawn(location);
 		try {
-			EntityType entityType = EntityType.valueOf(Config.shop_item_shop_type);
+			EntityType entityType = EntityType.valueOf(type);
 			npc.setBukkitEntityType(entityType);
 		} catch (Exception e) {
 		}
@@ -249,36 +247,7 @@ public class Shop implements Listener {
 		try {
 			if (npc.isSpawned() && npc.getEntity() instanceof SkinnableEntity) {
 				SkinnableEntity skinnable = (SkinnableEntity) npc.getEntity();
-				skinnable.setSkinName(Config.shop_item_shop_skin, true);
-			}
-		} catch (Exception e) {
-		}
-		return npc;
-	}
-
-	private NPC spawnTeamShop(Game game, Location location) {
-		if (!location.getBlock().getChunk().isLoaded()) {
-			location.getBlock().getChunk().load(true);
-		}
-		NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "");
-		npc.setProtected(true);
-		npc.getTrait(Gravity.class).toggle();
-		if (Config.shop_team_shop_look) {
-			npc.getTrait(LookClose.class).toggle();
-		}
-		npc.spawn(location);
-		try {
-			EntityType entityType = EntityType.valueOf(Config.shop_team_shop_type);
-			npc.setBukkitEntityType(entityType);
-		} catch (Exception e) {
-		}
-		npcid.add(npc.getEntity().getEntityId());
-		hideEntityTag(game, npc.getEntity());
-		Config.addShopNPC(npc.getId());
-		try {
-			if (npc.isSpawned() && npc.getEntity() instanceof SkinnableEntity) {
-				SkinnableEntity skinnable = (SkinnableEntity) npc.getEntity();
-				skinnable.setSkinName(Config.shop_team_shop_skin, true);
+				skinnable.setSkinName(skin, true);
 			}
 		} catch (Exception e) {
 		}
@@ -286,30 +255,25 @@ public class Shop implements Listener {
 	}
 
 	private void hideEntityTag(Game game, Entity entity) {
-		if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
-			return;
-		}
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (game.getState() == GameState.RUNNING) {
-					ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-					PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
-					packet.getIntegers().write(0, entity.getEntityId());
-					WrappedDataWatcher wrappedDataWatcher = new WrappedDataWatcher();
-					wrappedDataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanserializer),
-							false);
-					packet.getWatchableCollectionModifier().write(0, wrappedDataWatcher.getWatchableObjects());
-					for (Player player : game.getPlayers()) {
-						try {
-							protocolManager.sendServerPacket(player, packet);
-						} catch (InvocationTargetException e) {
-							e.printStackTrace();
-						}
-					}
+		Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+			ProtocolManager man = ProtocolLibrary.getProtocolManager();
+			PacketContainer packet = man.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+			packet.getIntegers().write(0, entity.getEntityId());
+			WrappedDataWatcher wrappedDataWatcher = new WrappedDataWatcher();
+			if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
+				wrappedDataWatcher.setObject(3, (byte) 0);
+			} else {
+				wrappedDataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanserializer), false);
+			}
+			packet.getWatchableCollectionModifier().write(0, wrappedDataWatcher.getWatchableObjects());
+			for (Player player : game.getPlayers()) {
+				try {
+					man.sendServerPacket(player, packet);
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
 				}
 			}
-		}.runTaskLater(Main.getInstance(), 1L);
+		}, 1L);
 	}
 
 	private void setTitle(Game game, Location location, List<String> title) {
@@ -351,8 +315,7 @@ public class Shop implements Listener {
 		try {
 			String[] ary = loc.split(", ");
 			if (Bukkit.getWorld(ary[0]) != null) {
-				Location location = new Location(Bukkit.getWorld(ary[0]), Double.valueOf(ary[1]),
-						Double.valueOf(ary[2]), Double.valueOf(ary[3]));
+				Location location = new Location(Bukkit.getWorld(ary[0]), Double.valueOf(ary[1]), Double.valueOf(ary[2]), Double.valueOf(ary[3]));
 				if (ary.length > 4) {
 					location.setYaw(Float.valueOf(ary[4]));
 					location.setPitch(Float.valueOf(ary[5]));

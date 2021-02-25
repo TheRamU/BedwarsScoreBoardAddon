@@ -6,7 +6,7 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.Team;
 
 public class BedwarsTeamDeadEvent extends Event {
-	
+
 	private static HandlerList handlers = new HandlerList();
 	private Game game;
 	private Team team;

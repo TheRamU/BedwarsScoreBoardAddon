@@ -69,13 +69,11 @@ public class HolographicAPI {
 						Location loc2 = player.getLocation().clone();
 						loc2.setY(location.getY());
 						if (players.contains(uuid)) {
-							if (!loc2.getWorld().getName().equals(location.getWorld().getName())
-									|| loc2.distance(location) >= 64) {
+							if (!loc2.getWorld().getName().equals(location.getWorld().getName()) || loc2.distanceSquared(location) >= Math.pow(64, 2)) {
 								Utils.sendPacket(player, packets.get(player.getUniqueId()));
 								players.remove(uuid);
 							}
-						} else if (loc2.getWorld().getName().equals(location.getWorld().getName())
-								&& loc2.distance(location) < 64) {
+						} else if (loc2.getWorld().getName().equals(location.getWorld().getName()) && loc2.distanceSquared(location) < Math.pow(64, 2)) {
 							display(player);
 						}
 					}
@@ -136,26 +134,20 @@ public class HolographicAPI {
 				if (player != null && player.isOnline()) {
 					Location loc = player.getLocation().clone();
 					loc.setY(location.getY());
-					if (loc.getWorld().getName().equals(location.getWorld().getName()) && loc.distance(location) < 64
-							&& player != null && player.isOnline() && players.contains(uuid)) {
+					if (loc.getWorld().getName().equals(location.getWorld().getName()) && loc.distanceSquared(location) < Math.pow(64, 2) && player != null && player.isOnline() && players.contains(uuid)) {
 						ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 						PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA);
 						packet.getIntegers().write(0, ids.get(uuid));
 						if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
-							packet.getWatchableCollectionModifier().write(0,
-									Arrays.asList(new WrappedWatchableObject(2, title)));
+							packet.getWatchableCollectionModifier().write(0, Arrays.asList(new WrappedWatchableObject(2, title)));
 						} else {
 							WrappedDataWatcher wrappedDataWatcher = new WrappedDataWatcher();
 							if (title != null) {
-								wrappedDataWatcher.setObject(
-										new WrappedDataWatcher.WrappedDataWatcherObject(2, stringserializer), title);
-								wrappedDataWatcher.setObject(
-										new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanserializer), true);
+								wrappedDataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(2, stringserializer), title);
+								wrappedDataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanserializer), true);
 							} else {
-								wrappedDataWatcher.setObject(
-										new WrappedDataWatcher.WrappedDataWatcherObject(2, stringserializer), "");
-								wrappedDataWatcher.setObject(
-										new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanserializer), false);
+								wrappedDataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(2, stringserializer), "");
+								wrappedDataWatcher.setObject(new WrappedDataWatcher.WrappedDataWatcherObject(3, booleanserializer), false);
 							}
 							packet.getWatchableCollectionModifier().write(0, wrappedDataWatcher.getWatchableObjects());
 						}
@@ -200,8 +192,7 @@ public class HolographicAPI {
 					if (j < 0) {
 						break;
 					}
-					PacketContainer equipmentPacket = this.getEquipmentPacket((int) declaredField.get(packet), j,
-							itemStack);
+					PacketContainer equipmentPacket = this.getEquipmentPacket((int) declaredField.get(packet), j, itemStack);
 					ProtocolLibrary.getProtocolManager().sendServerPacket(player, equipmentPacket);
 				}
 			} catch (Exception e) {
@@ -274,13 +265,9 @@ public class HolographicAPI {
 		if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
 			try {
 				@SuppressWarnings("rawtypes")
-				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityTeleport").getConstructor(int.class,
-						int.class, int.class, int.class, byte.class, byte.class, boolean.class);
+				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityTeleport").getConstructor(int.class, int.class, int.class, int.class, byte.class, byte.class, boolean.class);
 				Method method = Utils.getNMSClass("MathHelper").getMethod("floor", double.class);
-				Object packet = constructor.newInstance(id, method.invoke(null, location.getX() * 32.0D),
-						method.invoke(null, location.getY() * 32.0D), method.invoke(null, location.getZ() * 32.0D),
-						(byte) (location.getYaw() * 256.0f / 360.0f), (byte) (location.getPitch() * 256.0f / 360.0f),
-						true);
+				Object packet = constructor.newInstance(id, method.invoke(null, location.getX() * 32.0D), method.invoke(null, location.getY() * 32.0D), method.invoke(null, location.getZ() * 32.0D), (byte) (location.getYaw() * 256.0f / 360.0f), (byte) (location.getPitch() * 256.0f / 360.0f), true);
 				Utils.sendPacket(player, packet);
 			} catch (Exception e) {
 			}
@@ -303,9 +290,7 @@ public class HolographicAPI {
 	private Object getPacket(Location location) {
 		try {
 			Object cast = Utils.getClass("CraftWorld").cast(location.getWorld());
-			Object instance = Utils.getNMSClass("EntityArmorStand").getConstructor(Utils.getNMSClass("World"))
-					.newInstance(cast.getClass().getMethod("getHandle", (Class<?>[]) new Class[0]).invoke(cast,
-							new Object[0]));
+			Object instance = Utils.getNMSClass("EntityArmorStand").getConstructor(Utils.getNMSClass("World")).newInstance(cast.getClass().getMethod("getHandle", (Class<?>[]) new Class[0]).invoke(cast, new Object[0]));
 			if (title != null) {
 				instance.getClass().getMethod("setCustomName", String.class).invoke(instance, title);
 				Utils.getNMSClass("Entity").getMethod("setCustomNameVisible", Boolean.TYPE).invoke(instance, true);
@@ -315,12 +300,10 @@ public class HolographicAPI {
 			} catch (Exception ex) {
 				instance.getClass().getMethod("setNoGravity", Boolean.TYPE).invoke(instance, true);
 			}
-			instance.getClass().getMethod("setLocation", Double.TYPE, Double.TYPE, Double.TYPE, Float.TYPE, Float.TYPE)
-					.invoke(instance, location.getX(), location.getY(), location.getZ(), 0.0f, 0.0f);
+			instance.getClass().getMethod("setLocation", Double.TYPE, Double.TYPE, Double.TYPE, Float.TYPE, Float.TYPE).invoke(instance, location.getX(), location.getY(), location.getZ(), 0.0f, 0.0f);
 			instance.getClass().getMethod("setBasePlate", Boolean.TYPE).invoke(instance, false);
 			instance.getClass().getMethod("setInvisible", Boolean.TYPE).invoke(instance, true);
-			return Utils.getNMSClass("PacketPlayOutSpawnEntityLiving").getConstructor(Utils.getNMSClass("EntityLiving"))
-					.newInstance(instance);
+			return Utils.getNMSClass("PacketPlayOutSpawnEntityLiving").getConstructor(Utils.getNMSClass("EntityLiving")).newInstance(instance);
 		} catch (Exception e) {
 			return null;
 		}

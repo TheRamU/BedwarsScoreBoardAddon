@@ -153,15 +153,14 @@ public class Rejoin {
 			new BukkitRunnable() {
 				@Override
 				public void run() {
-					if (player.isOnline() && game.getState() == GameState.RUNNING
-							&& game.getPlayers().contains(player)) {
+					if (player.isOnline() && game.getState() == GameState.RUNNING && game.getPlayers().contains(player)) {
 						if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
 							player.getInventory().clear();
 							player.getInventory().setHelmet(new ItemStack(Material.AIR));
 							player.getInventory().setChestplate(new ItemStack(Material.AIR));
 							player.getInventory().setLeggings(new ItemStack(Material.AIR));
 							player.getInventory().setBoots(new ItemStack(Material.AIR));
-							GiveItem.giveItem(player, team);
+							GiveItem.giveItem(player, team, true);
 							if (Config.compass_enabled) {
 								Compass.giveCompass(player);
 							}

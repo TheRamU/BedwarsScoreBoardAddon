@@ -56,15 +56,14 @@ public class LobbyScoreBoard implements Listener {
 		}
 		Game game = e.getGame();
 		Player player = e.getPlayer();
-		BedwarsRel.getInstance().getConfig().set("lobby-scoreboard.content", getLine(player, game));
+		BedwarsRel.getInstance().getConfig().set("lobby-scoreboard.content", getLines(player, game));
 		int tc = 0;
 		new BukkitRunnable() {
 			int i = 0;
 
 			@Override
 			public void run() {
-				if (player.isOnline() && e.getGame().getPlayers().contains(player)
-						&& e.getGame().getState() == GameState.WAITING) {
+				if (player.isOnline() && e.getGame().getPlayers().contains(player) && e.getGame().getState() == GameState.WAITING) {
 					i--;
 					if (i <= 0) {
 						i = Config.lobby_scoreboard_interval;
@@ -78,23 +77,12 @@ public class LobbyScoreBoard implements Listener {
 	}
 
 	private void updateScoreboard(Player player, Game game, int tc) {
-		List<String> ncelements = new ArrayList<String>();
-		ncelements.add(title.replace("{game}", game.getName()));
 		BedwarsRel.getInstance().getConfig().set("lobby-scoreboard.title", title);
-		ncelements.addAll(getLine(player, game));
-		ncelements = elementsPro(ncelements);
-		if (ncelements.size() < 16) {
-			int es = ncelements.size();
-			for (int i = 0; i < 16 - es; i++) {
-				ncelements.add(1, null);
-			}
-		}
-		String[] scoreboardelements = ncelements.toArray(new String[ncelements.size()]);
-		ScoreboardUtil.setLobbyScoreboard(player, scoreboardelements, game);
+		ScoreboardUtil.setLobbyScoreboard(player, title.replace("{game}", game.getName()), getLines(player, game), game);
 	}
 
-	private List<String> getLine(Player player, Game game) {
-		List<String> line = new ArrayList<String>();
+	private List<String> getLines(Player player, Game game) {
+		List<String> lines = new ArrayList<String>();
 		String state = Config.lobby_scoreboard_state_waiting;
 		String countdown = "null";
 		int needplayers = game.getMinPlayers() - game.getPlayers().size();
@@ -107,39 +95,22 @@ public class LobbyScoreBoard implements Listener {
 			countdown = counter + "";
 		}
 		for (String li : Config.lobby_scoreboard_lines) {
-			String l = li.replace("{date}", getDate()).replace("{state}", state).replace("{game}", game.getName())
-					.replace("{players}", game.getPlayers().size() + "")
-					.replace("{maxplayers}", game.getMaxPlayers() + "")
-					.replace("{minplayers}", game.getMinPlayers() + "").replace("{needplayers}", needplayers + "")
-					.replace("{countdown}", countdown);
+			String l = li.replace("{date}", getDate()).replace("{state}", state).replace("{game}", game.getName()).replace("{players}", game.getPlayers().size() + "").replace("{maxplayers}", game.getMaxPlayers() + "").replace("{minplayers}", game.getMinPlayers() + "").replace("{needplayers}", needplayers + "").replace("{countdown}", countdown);
 			if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
 				l = PlaceholderAPI.setPlaceholders(player, l);
 			}
-			line.add(l);
+			lines.add(getQuellLine(lines, l));
 		}
-		return line;
+		return lines;
 	}
 
-	private List<String> elementsPro(List<String> lines) {
-		ArrayList<String> nclines = new ArrayList<String>();
-		for (String ls : lines) {
-			String l = ls;
-			if (l != null) {
-				if (nclines.contains(l)) {
-					for (int i = 0; i == 0;) {
-						l = l + "¡ìr";
-						if (!nclines.contains(l)) {
-							nclines.add(l);
-							break;
-						}
-					}
-				} else {
-					nclines.add(l);
-				}
-			} else {
-				nclines.add(l);
+	private String getQuellLine(List<String> lines, String line) {
+		String l = line;
+		while (true) {
+			if (!lines.contains(l)) {
+				return l;
 			}
+			l += "Â§r";
 		}
-		return nclines;
 	}
 }

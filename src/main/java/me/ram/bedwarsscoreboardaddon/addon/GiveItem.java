@@ -29,13 +29,13 @@ public class GiveItem implements Listener {
 			public void run() {
 				for (Player player : e.getGame().getPlayers()) {
 					Team team = e.getGame().getPlayerTeam(player);
-					GiveItem.giveItem(player, team);
+					GiveItem.giveItem(player, team, false);
 				}
 			}
 		}.runTaskLater(Main.getInstance(), 5L);
 	}
 
-	public static void giveItem(Player player, Team team) {
+	public static void giveItem(Player player, Team team, boolean respawn) {
 		Map<String, Object> map1 = new HashMap<String, Object>();
 		Map<String, Object> map2 = new HashMap<String, Object>();
 		Map<String, Object> map3 = new HashMap<String, Object>();
@@ -128,78 +128,64 @@ public class GiveItem implements Listener {
 			meta.setColor(team.getColor().getColor());
 			boots.setItemMeta((ItemMeta) meta);
 		}
-		if (Config.giveitem_armor_helmet_give) {
+		if (Config.giveitem_armor_helmet_give.equalsIgnoreCase("true") || (Config.giveitem_armor_helmet_give.equalsIgnoreCase("start") && !respawn) || (Config.giveitem_armor_helmet_give.equalsIgnoreCase("respawn") && respawn)) {
 			player.getInventory().setHelmet(helmet);
 		}
-		if (Config.giveitem_armor_chestplate_give) {
+		if (Config.giveitem_armor_chestplate_give.equalsIgnoreCase("true") || (Config.giveitem_armor_chestplate_give.equalsIgnoreCase("start") && !respawn) || (Config.giveitem_armor_chestplate_give.equalsIgnoreCase("respawn") && respawn)) {
 			player.getInventory().setChestplate(chestplate);
 		}
-		if (Config.giveitem_armor_leggings_give) {
+		if (Config.giveitem_armor_leggings_give.equalsIgnoreCase("true") || (Config.giveitem_armor_leggings_give.equalsIgnoreCase("start") && !respawn) || (Config.giveitem_armor_leggings_give.equalsIgnoreCase("respawn") && respawn)) {
 			player.getInventory().setLeggings(leggings);
 		}
-		if (Config.giveitem_armor_boots_give) {
+		if (Config.giveitem_armor_boots_give.equalsIgnoreCase("true") || (Config.giveitem_armor_boots_give.equalsIgnoreCase("start") && !respawn) || (Config.giveitem_armor_boots_give.equalsIgnoreCase("respawn") && respawn)) {
 			player.getInventory().setBoots(boots);
 		}
 		for (String items : Main.getInstance().getConfig().getConfigurationSection("giveitem.item").getKeys(false)) {
+			String give_option = Main.getInstance().getConfig().getString("giveitem.item." + items + ".give", "true");
 			int slot = Main.getInstance().getConfig().getInt("giveitem.item." + items + ".slot");
-			try {
-				ItemStack itemStack = ItemStack.deserialize((Map<String, Object>) Main.getInstance().getConfig()
-						.getList("giveitem.item." + items + ".item").get(0));
-				player.getInventory().setItem(slot, itemStack);
-			} catch (Exception e) {
-				e.printStackTrace();
+			if (give_option.equalsIgnoreCase("true") || (give_option.equalsIgnoreCase("start") && !respawn) || (give_option.equalsIgnoreCase("respawn") && respawn)) {
+				try {
+					ItemStack itemStack = ItemStack.deserialize((Map<String, Object>) Main.getInstance().getConfig().getList("giveitem.item." + items + ".item").get(0));
+					player.getInventory().setItem(slot, itemStack);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
 
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
-		Game getGame = BedwarsRel.getInstance().getGameManager().getGameOfPlayer((Player) e.getWhoClicked());
-		if (getGame == null) {
+		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer((Player) e.getWhoClicked());
+		if (game == null || game.getState() != GameState.RUNNING) {
 			return;
 		}
-		if (getGame.getState() != GameState.WAITING && getGame.getState() == GameState.RUNNING) {
-			Player player = (Player) e.getWhoClicked();
-			if (getGame.getPlayerTeam(player) == null) {
-				return;
-			}
-			Inventory inventory = e.getInventory();
-			if (e.getRawSlot() == 5 && !Config.giveitem_armor_helmet_move) {
-				if (inventory.getHolder() != null) {
-					if (inventory.getHolder().equals(player.getInventory().getHolder())
-							&& (inventory.getTitle().equals("container.crafting")
-									|| inventory.getTitle().equals("container.inventory"))) {
-						e.setCancelled(true);
-					}
-				}
-			}
-			if (e.getRawSlot() == 6 && !Config.giveitem_armor_chestplate_move) {
-				if (inventory.getHolder() != null) {
-					if (inventory.getHolder().equals(player.getInventory().getHolder())
-							&& (inventory.getTitle().equals("container.crafting")
-									|| inventory.getTitle().equals("container.inventory"))) {
-						e.setCancelled(true);
-					}
-				}
-			}
-			if (e.getRawSlot() == 7 && !Config.giveitem_armor_leggings_move) {
-				if (inventory.getHolder() != null) {
-					if (inventory.getHolder().equals(player.getInventory().getHolder())
-							&& (inventory.getTitle().equals("container.crafting")
-									|| inventory.getTitle().equals("container.inventory"))) {
-						e.setCancelled(true);
-					}
-				}
-			}
-			if (e.getRawSlot() == 8 && !Config.giveitem_armor_boots_move) {
-				if (inventory.getHolder() != null) {
-					if (inventory.getHolder().equals(player.getInventory().getHolder())
-							&& (inventory.getTitle().equals("container.crafting")
-									|| inventory.getTitle().equals("container.inventory"))) {
-						e.setCancelled(true);
-					}
-				}
-			}
+		Player player = (Player) e.getWhoClicked();
+		if (game.getPlayerTeam(player) == null) {
+			return;
+		}
+		Inventory inventory = e.getInventory();
+		if (inventory.getHolder() == null) {
+			return;
+		}
+		if (!(inventory.getHolder().equals(player.getInventory().getHolder()) && (inventory.getTitle().equals("container.crafting") || inventory.getTitle().equals("container.inventory")))) {
+			return;
+		}
+		if (e.getRawSlot() == 5 && !Config.giveitem_armor_helmet_move) {
+			e.setCancelled(true);
+			return;
+		}
+		if (e.getRawSlot() == 6 && !Config.giveitem_armor_chestplate_move) {
+			e.setCancelled(true);
+			return;
+		}
+		if (e.getRawSlot() == 7 && !Config.giveitem_armor_leggings_move) {
+			e.setCancelled(true);
+			return;
+		}
+		if (e.getRawSlot() == 8 && !Config.giveitem_armor_boots_move) {
+			e.setCancelled(true);
+			return;
 		}
 	}
 
@@ -218,7 +204,6 @@ public class GiveItem implements Listener {
 				return;
 			}
 			new BukkitRunnable() {
-				int i = 1;
 				Player player = e.getEntity();
 				ItemStack stack1 = player.getInventory().getHelmet();
 				ItemStack stack2 = player.getInventory().getChestplate();
@@ -227,29 +212,24 @@ public class GiveItem implements Listener {
 
 				@Override
 				public void run() {
-					if (i == 0) {
-						Team team = getGame.getPlayerTeam(player);
-						GiveItem.giveItem(player, team);
-						if (Config.giveitem_keeparmor) {
-							if (stack1 != null) {
-								player.getInventory().setHelmet(stack1);
-							}
-							if (stack2 != null) {
-								player.getInventory().setChestplate(stack2);
-							}
-							if (stack3 != null) {
-								player.getInventory().setLeggings(stack3);
-							}
-							if (stack4 != null) {
-								player.getInventory().setBoots(stack4);
-							}
+					Team team = getGame.getPlayerTeam(player);
+					GiveItem.giveItem(player, team, true);
+					if (Config.giveitem_keeparmor) {
+						if (stack1 != null) {
+							player.getInventory().setHelmet(stack1);
 						}
-						cancel();
-						return;
+						if (stack2 != null) {
+							player.getInventory().setChestplate(stack2);
+						}
+						if (stack3 != null) {
+							player.getInventory().setLeggings(stack3);
+						}
+						if (stack4 != null) {
+							player.getInventory().setBoots(stack4);
+						}
 					}
-					i--;
 				}
-			}.runTaskTimer(Main.getInstance(), 0L, 1L);
+			}.runTaskLater(Main.getInstance(), 1L);
 		}
 	}
 }

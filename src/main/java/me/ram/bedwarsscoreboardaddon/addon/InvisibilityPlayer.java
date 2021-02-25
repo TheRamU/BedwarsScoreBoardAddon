@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,6 +21,7 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.config.Config;
+import me.ram.bedwarsscoreboardaddon.events.BoardAddonPlayerInvisibilityEvent;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
 
 public class InvisibilityPlayer {
@@ -52,6 +55,11 @@ public class InvisibilityPlayer {
 	}
 
 	public void hidePlayer(Player player) {
+		BoardAddonPlayerInvisibilityEvent playerInvisibilityEvent = new BoardAddonPlayerInvisibilityEvent(game, player);
+		Bukkit.getPluginManager().callEvent(playerInvisibilityEvent);
+		if (playerInvisibilityEvent.isCancelled()) {
+			return;
+		}
 		if (!hplayers.contains(player.getUniqueId())) {
 			hplayers.add(player.getUniqueId());
 		}
@@ -68,14 +76,8 @@ public class InvisibilityPlayer {
 
 						@Override
 						public void run() {
-							if (player.isOnline() && (loc.getX() != player.getLocation().getX()
-									|| loc.getY() != player.getLocation().getY()
-									|| loc.getZ() != player.getLocation().getZ())) {
-								player.getWorld()
-										.playEffect(
-												player.getLocation().clone().add((Math.random() - Math.random()) * 0.5,
-														0.05, (Math.random() - Math.random()) * 0.5),
-												Effect.FOOTSTEP, 0);
+							if (player.isOnline() && (loc.getX() != player.getLocation().getX() || loc.getY() != player.getLocation().getY() || loc.getZ() != player.getLocation().getZ())) {
+								player.getWorld().playEffect(player.getLocation().clone().add((Math.random() - Math.random()) * 0.5, 0.05, (Math.random() - Math.random()) * 0.5), Effect.FOOTSTEP, 0);
 							}
 						}
 					}.runTaskLater(Main.getInstance(), 8L);
@@ -85,10 +87,7 @@ public class InvisibilityPlayer {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (game.getState() != GameState.RUNNING || !player.isOnline()
-						|| !player.hasPotionEffect(PotionEffectType.INVISIBILITY)
-						|| !players.contains(player.getUniqueId()) || !game.getPlayers().contains(player)
-						|| game.isSpectator(player)) {
+				if (game.getState() != GameState.RUNNING || !player.isOnline() || !player.hasPotionEffect(PotionEffectType.INVISIBILITY) || !players.contains(player.getUniqueId()) || !game.getPlayers().contains(player) || game.isSpectator(player)) {
 					cancel();
 					task.cancel();
 					players.remove(player.getUniqueId());
@@ -97,8 +96,7 @@ public class InvisibilityPlayer {
 						showArmor(player);
 						if (Config.invisibility_player_hide_particles) {
 							for (PotionEffect effect : player.getActivePotionEffects()) {
-								player.addPotionEffect(new PotionEffect(effect.getType(), effect.getDuration(),
-										effect.getAmplifier(), false, true), true);
+								player.addPotionEffect(new PotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier(), false, true), true);
 							}
 						}
 					}
@@ -114,10 +112,8 @@ public class InvisibilityPlayer {
 	private void hideArmor(Player player) {
 		if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
 			try {
-				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE,
-						Integer.TYPE, Utils.getNMSClass("ItemStack"));
-				Object as = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class)
-						.invoke(null, new ItemStack(Material.AIR));
+				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE, Integer.TYPE, Utils.getNMSClass("ItemStack"));
+				Object as = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class).invoke(null, new ItemStack(Material.AIR));
 				Object packet1 = constructor.newInstance(player.getEntityId(), 1, as);
 				Object packet2 = constructor.newInstance(player.getEntityId(), 2, as);
 				Object packet3 = constructor.newInstance(player.getEntityId(), 3, as);
@@ -135,18 +131,12 @@ public class InvisibilityPlayer {
 			}
 		} else {
 			try {
-				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE,
-						Utils.getNMSClass("EnumItemSlot"), Utils.getNMSClass("ItemStack"));
-				Object as = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class)
-						.invoke(null, new ItemStack(Material.AIR));
-				Object packet1 = constructor.newInstance(player.getEntityId(),
-						Utils.getNMSClass("EnumItemSlot").getField("FEET").get(null), as);
-				Object packet2 = constructor.newInstance(player.getEntityId(),
-						Utils.getNMSClass("EnumItemSlot").getField("LEGS").get(null), as);
-				Object packet3 = constructor.newInstance(player.getEntityId(),
-						Utils.getNMSClass("EnumItemSlot").getField("CHEST").get(null), as);
-				Object packet4 = constructor.newInstance(player.getEntityId(),
-						Utils.getNMSClass("EnumItemSlot").getField("HEAD").get(null), as);
+				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE, Utils.getNMSClass("EnumItemSlot"), Utils.getNMSClass("ItemStack"));
+				Object as = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class).invoke(null, new ItemStack(Material.AIR));
+				Object packet1 = constructor.newInstance(player.getEntityId(), Utils.getNMSClass("EnumItemSlot").getField("FEET").get(null), as);
+				Object packet2 = constructor.newInstance(player.getEntityId(), Utils.getNMSClass("EnumItemSlot").getField("LEGS").get(null), as);
+				Object packet3 = constructor.newInstance(player.getEntityId(), Utils.getNMSClass("EnumItemSlot").getField("CHEST").get(null), as);
+				Object packet4 = constructor.newInstance(player.getEntityId(), Utils.getNMSClass("EnumItemSlot").getField("HEAD").get(null), as);
 				List<Player> players = game.getPlayerTeam(player).getPlayers();
 				for (Player p : game.getPlayers()) {
 					if (p != player && !players.contains(p)) {
@@ -164,17 +154,12 @@ public class InvisibilityPlayer {
 	private void showArmor(Player player) {
 		if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
 			try {
-				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE,
-						Integer.TYPE, Utils.getNMSClass("ItemStack"));
+				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE, Integer.TYPE, Utils.getNMSClass("ItemStack"));
 				Method method = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class);
-				Object packet1 = constructor.newInstance(player.getEntityId(), 1,
-						method.invoke(null, player.getInventory().getBoots()));
-				Object packet2 = constructor.newInstance(player.getEntityId(), 2,
-						method.invoke(null, player.getInventory().getLeggings()));
-				Object packet3 = constructor.newInstance(player.getEntityId(), 3,
-						method.invoke(null, player.getInventory().getChestplate()));
-				Object packet4 = constructor.newInstance(player.getEntityId(), 4,
-						method.invoke(null, player.getInventory().getHelmet()));
+				Object packet1 = constructor.newInstance(player.getEntityId(), 1, method.invoke(null, player.getInventory().getBoots()));
+				Object packet2 = constructor.newInstance(player.getEntityId(), 2, method.invoke(null, player.getInventory().getLeggings()));
+				Object packet3 = constructor.newInstance(player.getEntityId(), 3, method.invoke(null, player.getInventory().getChestplate()));
+				Object packet4 = constructor.newInstance(player.getEntityId(), 4, method.invoke(null, player.getInventory().getHelmet()));
 				List<Player> players = game.getPlayerTeam(player).getPlayers();
 				for (Player p : game.getPlayers()) {
 					if (p != player && !players.contains(p)) {
@@ -188,21 +173,12 @@ public class InvisibilityPlayer {
 			}
 		} else {
 			try {
-				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE,
-						Utils.getNMSClass("EnumItemSlot"), Utils.getNMSClass("ItemStack"));
+				Constructor constructor = Utils.getNMSClass("PacketPlayOutEntityEquipment").getConstructor(Integer.TYPE, Utils.getNMSClass("EnumItemSlot"), Utils.getNMSClass("ItemStack"));
 				Method method = Utils.getClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class);
-				Object packet1 = constructor.newInstance(player.getEntityId(),
-						Utils.getNMSClass("EnumItemSlot").getField("FEET").get(null),
-						method.invoke(null, player.getInventory().getBoots()));
-				Object packet2 = constructor.newInstance(player.getEntityId(),
-						Utils.getNMSClass("EnumItemSlot").getField("LEGS").get(null),
-						method.invoke(null, player.getInventory().getLeggings()));
-				Object packet3 = constructor.newInstance(player.getEntityId(),
-						Utils.getNMSClass("EnumItemSlot").getField("CHEST").get(null),
-						method.invoke(null, player.getInventory().getChestplate()));
-				Object packet4 = constructor.newInstance(player.getEntityId(),
-						Utils.getNMSClass("EnumItemSlot").getField("HEAD").get(null),
-						method.invoke(null, player.getInventory().getHelmet()));
+				Object packet1 = constructor.newInstance(player.getEntityId(), Utils.getNMSClass("EnumItemSlot").getField("FEET").get(null), method.invoke(null, player.getInventory().getBoots()));
+				Object packet2 = constructor.newInstance(player.getEntityId(), Utils.getNMSClass("EnumItemSlot").getField("LEGS").get(null), method.invoke(null, player.getInventory().getLeggings()));
+				Object packet3 = constructor.newInstance(player.getEntityId(), Utils.getNMSClass("EnumItemSlot").getField("CHEST").get(null), method.invoke(null, player.getInventory().getChestplate()));
+				Object packet4 = constructor.newInstance(player.getEntityId(), Utils.getNMSClass("EnumItemSlot").getField("HEAD").get(null), method.invoke(null, player.getInventory().getHelmet()));
 				List<Player> players = game.getPlayerTeam(player).getPlayers();
 				for (Player p : game.getPlayers()) {
 					if (p != player && !players.contains(p)) {

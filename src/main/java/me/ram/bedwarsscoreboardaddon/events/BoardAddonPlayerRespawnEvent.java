@@ -6,7 +6,7 @@ import org.bukkit.event.HandlerList;
 import io.github.bedwarsrel.game.Game;
 
 public class BoardAddonPlayerRespawnEvent extends Event {
-	
+
 	private static HandlerList handlers = new HandlerList();
 	private Game game;
 	private Player player;

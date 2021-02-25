@@ -5,7 +5,7 @@ import org.bukkit.event.HandlerList;
 import io.github.bedwarsrel.game.Game;
 
 public class BoardAddonDeathModeEvent extends Event {
-	
+
 	private static HandlerList handlers = new HandlerList();
 	private Game game;
 	private Boolean cancelled = false;
@@ -22,7 +22,7 @@ public class BoardAddonDeathModeEvent extends Event {
 		return this.cancelled;
 	}
 
-	public void setCancelled(final boolean cancel) {
+	public void setCancelled(boolean cancel) {
 		this.cancelled = cancel;
 	}
 

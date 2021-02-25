@@ -1,398 +1,80 @@
 package me.ram.bedwarsscoreboardaddon.utils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
+
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemUtil {
 
-	public static String getRealName(ItemStack target) {
-		Map<Integer, String> m = new HashMap<Integer, String>();
-		m.put(Integer.valueOf(1), "石头");
-		m.put(Integer.valueOf(2), "草方块");
-		m.put(Integer.valueOf(3), "泥土");
-		m.put(Integer.valueOf(4), "圆石");
-		m.put(Integer.valueOf(5), "木板");
-		m.put(Integer.valueOf(6), "树苗");
-		m.put(Integer.valueOf(7), "基岩");
-		m.put(Integer.valueOf(8), "流动的水");
-		m.put(Integer.valueOf(9), "水");
-		m.put(Integer.valueOf(10), "流动的岩浆");
-		m.put(Integer.valueOf(11), "岩浆");
-		m.put(Integer.valueOf(12), "沙子");
-		m.put(Integer.valueOf(13), "砂砾");
-		m.put(Integer.valueOf(14), "金矿");
-		m.put(Integer.valueOf(15), "铁矿");
-		m.put(Integer.valueOf(16), "煤矿");
-		m.put(Integer.valueOf(17), "原木");
-		m.put(Integer.valueOf(18), "树叶");
-		m.put(Integer.valueOf(19), "海绵");
-		m.put(Integer.valueOf(20), "玻璃");
-		m.put(Integer.valueOf(21), "青晶石矿");
-		m.put(Integer.valueOf(22), "青晶石块");
-		m.put(Integer.valueOf(23), "发射器");
-		m.put(Integer.valueOf(24), "沙石");
-		m.put(Integer.valueOf(25), "音符盒");
-		m.put(Integer.valueOf(26), "床的一半(Bug方块)");
-		m.put(Integer.valueOf(27), "动力铁轨");
-		m.put(Integer.valueOf(28), "探测铁轨");
-		m.put(Integer.valueOf(29), "粘性活塞");
-		m.put(Integer.valueOf(30), "蜘蛛网");
-		m.put(Integer.valueOf(31), "草");
-		m.put(Integer.valueOf(32), "枯死的树苗");
-		m.put(Integer.valueOf(33), "活塞");
-		m.put(Integer.valueOf(34), "活塞的头(Bug方块)");
-		m.put(Integer.valueOf(35), "羊毛");
-		m.put(Integer.valueOf(36), "移动的活塞(Bug方块)");
-		m.put(Integer.valueOf(37), "小黄花");
-		m.put(Integer.valueOf(38), "花朵");
-		m.put(Integer.valueOf(39), "棕色蘑菇");
-		m.put(Integer.valueOf(40), "红色蘑菇");
-		m.put(Integer.valueOf(41), "金块");
-		m.put(Integer.valueOf(42), "铁块");
-		m.put(Integer.valueOf(43), "堆叠的半砖");
-		m.put(Integer.valueOf(44), "半砖");
-		m.put(Integer.valueOf(45), "砖块");
-		m.put(Integer.valueOf(46), "TNT");
-		m.put(Integer.valueOf(47), "书柜");
-		m.put(Integer.valueOf(48), "青苔砖");
-		m.put(Integer.valueOf(49), "黑曜石");
-		m.put(Integer.valueOf(50), "火把");
-		m.put(Integer.valueOf(51), "火");
-		m.put(Integer.valueOf(52), "刷怪笼");
-		m.put(Integer.valueOf(53), "橡木楼梯");
-		m.put(Integer.valueOf(54), "箱子");
-		m.put(Integer.valueOf(55), "引燃的红石导线(Bug方块)");
-		m.put(Integer.valueOf(56), "钻石原矿");
-		m.put(Integer.valueOf(57), "钻石块");
-		m.put(Integer.valueOf(58), "工作台");
-		m.put(Integer.valueOf(59), "小麦方块(Bug方块)");
-		m.put(Integer.valueOf(60), "耕地(Bug方块)");
-		m.put(Integer.valueOf(61), "熔炉");
-		m.put(Integer.valueOf(62), "烧着的熔炉(Bug方块)");
-		m.put(Integer.valueOf(63), "站着的告示牌(Bug方块)");
-		m.put(Integer.valueOf(64), "半边的门(Bug方块)");
-		m.put(Integer.valueOf(65), "梯子");
-		m.put(Integer.valueOf(66), "铁轨");
-		m.put(Integer.valueOf(67), "石楼梯");
-		m.put(Integer.valueOf(68), "墙上的告示牌(Bug方块)");
-		m.put(Integer.valueOf(69), "拉杆");
-		m.put(Integer.valueOf(70), "石制压力板");
-		m.put(Integer.valueOf(71), "半边铁门(Bug方块)");
-		m.put(Integer.valueOf(72), "木制压力板");
-		m.put(Integer.valueOf(73), "红石矿");
-		m.put(Integer.valueOf(74), "亮着的红石矿(Bug方块)");
-		m.put(Integer.valueOf(75), "不亮的红石火把(Bug方块)");
-		m.put(Integer.valueOf(76), "红石火把");
-		m.put(Integer.valueOf(77), "石制按钮");
-		m.put(Integer.valueOf(78), "雪");
-		m.put(Integer.valueOf(79), "冰");
-		m.put(Integer.valueOf(80), "雪方块");
-		m.put(Integer.valueOf(81), "仙人掌");
-		m.put(Integer.valueOf(82), "黏土块");
-		m.put(Integer.valueOf(83), "甘蔗(Bug方块)");
-		m.put(Integer.valueOf(84), "唱片机");
-		m.put(Integer.valueOf(85), "木制栅栏");
-		m.put(Integer.valueOf(86), "南瓜");
-		m.put(Integer.valueOf(87), "地狱岩");
-		m.put(Integer.valueOf(88), "灵魂沙");
-		m.put(Integer.valueOf(89), "荧石");
-		m.put(Integer.valueOf(90), "传送门(Bug方块)");
-		m.put(Integer.valueOf(91), "亮着的南瓜灯");
-		m.put(Integer.valueOf(92), "蛋糕(Bug方块)");
-		m.put(Integer.valueOf(93), "红石中继器(关)");
-		m.put(Integer.valueOf(94), "红石中继器(开)");
-		m.put(Integer.valueOf(95), "彩色玻璃");
-		m.put(Integer.valueOf(96), "木制陷阱门");
-		m.put(Integer.valueOf(97), "刷怪石");
-		m.put(Integer.valueOf(98), "石砖");
-		m.put(Integer.valueOf(99), "蘑菇块");
-		m.put(Integer.valueOf(100), "蘑菇块");
-		m.put(Integer.valueOf(101), "铁栅栏");
-		m.put(Integer.valueOf(102), "玻璃板");
-		m.put(Integer.valueOf(103), "西瓜块");
-		m.put(Integer.valueOf(104), "南瓜藤(Bug方块)");
-		m.put(Integer.valueOf(105), "西瓜藤(Bug方块)");
-		m.put(Integer.valueOf(106), "藤蔓");
-		m.put(Integer.valueOf(107), "栅栏门");
-		m.put(Integer.valueOf(108), "红砖楼梯");
-		m.put(Integer.valueOf(109), "平滑石砖楼梯");
-		m.put(Integer.valueOf(110), "菌丝");
-		m.put(Integer.valueOf(111), "睡莲");
-		m.put(Integer.valueOf(112), "地狱砖块");
-		m.put(Integer.valueOf(113), "地狱砖栅栏");
-		m.put(Integer.valueOf(114), "地狱砖楼梯");
-		m.put(Integer.valueOf(115), "地狱疣(Bug方块)");
-		m.put(Integer.valueOf(116), "附魔台");
-		m.put(Integer.valueOf(117), "站着的炼药台(Bug方块)");
-		m.put(Integer.valueOf(118), "炼药锅(Bug方块)");
-		m.put(Integer.valueOf(119), "末地传送门(Bug方块)");
-		m.put(Integer.valueOf(120), "末地传送门框架(?)");
-		m.put(Integer.valueOf(121), "末地石");
-		m.put(Integer.valueOf(122), "龙蛋");
-		m.put(Integer.valueOf(123), "红石灯");
-		m.put(Integer.valueOf(124), "亮着的红石灯(Bug方块)");
-		m.put(Integer.valueOf(125), "双层的木板台阶");
-		m.put(Integer.valueOf(126), "木板台阶");
-		m.put(Integer.valueOf(127), "可可果");
-		m.put(Integer.valueOf(128), "沙石台阶");
-		m.put(Integer.valueOf(129), "绿宝石矿");
-		m.put(Integer.valueOf(130), "末影箱");
-		m.put(Integer.valueOf(131), "拌线钩");
-		m.put(Integer.valueOf(132), "拌线钩的线(Bug方块)");
-		m.put(Integer.valueOf(133), "绿宝石块");
-		m.put(Integer.valueOf(134), "楼梯");
-		m.put(Integer.valueOf(135), "楼梯");
-		m.put(Integer.valueOf(136), "楼梯");
-		m.put(Integer.valueOf(137), "命令方块");
-		m.put(Integer.valueOf(138), "信标");
-		m.put(Integer.valueOf(139), "圆石墙");
-		m.put(Integer.valueOf(143), "木制按钮");
-		m.put(Integer.valueOf(144), "头颅(Bug方块)");
-		m.put(Integer.valueOf(145), "铁砧");
-		m.put(Integer.valueOf(146), "陷阱箱");
-		m.put(Integer.valueOf(147), "金制压力板");
-		m.put(Integer.valueOf(148), "铁制压力板");
-		m.put(Integer.valueOf(151), "日光探测板");
-		m.put(Integer.valueOf(152), "红石块");
-		m.put(Integer.valueOf(153), "石英矿");
-		m.put(Integer.valueOf(154), "漏斗");
-		m.put(Integer.valueOf(155), "石英块");
-		m.put(Integer.valueOf(156), "石英楼梯");
-		m.put(Integer.valueOf(157), "激活铁轨");
-		m.put(Integer.valueOf(158), "投掷器");
-		m.put(Integer.valueOf(159), "彩色黏土");
-		m.put(Integer.valueOf(160), "彩色玻璃板");
-		m.put(Integer.valueOf(161), "树叶");
-		m.put(Integer.valueOf(162), "原木");
-		m.put(Integer.valueOf(163), "楼梯");
-		m.put(Integer.valueOf(164), "楼梯");
-		m.put(Integer.valueOf(165), "粘液块");
-		m.put(Integer.valueOf(166), "屏障");
-		m.put(Integer.valueOf(167), "铁制陷阱门");
-		m.put(Integer.valueOf(168), "海晶石");
-		m.put(Integer.valueOf(169), "海晶灯");
-		m.put(Integer.valueOf(170), "干草块");
-		m.put(Integer.valueOf(171), "羊毛地毯");
-		m.put(Integer.valueOf(172), "硬化黏土");
-		m.put(Integer.valueOf(173), "煤炭块");
-		m.put(Integer.valueOf(174), "干冰");
-		m.put(Integer.valueOf(175), "花");
-		m.put(Integer.valueOf(179), "红沙石");
-		m.put(Integer.valueOf(180), "红沙石楼梯");
-		m.put(Integer.valueOf(181), "双层沙石台阶");
-		m.put(Integer.valueOf(182), "沙石半砖");
-		m.put(Integer.valueOf(183), "栅栏门");
-		m.put(Integer.valueOf(184), "栅栏门");
-		m.put(Integer.valueOf(185), "栅栏门");
-		m.put(Integer.valueOf(186), "栅栏门");
-		m.put(Integer.valueOf(187), "栅栏门");
-		m.put(Integer.valueOf(188), "栅栏门");
-		m.put(Integer.valueOf(189), "栅栏门");
-		m.put(Integer.valueOf(190), "栅栏门");
-		m.put(Integer.valueOf(191), "栅栏门");
-		m.put(Integer.valueOf(192), "栅栏门");
-		m.put(Integer.valueOf(256), "铁铲");
-		m.put(Integer.valueOf(257), "铁镐");
-		m.put(Integer.valueOf(258), "铁斧");
-		m.put(Integer.valueOf(259), "打火石");
-		m.put(Integer.valueOf(260), "小苹果");
-		m.put(Integer.valueOf(261), "弓");
-		m.put(Integer.valueOf(262), "箭");
-		m.put(Integer.valueOf(263), "煤炭");
-		m.put(Integer.valueOf(264), "钻石");
-		m.put(Integer.valueOf(265), "铁锭");
-		m.put(Integer.valueOf(266), "金锭");
-		m.put(Integer.valueOf(267), "铁剑");
-		m.put(Integer.valueOf(268), "木剑");
-		m.put(Integer.valueOf(269), "木铲");
-		m.put(Integer.valueOf(270), "木镐");
-		m.put(Integer.valueOf(271), "木斧");
-		m.put(Integer.valueOf(272), "石剑");
-		m.put(Integer.valueOf(273), "石铲");
-		m.put(Integer.valueOf(274), "石镐");
-		m.put(Integer.valueOf(275), "石斧");
-		m.put(Integer.valueOf(276), "钻石剑");
-		m.put(Integer.valueOf(277), "钻石铲");
-		m.put(Integer.valueOf(278), "钻石镐");
-		m.put(Integer.valueOf(279), "钻石斧");
-		m.put(Integer.valueOf(280), "木棍");
-		m.put(Integer.valueOf(281), "碗");
-		m.put(Integer.valueOf(282), "蘑菇煲");
-		m.put(Integer.valueOf(283), "金剑");
-		m.put(Integer.valueOf(284), "金铲");
-		m.put(Integer.valueOf(285), "金镐");
-		m.put(Integer.valueOf(286), "金斧");
-		m.put(Integer.valueOf(287), "线");
-		m.put(Integer.valueOf(288), "羽毛");
-		m.put(Integer.valueOf(289), "火药");
-		m.put(Integer.valueOf(290), "木锄");
-		m.put(Integer.valueOf(291), "石锄");
-		m.put(Integer.valueOf(292), "铁锄");
-		m.put(Integer.valueOf(293), "钻石锄");
-		m.put(Integer.valueOf(294), "金锄");
-		m.put(Integer.valueOf(295), "小麦种子");
-		m.put(Integer.valueOf(296), "小麦");
-		m.put(Integer.valueOf(297), "面包");
-		m.put(Integer.valueOf(298), "皮革头盔");
-		m.put(Integer.valueOf(299), "皮革胸甲");
-		m.put(Integer.valueOf(300), "皮革裤子");
-		m.put(Integer.valueOf(301), "皮革靴子");
-		m.put(Integer.valueOf(302), "锁链头盔");
-		m.put(Integer.valueOf(303), "锁链胸甲");
-		m.put(Integer.valueOf(304), "锁链裤子");
-		m.put(Integer.valueOf(305), "锁链靴子");
-		m.put(Integer.valueOf(306), "铁头盔");
-		m.put(Integer.valueOf(307), "铁胸甲");
-		m.put(Integer.valueOf(308), "铁裤子");
-		m.put(Integer.valueOf(309), "铁靴子");
-		m.put(Integer.valueOf(310), "钻石头盔");
-		m.put(Integer.valueOf(311), "钻石胸甲");
-		m.put(Integer.valueOf(312), "钻石裤子");
-		m.put(Integer.valueOf(313), "钻石靴子");
-		m.put(Integer.valueOf(314), "金头盔");
-		m.put(Integer.valueOf(315), "金胸甲");
-		m.put(Integer.valueOf(316), "金裤子");
-		m.put(Integer.valueOf(317), "金靴子");
-		m.put(Integer.valueOf(318), "硕石");
-		m.put(Integer.valueOf(319), "生猪肉");
-		m.put(Integer.valueOf(320), "熟猪肉");
-		m.put(Integer.valueOf(321), "画");
-		m.put(Integer.valueOf(322), "金苹果");
-		m.put(Integer.valueOf(323), "告示牌");
-		m.put(Integer.valueOf(324), "木门");
-		m.put(Integer.valueOf(325), "桶");
-		m.put(Integer.valueOf(326), "水桶");
-		m.put(Integer.valueOf(327), "岩浆桶");
-		m.put(Integer.valueOf(328), "矿车");
-		m.put(Integer.valueOf(329), "鞍");
-		m.put(Integer.valueOf(330), "铁门");
-		m.put(Integer.valueOf(331), "红石");
-		m.put(Integer.valueOf(332), "雪球");
-		m.put(Integer.valueOf(333), "船");
-		m.put(Integer.valueOf(334), "皮革");
-		m.put(Integer.valueOf(335), "牛奶");
-		m.put(Integer.valueOf(336), "红砖");
-		m.put(Integer.valueOf(337), "黏土");
-		m.put(Integer.valueOf(338), "甘蔗");
-		m.put(Integer.valueOf(339), "纸");
-		m.put(Integer.valueOf(340), "书");
-		m.put(Integer.valueOf(341), "史莱姆球");
-		m.put(Integer.valueOf(342), "箱子矿车");
-		m.put(Integer.valueOf(343), "熔炉矿车");
-		m.put(Integer.valueOf(344), "鸡蛋");
-		m.put(Integer.valueOf(345), "书");
-		m.put(Integer.valueOf(346), "钓鱼竿");
-		m.put(Integer.valueOf(347), "钟");
-		m.put(Integer.valueOf(348), "荧石粉");
-		m.put(Integer.valueOf(349), "鱼");
-		m.put(Integer.valueOf(350), "熟鱼");
-		m.put(Integer.valueOf(351), "染料");
-		m.put(Integer.valueOf(352), "骨头");
-		m.put(Integer.valueOf(353), "糖");
-		m.put(Integer.valueOf(354), "蛋糕");
-		m.put(Integer.valueOf(355), "床");
-		m.put(Integer.valueOf(356), "红石中继器");
-		m.put(Integer.valueOf(357), "曲奇");
-		m.put(Integer.valueOf(358), "地图(有内容的)");
-		m.put(Integer.valueOf(359), "剪刀");
-		m.put(Integer.valueOf(360), "西瓜");
-		m.put(Integer.valueOf(361), "南瓜种子");
-		m.put(Integer.valueOf(362), "西瓜种子");
-		m.put(Integer.valueOf(363), "生牛肉");
-		m.put(Integer.valueOf(364), "牛排");
-		m.put(Integer.valueOf(365), "生鸡肉");
-		m.put(Integer.valueOf(366), "鸡肉");
-		m.put(Integer.valueOf(367), "腐肉");
-		m.put(Integer.valueOf(368), "末影之眼");
-		m.put(Integer.valueOf(369), "烈焰棒");
-		m.put(Integer.valueOf(370), "恶魂之泪");
-		m.put(Integer.valueOf(371), "金粒");
-		m.put(Integer.valueOf(372), "地狱疣");
-		m.put(Integer.valueOf(373), "药水");
-		m.put(Integer.valueOf(374), "空玻璃瓶");
-		m.put(Integer.valueOf(375), "蜘蛛眼");
-		m.put(Integer.valueOf(376), "发酵的蜘蛛眼");
-		m.put(Integer.valueOf(377), "烈焰粉");
-		m.put(Integer.valueOf(378), "烈焰膏");
-		m.put(Integer.valueOf(379), "炼药台");
-		m.put(Integer.valueOf(380), "炼药锅");
-		m.put(Integer.valueOf(381), "末影之眼");
-		m.put(Integer.valueOf(382), "发光的西瓜");
-		m.put(Integer.valueOf(383), "刷怪蛋");
-		m.put(Integer.valueOf(384), "经验之瓶");
-		m.put(Integer.valueOf(385), "火焰弹");
-		m.put(Integer.valueOf(386), "书与笔");
-		m.put(Integer.valueOf(387), "成书");
-		m.put(Integer.valueOf(388), "绿宝石");
-		m.put(Integer.valueOf(389), "物品展示框");
-		m.put(Integer.valueOf(390), "花盆");
-		m.put(Integer.valueOf(391), "胡萝卜");
-		m.put(Integer.valueOf(392), "土豆");
-		m.put(Integer.valueOf(393), "烤土豆");
-		m.put(Integer.valueOf(394), "毒土豆");
-		m.put(Integer.valueOf(395), "地图");
-		m.put(Integer.valueOf(396), "金胡萝卜");
-		m.put(Integer.valueOf(397), "头颅");
-		m.put(Integer.valueOf(398), "胡萝卜钓竿");
-		m.put(Integer.valueOf(399), "下界之星");
-		m.put(Integer.valueOf(400), "南瓜派");
-		m.put(Integer.valueOf(401), "烟花");
-		m.put(Integer.valueOf(402), "烟火之星");
-		m.put(Integer.valueOf(403), "附魔书");
-		m.put(Integer.valueOf(404), "红石比较器");
-		m.put(Integer.valueOf(405), "地狱砖");
-		m.put(Integer.valueOf(406), "石英");
-		m.put(Integer.valueOf(407), "TNT矿车");
-		m.put(Integer.valueOf(408), "漏斗矿车");
-		m.put(Integer.valueOf(409), "海晶碎片");
-		m.put(Integer.valueOf(410), "海晶");
-		m.put(Integer.valueOf(411), "生兔肉");
-		m.put(Integer.valueOf(412), "熟兔肉");
-		m.put(Integer.valueOf(413), "兔肉煲");
-		m.put(Integer.valueOf(414), "兔腿");
-		m.put(Integer.valueOf(415), "兔皮");
-		m.put(Integer.valueOf(416), "盔甲架");
-		m.put(Integer.valueOf(417), "铁马铠");
-		m.put(Integer.valueOf(418), "金马铠");
-		m.put(Integer.valueOf(419), "钻石马铠");
-		m.put(Integer.valueOf(420), "栓绳");
-		m.put(Integer.valueOf(421), "命名牌");
-		m.put(Integer.valueOf(422), "命令方块矿车");
-		m.put(Integer.valueOf(423), "生羊肉");
-		m.put(Integer.valueOf(424), "熟羊肉");
-		m.put(Integer.valueOf(425), "旗帜");
-		m.put(Integer.valueOf(427), "木门");
-		m.put(Integer.valueOf(428), "木门");
-		m.put(Integer.valueOf(429), "木门");
-		m.put(Integer.valueOf(430), "木门");
-		m.put(Integer.valueOf(431), "木门");
-		m.put(Integer.valueOf(2256), "唱片");
-		m.put(Integer.valueOf(2257), "唱片");
-		m.put(Integer.valueOf(2258), "唱片");
-		m.put(Integer.valueOf(2259), "唱片");
-		m.put(Integer.valueOf(2260), "唱片");
-		m.put(Integer.valueOf(2261), "唱片");
-		m.put(Integer.valueOf(2262), "唱片");
-		m.put(Integer.valueOf(2263), "唱片");
-		m.put(Integer.valueOf(2264), "唱片");
-		m.put(Integer.valueOf(2265), "唱片");
-		m.put(Integer.valueOf(2266), "唱片");
-		m.put(Integer.valueOf(2267), "唱片");
-		return m.get(Integer.valueOf(target.getTypeId()));
+	public static ItemStack createItem(String name) {
+		try {
+			return new ItemStack(Material.valueOf(name));
+		} catch (Exception e) {
+		}
+		return new ItemStack(Material.AIR);
 	}
 
-	public static String getRealColor(ItemStack target) {
-		Map<Integer, String> m = new HashMap<Integer, String>();
-		m.put(Integer.valueOf(264), "§b");
-		m.put(Integer.valueOf(265), "§f");
-		m.put(Integer.valueOf(266), "§6");
-		m.put(Integer.valueOf(336), "§c");
-		m.put(Integer.valueOf(388), "§2");
-		String str = m.get(Integer.valueOf(target.getTypeId()));
-		if (str != null) {
-			return str;
+	public static ItemStack createItem(String name, int amount) {
+		try {
+			return new ItemStack(Material.valueOf(name), amount);
+		} catch (Exception e) {
 		}
-		return "§f";
+		return new ItemStack(Material.AIR);
+	}
+
+	public static ItemStack createItem(String name, int amount, short damage) {
+		try {
+			return new ItemStack(Material.valueOf(name), amount, damage);
+		} catch (Exception e) {
+		}
+		return new ItemStack(Material.AIR);
+	}
+
+	public static void setItemName(ItemStack item, String name) {
+		ItemMeta meta = item.getItemMeta();
+		meta.setDisplayName(name);
+		item.setItemMeta(meta);
+	}
+
+	public static void setItemLore(ItemStack item, List<String> lore) {
+		ItemMeta meta = item.getItemMeta();
+		meta.setLore(lore);
+		item.setItemMeta(meta);
+	}
+
+	public static void setItemUnbreak(ItemStack item, boolean unbreak) {
+		ItemMeta meta = item.getItemMeta();
+		try {
+			meta.setUnbreakable(unbreak);
+		} catch (Exception e) {
+			meta.spigot().setUnbreakable(unbreak);
+		}
+		item.setItemMeta(meta);
+	}
+
+	public static void addItemFlags(ItemStack item, ItemFlag... flags) {
+		ItemMeta meta = item.getItemMeta();
+		meta.addItemFlags(flags);
+		item.setItemMeta(meta);
+	}
+
+	public String getItemName(ItemStack item) {
+		ItemMeta meta = item.getItemMeta();
+		if (!meta.hasDisplayName()) {
+			return item.getType().name();
+		}
+		return item.getItemMeta().getDisplayName();
+	}
+
+	public List<String> getItemLore(ItemStack item) {
+		return item.getItemMeta().getLore();
+	}
+
+	public Set<ItemFlag> getItemFlags(ItemStack item) {
+		return item.getItemMeta().getItemFlags();
 	}
 }

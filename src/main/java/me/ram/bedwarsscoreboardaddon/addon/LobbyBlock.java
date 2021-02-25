@@ -1,23 +1,23 @@
 package me.ram.bedwarsscoreboardaddon.addon;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.material.MaterialData;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+
 import io.github.bedwarsrel.game.Game;
-import io.github.bedwarsrel.game.GameState;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 
 public class LobbyBlock {
 
 	private Game game;
-	private Map<Block, BlockStorage> lobbyblocks = new HashMap<Block, BlockStorage>();
 
 	public LobbyBlock(Game game) {
 		this.game = game;
@@ -33,23 +33,6 @@ public class LobbyBlock {
 			return;
 		}
 		removeBlock(block.getLocation());
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (game.getState() != GameState.RUNNING) {
-					cancel();
-					recovery();
-				}
-			}
-		}.runTaskTimer(Main.getInstance(), 0L, 0L);
-	}
-
-	public void recovery() {
-		for (Block block : lobbyblocks.keySet()) {
-			game.getRegion().removePlacedBlock(block);
-			lobbyblocks.get(block).getBlock(block);
-		}
-		lobbyblocks.clear();
 	}
 
 	public Game getGame() {
@@ -57,11 +40,10 @@ public class LobbyBlock {
 	}
 
 	private void removeBlock(Location loc) {
+		List<Block> list = new ArrayList<Block>();
 		Location location = loc.clone();
-		Location location1 = location.clone().add(Config.lobby_block_position_1_x, Config.lobby_block_position_1_y,
-				Config.lobby_block_position_1_z);
-		Location location2 = location.clone().add(Config.lobby_block_position_2_x, Config.lobby_block_position_2_y,
-				Config.lobby_block_position_2_z);
+		Location location1 = location.clone().add(Config.lobby_block_position_1_x, Config.lobby_block_position_1_y, Config.lobby_block_position_1_z);
+		Location location2 = location.clone().add(Config.lobby_block_position_2_x, Config.lobby_block_position_2_y, Config.lobby_block_position_2_z);
 		for (int X : this.getAllNumber((int) location1.getX(), (int) location2.getX())) {
 			location.setX(X);
 			for (int Y : this.getAllNumber((int) location1.getY(), (int) location2.getY())) {
@@ -70,12 +52,40 @@ public class LobbyBlock {
 					location.setZ(Z);
 					Block block = location.getBlock();
 					if (block != null && !block.getType().equals(Material.AIR)) {
-						lobbyblocks.put(block, new BlockStorage(block));
-						block.setType(Material.AIR);
+						list.add(block);
+
 					}
 				}
 			}
 		}
+		Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
+			for (Block b : list) {
+				for (Player p : game.getPlayers()) {
+					p.sendBlockChange(b.getLocation(), Material.AIR, (byte) 0);
+				}
+			}
+		});
+		Main.getInstance().getArenaManager().getArena(game.getName()).addGameTask(new BukkitRunnable() {
+			int i = 0;
+
+			@Override
+			public void run() {
+				for (int j = 0; j < 50; j++) {
+					if (i >= list.size()) {
+						cancel();
+						return;
+					}
+					Block block = list.get(i);
+					Chunk chunk = block.getChunk();
+					if (!chunk.isLoaded()) {
+						chunk.load(true);
+					}
+					game.getRegion().addBreakedBlock(block);
+					block.setType(Material.AIR);
+					i++;
+				}
+			}
+		}.runTaskTimer(Main.getInstance(), 0, 0));
 	}
 
 	private List<Integer> getAllNumber(int a, int b) {
@@ -90,24 +100,5 @@ public class LobbyBlock {
 			nums.add(i);
 		}
 		return nums;
-	}
-
-	private class BlockStorage {
-		private Material type;
-		private byte data;
-		private MaterialData materialData;
-
-		private BlockStorage(Block block) {
-			type = block.getType();
-			data = block.getData();
-			materialData = block.getState().getData();
-		}
-
-		private Block getBlock(Block block) {
-			block.setType(type);
-			block.setData(data);
-			block.getState().setData(materialData);
-			return block;
-		}
 	}
 }

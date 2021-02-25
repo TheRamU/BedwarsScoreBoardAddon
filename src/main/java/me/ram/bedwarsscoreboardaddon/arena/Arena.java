@@ -1,14 +1,21 @@
 package me.ram.bedwarsscoreboardaddon.arena;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.server.PluginDisableEvent;
-import me.ram.bedwarsscoreboardaddon.Main;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.scheduler.BukkitTask;
+
 import io.github.bedwarsrel.BedwarsRel;
 import io.github.bedwarsrel.events.BedwarsGameOverEvent;
 import io.github.bedwarsrel.events.BedwarsPlayerKilledEvent;
@@ -17,8 +24,11 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
 import lombok.Getter;
+import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.addon.Actionbar;
 import me.ram.bedwarsscoreboardaddon.addon.DeathMode;
+import me.ram.bedwarsscoreboardaddon.addon.GameChest;
+import me.ram.bedwarsscoreboardaddon.addon.Graffiti;
 import me.ram.bedwarsscoreboardaddon.addon.HealthLevel;
 import me.ram.bedwarsscoreboardaddon.addon.Holographic;
 import me.ram.bedwarsscoreboardaddon.addon.InvisibilityPlayer;
@@ -29,9 +39,10 @@ import me.ram.bedwarsscoreboardaddon.addon.Rejoin;
 import me.ram.bedwarsscoreboardaddon.addon.ResourceUpgrade;
 import me.ram.bedwarsscoreboardaddon.addon.Respawn;
 import me.ram.bedwarsscoreboardaddon.addon.ScoreBoard;
-import me.ram.bedwarsscoreboardaddon.addon.TeamShop;
+import me.ram.bedwarsscoreboardaddon.addon.teamshop.TeamShop;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.storage.PlayerGameStorage;
+import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 
 public class Arena {
 
@@ -62,11 +73,18 @@ public class Arena {
 	@Getter
 	private Actionbar actionbar;
 	@Getter
+	private Graffiti graffiti;
+	@Getter
+	private GameChest gameChest;
+	@Getter
 	private Rejoin rejoin;
 	private Boolean isOver;
+	private List<BukkitTask> gameTasks;
 
 	public Arena(Game game) {
+		Main.getInstance().getArenaManager().addArena(game.getName(), this);
 		this.game = game;
+		gameTasks = new ArrayList<BukkitTask>();
 		playerGameStorage = new PlayerGameStorage(game);
 		scoreBoard = new ScoreBoard(this);
 		deathMode = new DeathMode(game);
@@ -79,8 +97,14 @@ public class Arena {
 		lobbyBlock = new LobbyBlock(game);
 		respawn = new Respawn(game);
 		actionbar = new Actionbar(game);
+		graffiti = new Graffiti(game);
+		gameChest = new GameChest(game);
 		rejoin = new Rejoin(game);
 		isOver = false;
+	}
+
+	public void addGameTask(BukkitTask task) {
+		gameTasks.add(task);
 	}
 
 	public Boolean isOver() {
@@ -88,7 +112,7 @@ public class Arena {
 	}
 
 	public void onTargetBlockDestroyed(BedwarsTargetBlockDestroyedEvent e) {
-		if (!isGamePlayer(e.getPlayer())) {
+		if (!isAlivePlayer(e.getPlayer())) {
 			return;
 		}
 		Map<String, Integer> beds = playerGameStorage.getPlayerBeds();
@@ -113,6 +137,23 @@ public class Arena {
 		}
 		PlaySound.playSound(player, Config.play_sound_sound_death);
 		respawn.onDeath(player);
+		teamShop.removeImmunePlayer(player);
+	}
+
+	public void onDamage(EntityDamageEvent e) {
+		respawn.onDamage(e);
+	}
+
+	public void onInteractEntity(PlayerInteractEntityEvent e) {
+		graffiti.onInteractEntity(e);
+	}
+
+	public void onInteract(PlayerInteractEvent e) {
+		gameChest.onInteract(e);
+	}
+
+	public void onHangingBreak(HangingBreakEvent e) {
+		graffiti.onHangingBreak(e);
 	}
 
 	public void onRespawn(Player player) {
@@ -128,8 +169,7 @@ public class Arena {
 		}
 		Player player = e.getPlayer();
 		Player killer = e.getKiller();
-		if (!game.getPlayers().contains(player) || !game.getPlayers().contains(killer) || game.isSpectator(player)
-				|| game.isSpectator(killer)) {
+		if (!game.getPlayers().contains(player) || !game.getPlayers().contains(killer) || game.isSpectator(player) || game.isSpectator(killer)) {
 			return;
 		}
 		Map<String, Integer> totalkills = playerGameStorage.getPlayerTotalKills();
@@ -163,68 +203,61 @@ public class Arena {
 			if (Config.overstats_enabled && e.getWinner() != null) {
 				Team winner = e.getWinner();
 				Map<String, Integer> totalkills = playerGameStorage.getPlayerTotalKills();
-				int kills_1 = 0;
-				int kills_2 = 0;
-				int kills_3 = 0;
-				String kills_1_player = "none";
-				String kills_2_player = "none";
-				String kills_3_player = "none";
-				for (String player : totalkills.keySet()) {
-					int k = totalkills.get(player);
-					if (k > 0 && k > kills_1) {
-						kills_1_player = player;
-						kills_1 = k;
+				Map<Integer, List<String>> player_kills = new HashMap<Integer, List<String>>();
+				totalkills.forEach((name, kills) -> {
+					List<String> players = player_kills.getOrDefault(kills, new ArrayList<String>());
+					players.add(name);
+					player_kills.put(kills, players);
+				});
+				List<Integer> kills_top = new ArrayList<Integer>();
+				kills_top.addAll(player_kills.keySet());
+				Collections.sort(kills_top);
+				List<String> player_rank_name = new ArrayList<String>();
+				List<Integer> player_rank_kills = new ArrayList<Integer>();
+				for (Integer kills : kills_top) {
+					for (String name : player_kills.get(kills)) {
+						if (player_rank_name.size() < 3) {
+							player_rank_name.add(name);
+							player_rank_kills.add(kills);
+						} else {
+							break;
+						}
 					}
 				}
-				for (String player : totalkills.keySet()) {
-					int k = totalkills.get(player);
-					if (k > kills_2 && k <= kills_1 && !player.equals(kills_1_player)) {
-						kills_2_player = player;
-						kills_2 = k;
-					}
+				int size = player_rank_name.size();
+				for (int i = 0; i < 3 - size; i++) {
+					player_rank_name.add("none");
+					player_rank_kills.add(0);
 				}
-				for (String player : totalkills.keySet()) {
-					int k = totalkills.get(player);
-					if (k > kills_3 && k <= kills_2 && !player.equals(kills_1_player)
-							&& !player.equals(kills_2_player)) {
-						kills_3_player = player;
-						kills_3 = k;
-					}
+				String win_team_player_list = "";
+				for (Player player : winner.getPlayers()) {
+					win_team_player_list += win_team_player_list.length() > 0 ? ", " + player.getName() : player.getName();
 				}
-				List<String> WinTeamPlayers = new ArrayList<String>();
-				for (Player teamplayer : winner.getPlayers()) {
-					WinTeamPlayers.add(teamplayer.getName());
-				}
-				String WinTeamPlayerList = WinTeamPlayers + "";
-				WinTeamPlayerList = WinTeamPlayerList.replace("[", "").replace("]", "");
-				for (Player player : this.game.getPlayers()) {
-					for (String os : Config.overstats_message) {
-						player.sendMessage(os.replace("{color}", winner.getChatColor() + "")
-								.replace("{win_team}", winner.getName())
-								.replace("{win_team_players}", WinTeamPlayerList)
-								.replace("{first_1_kills_player}", kills_1_player)
-								.replace("{first_2_kills_player}", kills_2_player)
-								.replace("{first_3_kills_player}", kills_3_player)
-								.replace("{first_1_kills}", kills_1 + "").replace("{first_2_kills}", kills_2 + "")
-								.replace("{first_3_kills}", kills_3 + ""));
+				for (Player player : game.getPlayers()) {
+					for (String msg : Config.overstats_message) {
+						player.sendMessage(msg.replace("{color}", winner.getChatColor() + "").replace("{win_team}", winner.getName()).replace("{win_team_players}", win_team_player_list).replace("{first_1_kills_player}", player_rank_name.get(0)).replace("{first_2_kills_player}", player_rank_name.get(1)).replace("{first_3_kills_player}", player_rank_name.get(2)).replace("{first_1_kills}", player_rank_kills.get(0) + "").replace("{first_2_kills}", player_rank_kills.get(1) + "").replace("{first_3_kills}", player_rank_kills.get(2) + ""));
 					}
 				}
 			}
 			noBreakBed.onOver();
 			holographic.remove();
-			lobbyBlock.recovery();
+			gameChest.clearChest();
 		}
 	}
 
 	public void onEnd() {
-		lobbyBlock.recovery();
+		gameTasks.forEach(task -> {
+			task.cancel();
+		});
+		teamShop.onEnd();
+		graffiti.reset();
+		gameChest.clearChest();
 	}
 
-	public void onDisable(PluginDisableEvent e) {
-		if (e.getPlugin().equals(Main.getInstance())) {
-			holographic.remove();
-			lobbyBlock.recovery();
-		}
+	public void onDisable() {
+		holographic.remove();
+		graffiti.reset();
+		gameChest.clearChest();
 	}
 
 	public void onArmorStandManipulate(PlayerArmorStandManipulateEvent e) {
@@ -233,12 +266,6 @@ public class Arena {
 
 	public void onClick(InventoryClickEvent e) {
 		teamShop.onClick(e);
-		teamShop.onClickDefense(e);
-		teamShop.onClickHaste(e);
-		teamShop.onClickHeal(e);
-		teamShop.onClickProtection(e);
-		teamShop.onClickSharpness(e);
-		teamShop.onClickTrap(e);
 	}
 
 	public void onItemMerge(ItemMergeEvent e) {
@@ -262,13 +289,17 @@ public class Arena {
 			rejoin.removePlayer(player.getName());
 		}
 		respawn.onPlayerLeave(player);
+		// teamShop.removeTriggeredPlayer(player);
+		teamShop.removeImmunePlayer(player);
 	}
 
 	public void onPlayerJoined(Player player) {
 		if (Config.rejoin_enabled) {
 			rejoin.rejoin(player);
 		}
+		respawn.onPlayerJoined(player);
 		holographic.onPlayerJoin(player);
+		graffiti.onPlayerJoin(player);
 	}
 
 	private Boolean isGamePlayer(Player player) {
@@ -280,6 +311,20 @@ public class Arena {
 			return false;
 		}
 		if (game.isSpectator(player)) {
+			return false;
+		}
+		return true;
+	}
+
+	private Boolean isAlivePlayer(Player player) {
+		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
+		if (game == null) {
+			return false;
+		}
+		if (!game.getName().equals(this.game.getName())) {
+			return false;
+		}
+		if (BedwarsUtil.isSpectator(game, player)) {
 			return false;
 		}
 		return true;

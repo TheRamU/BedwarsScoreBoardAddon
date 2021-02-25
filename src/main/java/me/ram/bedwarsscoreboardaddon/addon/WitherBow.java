@@ -18,6 +18,7 @@ import io.github.bedwarsrel.game.GameState;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.events.BoardAddonPlayerShootWitherBowEvent;
+import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
 
 public class WitherBow implements Listener {
@@ -61,13 +62,11 @@ public class WitherBow implements Listener {
 		}
 		Player player = (Player) e.getEntity();
 		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (game == null || game.getState() != GameState.RUNNING || game.isSpectator(player)
-				|| game.getTimeLeft() > Config.witherbow_gametime) {
+		if (game == null || game.getState() != GameState.RUNNING || BedwarsUtil.isSpectator(game, player) || game.getTimeLeft() > Config.witherbow_gametime) {
 			return;
 		}
 		WitherSkull skull = player.launchProjectile(WitherSkull.class);
-		BoardAddonPlayerShootWitherBowEvent shootWitherBowEvent = new BoardAddonPlayerShootWitherBowEvent(game, player,
-				skull);
+		BoardAddonPlayerShootWitherBowEvent shootWitherBowEvent = new BoardAddonPlayerShootWitherBowEvent(game, player, skull);
 		BedwarsRel.getInstance().getServer().getPluginManager().callEvent(shootWitherBowEvent);
 		if (shootWitherBowEvent.isCancelled()) {
 			skull.remove();
@@ -99,7 +98,7 @@ public class WitherBow implements Listener {
 		if (game == null) {
 			return;
 		}
-		if (game.isSpectator(player) || game.isSpectator(shooter)) {
+		if (BedwarsUtil.isSpectator(game, player) || BedwarsUtil.isSpectator(game, shooter)) {
 			e.setCancelled(true);
 			return;
 		}

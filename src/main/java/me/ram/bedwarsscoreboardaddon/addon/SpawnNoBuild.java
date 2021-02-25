@@ -1,5 +1,8 @@
 package me.ram.bedwarsscoreboardaddon.addon;
 
+import java.util.List;
+
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,26 +21,41 @@ public class SpawnNoBuild implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlace(BlockPlaceEvent e) {
 		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(e.getPlayer());
-		if (game == null || !Config.spawn_no_build_enabled) {
+		if (game == null) {
 			return;
 		}
-		if (game.getState() == GameState.RUNNING) {
-			Block block = e.getBlock();
-			Player player = e.getPlayer();
+		if (game.getState() != GameState.RUNNING) {
+			return;
+		}
+		Block block = e.getBlock();
+		Player player = e.getPlayer();
+		if (Config.spawn_no_build_spawn_enabled) {
 			for (Team team : game.getTeams().values()) {
-				if (team.getSpawnLocation()
-						.distance(block.getLocation().clone().add(0.5, 0, 0.5)) <= Config.spawn_no_build_spawn_range) {
+				if (team.getSpawnLocation().distanceSquared(block.getLocation().clone().add(0.5, 0, 0.5)) <= Math.pow(Config.spawn_no_build_spawn_range, 2)) {
 					e.setCancelled(true);
 					player.sendMessage(Config.spawn_no_build_message);
 					return;
 				}
 			}
+		}
+		if (Config.spawn_no_build_resource_enabled) {
 			for (ResourceSpawner spawner : game.getResourceSpawners()) {
-				if (spawner.getLocation().distance(
-						block.getLocation().clone().add(0.5, 0, 0.5)) <= Config.spawn_no_build_resource_range) {
+				if (spawner.getLocation().distanceSquared(block.getLocation().clone().add(0.5, 0, 0.5)) <= Math.pow(Config.spawn_no_build_resource_range, 2)) {
 					e.setCancelled(true);
 					player.sendMessage(Config.spawn_no_build_message);
 					return;
+				}
+			}
+			if (!Config.game_team_spawner.containsKey(game.getName())) {
+				return;
+			}
+			for (List<Location> locs : Config.game_team_spawner.get(game.getName()).values()) {
+				for (Location loc : locs) {
+					if (loc.distanceSquared(block.getLocation().clone().add(0.5, 0, 0.5)) <= Math.pow(Config.spawn_no_build_resource_range, 2)) {
+						e.setCancelled(true);
+						player.sendMessage(Config.spawn_no_build_message);
+						return;
+					}
 				}
 			}
 		}

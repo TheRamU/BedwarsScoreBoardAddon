@@ -6,6 +6,7 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.config.Config;
+import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
 import org.bukkit.*;
 import org.bukkit.block.*;
@@ -30,8 +31,7 @@ public class NoBreakBed {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (Config.nobreakbed_enabled && game.getState() != GameState.WAITING
-						&& game.getState() == GameState.RUNNING) {
+				if (Config.nobreakbed_enabled && game.getState() != GameState.WAITING && game.getState() == GameState.RUNNING) {
 					int time = game.getTimeLeft() - Config.nobreakbed_gametime;
 					String ftime = time / 60 + ":" + ((time % 60 < 10) ? ("0" + time % 60) : (time % 60));
 					formattime = ftime;
@@ -39,8 +39,7 @@ public class NoBreakBed {
 						bre = true;
 						for (Player player : game.getPlayers()) {
 							if (!Config.nobreakbed_title.equals("") || !Config.nobreakbed_subtitle.equals("")) {
-								Utils.sendTitle(player, 10, 50, 10, Config.nobreakbed_title,
-										Config.nobreakbed_subtitle);
+								Utils.sendTitle(player, 10, 50, 10, Config.nobreakbed_title, Config.nobreakbed_subtitle);
 							}
 							if (!Config.nobreakbed_message.equals("")) {
 								player.sendMessage(Config.nobreakbed_message);
@@ -67,22 +66,19 @@ public class NoBreakBed {
 	}
 
 	private void breakbed() {
-		PacketListener packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST,
-				new PacketType[] { PacketType.Play.Client.BLOCK_DIG }) {
+		PacketListener packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Client.BLOCK_DIG }) {
 			public void onPacketReceiving(PacketEvent e) {
 				if (!Config.nobreakbed_enabled) {
 					return;
 				}
 				Player player = e.getPlayer();
-				if (game.isSpectator(player) || game.getState() != GameState.RUNNING) {
+				if (BedwarsUtil.isSpectator(game, player) || game.getState() != GameState.RUNNING) {
 					return;
 				}
 				if (!bre && e.getPacketType() == PacketType.Play.Client.BLOCK_DIG) {
 					PacketContainer packet = e.getPacket();
-					BlockPosition position = (BlockPosition) packet.getBlockPositionModifier().read(0);
-					Location location = new Location(player.getWorld(), position.getX(), position.getY(),
-							position.getZ());
-					Block block = location.getBlock();
+					BlockPosition position = packet.getBlockPositionModifier().read(0);
+					Block block = new Location(player.getWorld(), position.getX(), position.getY(), position.getZ()).getBlock();
 					if (!block.getType().equals(game.getTargetMaterial())) {
 						return;
 					}

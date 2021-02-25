@@ -29,26 +29,18 @@ public class HealthLevel {
 	public HealthLevel(Game game) {
 		leveltime = new HashMap<String, String>();
 		nowhealth = 20;
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (Config.sethealth_start_enabled) {
+		if (Config.sethealth_start_enabled) {
+			nowhealth = Config.sethealth_start_health;
+			new BukkitRunnable() {
+				@Override
+				public void run() {
 					for (Player player : game.getPlayers()) {
-						nowhealth = Config.sethealth_start_health;
 						player.setMaxHealth(Config.sethealth_start_health);
 						player.setHealth(player.getMaxHealth());
-						if (!Config.start_title_enabled && (!Config.sethealth_start_title.equals("")
-								|| !Config.sethealth_start_subtitle.equals(""))) {
-							Utils.sendTitle(player, 10, 50, 10, Config.sethealth_start_title,
-									Config.sethealth_start_subtitle);
-						}
-						if (!Config.sethealth_start_message.equals("")) {
-							player.sendMessage(Config.sethealth_start_message);
-						}
 					}
 				}
-			}
-		}.runTaskLater(Main.getInstance(), 0L);
+			}.runTaskLater(Main.getInstance(), 0L);
+		}
 		for (String sh : Main.getInstance().getConfig().getConfigurationSection("sethealth").getKeys(false)) {
 			if (!sh.equals("start")) {
 				new BukkitRunnable() {
@@ -67,8 +59,7 @@ public class HealthLevel {
 								return;
 							}
 							int remtime = game.getTimeLeft() - gametime;
-							String formatremtime = remtime / 60 + ":"
-									+ ((remtime % 60 < 10) ? ("0" + remtime % 60) : (remtime % 60));
+							String formatremtime = remtime / 60 + ":" + ((remtime % 60 < 10) ? ("0" + remtime % 60) : (remtime % 60));
 							leveltime.put(sh, formatremtime);
 							if (game.getTimeLeft() <= gametime) {
 								isExecuted = true;
@@ -88,8 +79,7 @@ public class HealthLevel {
 										player.setHealth(nhealth);
 									}
 									if (!title.equals("") || !subtitle.equals("")) {
-										Utils.sendTitle(player, 10, 50, 10, ColorUtil.color(title),
-												ColorUtil.color(subtitle));
+										Utils.sendTitle(player, 10, 50, 10, ColorUtil.color(title), ColorUtil.color(subtitle));
 									}
 									if (!message.equals("")) {
 										player.sendMessage(ColorUtil.color(message));

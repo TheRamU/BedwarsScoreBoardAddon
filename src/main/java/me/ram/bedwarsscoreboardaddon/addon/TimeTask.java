@@ -21,12 +21,10 @@ public class TimeTask implements Listener {
 			if (!cmd.equals("")) {
 				if (cmd.contains("{player}")) {
 					for (Player player : e.getGame().getPlayers()) {
-						Bukkit.getServer().dispatchCommand((CommandSender) Bukkit.getServer().getConsoleSender(),
-								ColorUtil.color(cmd.replace("{player}", player.getName())));
+						Bukkit.getServer().dispatchCommand((CommandSender) Bukkit.getServer().getConsoleSender(), ColorUtil.color(cmd.replace("{player}", player.getName())));
 					}
 				} else {
-					Bukkit.getServer().dispatchCommand((CommandSender) Bukkit.getServer().getConsoleSender(),
-							ColorUtil.color(cmd));
+					Bukkit.getServer().dispatchCommand((CommandSender) Bukkit.getServer().getConsoleSender(), ColorUtil.color(cmd));
 				}
 			}
 		}
@@ -49,14 +47,10 @@ public class TimeTask implements Listener {
 								if (!cmd.equals("")) {
 									if (cmd.contains("{player}")) {
 										for (Player player : e.getGame().getPlayers()) {
-											Bukkit.getServer().dispatchCommand(
-													(CommandSender) Bukkit.getServer().getConsoleSender(),
-													ColorUtil.color(cmd.replace("{player}", player.getName())));
+											Bukkit.getServer().dispatchCommand((CommandSender) Bukkit.getServer().getConsoleSender(), ColorUtil.color(cmd.replace("{player}", player.getName())));
 										}
 									} else {
-										Bukkit.getServer().dispatchCommand(
-												(CommandSender) Bukkit.getServer().getConsoleSender(),
-												ColorUtil.color(cmd));
+										Bukkit.getServer().dispatchCommand((CommandSender) Bukkit.getServer().getConsoleSender(), ColorUtil.color(cmd));
 									}
 								}
 							}

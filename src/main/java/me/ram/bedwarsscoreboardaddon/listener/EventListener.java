@@ -22,20 +22,26 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -66,12 +72,15 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
 import io.github.bedwarsrel.utils.ChatWriter;
+import io.github.bedwarsrel.utils.SoundMachine;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.addon.SelectTeam;
 import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.edit.EditGame;
 import me.ram.bedwarsscoreboardaddon.events.BedwarsTeamDeadEvent;
+import me.ram.bedwarsscoreboardaddon.menu.MenuManager;
+import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 import me.ram.bedwarsscoreboardaddon.utils.ScoreboardUtil;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.CitizensEnableEvent;
@@ -84,7 +93,7 @@ public class EventListener implements Listener {
 		onPacketSending();
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onStarted(BedwarsGameStartedEvent e) {
 		Game game = e.getGame();
 		Map<Player, Scoreboard> scoreboards = ScoreboardUtil.getScoreboards();
@@ -93,14 +102,12 @@ public class EventListener implements Listener {
 				ScoreboardUtil.removePlayer(player);
 			}
 		}
-		Arena arena = new Arena(game);
-		Main.getInstance().getArenaManager().addArena(game.getName(), arena);
+		new Arena(game);
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-					Main.getInstance().getArenaManager().getArenas().get(game.getName()).getScoreBoard()
-							.updateScoreboard();
+					Main.getInstance().getArenaManager().getArenas().get(game.getName()).getScoreBoard().updateScoreboard();
 				}
 			}
 		}.runTaskLater(Main.getInstance(), 2L);
@@ -121,7 +128,7 @@ public class EventListener implements Listener {
 		String[] args = message.split(" ");
 		if (args[0].equalsIgnoreCase("/bwsbatp")) {
 			e.setCancelled(true);
-			if (args.length == 8 && player.hasPermission("bedwarsscoreboardaddon.shop.teleport")) {
+			if (args.length == 8 && player.hasPermission("bedwarsscoreboardaddon.teleport")) {
 				String loc = message.substring(10 + args[1].length(), message.length());
 				Location location = toLocation(loc);
 				if (location != null) {
@@ -203,8 +210,7 @@ public class EventListener implements Listener {
 			if (Config.rejoin_enabled) {
 				destroyBlock(game, team);
 				if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-					Main.getInstance().getArenaManager().getArenas().get(game.getName()).getRejoin()
-							.removeTeam(team.getName());
+					Main.getInstance().getArenaManager().getArenas().get(game.getName()).getRejoin().removeTeam(team.getName());
 				}
 			}
 		}
@@ -243,7 +249,14 @@ public class EventListener implements Listener {
 			Main.getInstance().getArenaManager().getArenas().get(game.getName()).onEnd();
 		}
 		Main.getInstance().getArenaManager().removeArena(game.getName());
-		game.kickAllPlayers();
+		Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
+			game.getPlayers().forEach(p -> {
+				try {
+					game.playerLeave(p, false);
+				} catch (Exception ex) {
+				}
+			});
+		});
 	}
 
 	@EventHandler
@@ -255,8 +268,7 @@ public class EventListener implements Listener {
 				@Override
 				public void run() {
 					if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-						Main.getInstance().getArenaManager().getArenas().get(game.getName()).getScoreBoard()
-								.updateScoreboard();
+						Main.getInstance().getArenaManager().getArenas().get(game.getName()).getScoreBoard().updateScoreboard();
 					}
 				}
 			}.runTaskLater(Main.getInstance(), 1L);
@@ -283,12 +295,10 @@ public class EventListener implements Listener {
 				players++;
 			}
 		}
-		if (game.getState() == GameState.RUNNING && team != null && players <= 1 && !game.isSpectator(player)
-				&& team.isDead(game)) {
+		if (game.getState() == GameState.RUNNING && team != null && players <= 1 && !game.isSpectator(player) && team.isDead(game)) {
 			Bukkit.getPluginManager().callEvent(new BedwarsTeamDeadEvent(game, team));
 			if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-				Main.getInstance().getArenaManager().getArenas().get(game.getName()).getRejoin()
-						.removeTeam(team.getName());
+				Main.getInstance().getArenaManager().getArenas().get(game.getName()).getRejoin().removeTeam(team.getName());
 			}
 		}
 	}
@@ -345,9 +355,7 @@ public class EventListener implements Listener {
 			return;
 		}
 		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (game == null || game.getState() != GameState.RUNNING || game.isSpectator(player)
-				|| !game.getPlayers().contains(killer) || game.isSpectator(killer)
-				|| !game.getPlayerTeam(player).isDead(game)) {
+		if (game == null || game.getState() != GameState.RUNNING || game.isSpectator(player) || !game.getPlayers().contains(killer) || game.isSpectator(killer) || !game.getPlayerTeam(player).isDead(game)) {
 			return;
 		}
 		Map<Event, PacketListener> map = deathevents.getOrDefault(game.getName(), new HashMap<Event, PacketListener>());
@@ -366,9 +374,7 @@ public class EventListener implements Listener {
 			return;
 		}
 		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (game == null || game.getState() != GameState.RUNNING || game.isSpectator(player)
-				|| !game.getPlayers().contains(killer) || game.isSpectator(killer)
-				|| !game.getPlayerTeam(player).isDead(game)) {
+		if (game == null || game.getState() != GameState.RUNNING || game.isSpectator(player) || !game.getPlayers().contains(killer) || game.isSpectator(killer) || !game.getPlayerTeam(player).isDead(game)) {
 			return;
 		}
 		Map<Event, PacketListener> map = deathevents.getOrDefault(game.getName(), new HashMap<Event, PacketListener>());
@@ -388,10 +394,7 @@ public class EventListener implements Listener {
 		if (BedwarsRel.getInstance().getBooleanConfig("hearts-on-death", true)) {
 			hearts = "[" + ChatColor.RED + "\u2764" + format.format(health) + ChatColor.GOLD + "]";
 		}
-		String string = Config.final_killed_message
-				.replace("{player}", Game.getPlayerWithTeamString(player, game.getPlayerTeam(player), ChatColor.GOLD))
-				.replace("{killer}",
-						Game.getPlayerWithTeamString(killer, game.getPlayerTeam(killer), ChatColor.GOLD, hearts));
+		String string = Config.final_killed_message.replace("{player}", Game.getPlayerWithTeamString(player, game.getPlayerTeam(player), ChatColor.GOLD)).replace("{killer}", Game.getPlayerWithTeamString(killer, game.getPlayerTeam(killer), ChatColor.GOLD, hearts));
 		for (Player p : game.getPlayers()) {
 			if (p.isOnline()) {
 				p.sendMessage(string);
@@ -400,8 +403,7 @@ public class EventListener implements Listener {
 	}
 
 	private PacketListener addPacketListener(Player killer, Team killerTeam, Player player, Team deathTeam) {
-		PacketListener listener = new PacketAdapter(Main.getInstance(),
-				new PacketType[] { PacketType.Play.Server.CHAT }) {
+		PacketListener listener = new PacketAdapter(Main.getInstance(), new PacketType[] { PacketType.Play.Server.CHAT }) {
 			public void onPacketSending(PacketEvent e) {
 				Player p = e.getPlayer();
 				WrappedChatComponent chat = e.getPacket().getChatComponents().read(0);
@@ -415,14 +417,7 @@ public class EventListener implements Listener {
 				if (BedwarsRel.getInstance().getBooleanConfig("hearts-on-death", true)) {
 					hearts = "[" + ChatColor.RED + "\u2764" + format.format(health) + ChatColor.GOLD + "]";
 				}
-				WrappedChatComponent[] chats = WrappedChatComponent
-						.fromChatMessage(ChatWriter
-								.pluginMessage(ChatColor.GOLD + BedwarsRel._l((CommandSender) p, "ingame.player.killed",
-										(Map<String, String>) ImmutableMap.of("killer",
-												Game.getPlayerWithTeamString(killer, killerTeam,
-														ChatColor.GOLD, hearts),
-												"player",
-												Game.getPlayerWithTeamString(player, deathTeam, ChatColor.GOLD)))));
+				WrappedChatComponent[] chats = WrappedChatComponent.fromChatMessage(ChatWriter.pluginMessage(ChatColor.GOLD + BedwarsRel._l((CommandSender) p, "ingame.player.killed", (Map<String, String>) ImmutableMap.of("killer", Game.getPlayerWithTeamString(killer, killerTeam, ChatColor.GOLD, hearts), "player", Game.getPlayerWithTeamString(player, deathTeam, ChatColor.GOLD)))));
 				for (WrappedChatComponent c : chats) {
 					if (chat.getJson().equals(c.getJson())) {
 						e.setCancelled(true);
@@ -433,16 +428,6 @@ public class EventListener implements Listener {
 		};
 		ProtocolLibrary.getProtocolManager().addPacketListener(listener);
 		return listener;
-	}
-
-	@EventHandler
-	public void onDisable(PluginDisableEvent e) {
-		if (e.getPlugin().equals(Main.getInstance()) || e.getPlugin().equals(BedwarsRel.getInstance())) {
-			for (Arena arena : Main.getInstance().getArenaManager().getArenas().values()) {
-				arena.onDisable(e);
-			}
-			Main.getInstance().getEditHolographicManager().removeAll();
-		}
 	}
 
 	@EventHandler
@@ -482,71 +467,46 @@ public class EventListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
 	public void onItemConsume(PlayerItemConsumeEvent e) {
 		if (!Config.invisibility_player_enabled) {
 			return;
 		}
-		if (!(e.getItem().getType() == Material.POTION || e.getItem().getType() == Material.GOLDEN_APPLE
-				|| e.getItem().getType() == Material.ROTTEN_FLESH || e.getItem().getType() == Material.RAW_FISH
-				|| e.getItem().getType() == Material.RAW_CHICKEN || e.getItem().getType() == Material.SPIDER_EYE
-				|| e.getItem().getType() == Material.POISONOUS_POTATO)) {
+		if (!(e.getItem().getType() == Material.POTION || e.getItem().getType() == Material.GOLDEN_APPLE || e.getItem().getType() == Material.ROTTEN_FLESH || e.getItem().getType() == Material.RAW_FISH || e.getItem().getType() == Material.RAW_CHICKEN || e.getItem().getType() == Material.SPIDER_EYE || e.getItem().getType() == Material.POISONOUS_POTATO)) {
 			return;
 		}
 		Player player = e.getPlayer();
 		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (game == null) {
+		if (game == null || game.getState() != GameState.RUNNING || BedwarsUtil.isSpectator(game, player)) {
 			return;
 		}
-		if (game.getState() != GameState.RUNNING) {
+		Arena arena = Main.getInstance().getArenaManager().getArenas().get(game.getName());
+		if (arena == null) {
 			return;
 		}
-		if (game.isSpectator(player)) {
+		ItemStack itemStack = e.getItem();
+		if (itemStack.getType() != Material.POTION) {
 			return;
 		}
-		if (!Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-			return;
-		}
-		if (e.getItem().getType() == Material.POTION) {
-			if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-				new BukkitRunnable() {
-					PotionEffect peffect = getPotionEffect(player, PotionEffectType.INVISIBILITY);
-					int duration = peffect == null ? -1 : peffect.getDuration();
-
-					@Override
-					public void run() {
-						if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)
-								&& duration < getPotionEffect(player, PotionEffectType.INVISIBILITY).getDuration()) {
-							Main.getInstance().getArenaManager().getArenas().get(game.getName()).getInvisiblePlayer()
-									.hidePlayer(player);
-						}
-					}
-				}.runTaskLater(Main.getInstance(), 1L);
-			} else {
-				new BukkitRunnable() {
-					@Override
-					public void run() {
-						if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-							Main.getInstance().getArenaManager().getArenas().get(game.getName()).getInvisiblePlayer()
-									.hidePlayer(player);
-						}
-					}
-				}.runTaskLater(Main.getInstance(), 1L);
+		PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
+		PotionEffect potionEffect = null;
+		for (PotionEffect potion : potionMeta.getCustomEffects()) {
+			if (potion.getType().equals(PotionEffectType.INVISIBILITY)) {
+				potionEffect = potion;
+				break;
 			}
 		}
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-					if (Config.invisibility_player_hide_particles) {
-						for (PotionEffect effect : player.getActivePotionEffects()) {
-							player.addPotionEffect(new PotionEffect(effect.getType(), effect.getDuration(),
-									effect.getAmplifier(), true, false), true);
-						}
-					}
+		if (potionEffect == null) {
+			return;
+		}
+		arena.getInvisiblePlayer().hidePlayer(player);
+		Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
+			if (player.isOnline() && Config.invisibility_player_hide_particles && player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+				for (PotionEffect effect : player.getActivePotionEffects()) {
+					player.addPotionEffect(new PotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier(), true, false), true);
 				}
 			}
-		}.runTaskLater(Main.getInstance(), 1L);
+		});
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -571,18 +531,16 @@ public class EventListener implements Listener {
 		if (game.getState() != GameState.RUNNING) {
 			return;
 		}
-		if (game.isSpectator(player)) {
+		if (BedwarsUtil.isSpectator(game, player)) {
 			return;
 		}
 		if (!Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
 			return;
 		}
 		if (Config.invisibility_player_damage_show_player) {
-			Main.getInstance().getArenaManager().getArenas().get(game.getName()).getInvisiblePlayer()
-					.removePlayer(player);
+			Main.getInstance().getArenaManager().getArenas().get(game.getName()).getInvisiblePlayer().removePlayer(player);
 		} else {
-			Main.getInstance().getArenaManager().getArenas().get(game.getName()).getInvisiblePlayer()
-					.showPlayerArmor(player);
+			Main.getInstance().getArenaManager().getArenas().get(game.getName()).getInvisiblePlayer().showPlayerArmor(player);
 		}
 	}
 
@@ -651,12 +609,13 @@ public class EventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onInteract(PlayerInteractEvent e) {
+		Main.getInstance().getArenaManager().getArenas().values().forEach(arena -> {
+			arena.onInteract(e);
+		});
 		if (e.isCancelled()) {
 			return;
 		}
-		if (e.getItem() == null
-				|| !(e.getItem().getType() == Material.WATER_BUCKET || e.getItem().getType() == Material.LAVA_BUCKET)
-				|| e.getAction() != Action.RIGHT_CLICK_BLOCK) {
+		if (e.getItem() == null || !(e.getItem().getType() == Material.WATER_BUCKET || e.getItem().getType() == Material.LAVA_BUCKET) || e.getAction() != Action.RIGHT_CLICK_BLOCK) {
 			return;
 		}
 		Player player = e.getPlayer();
@@ -664,10 +623,17 @@ public class EventListener implements Listener {
 		if (game == null) {
 			return;
 		}
-		if (game.isSpectator(player) || player.getGameMode() == GameMode.SPECTATOR) {
+		if (BedwarsUtil.isSpectator(game, player) || player.getGameMode() == GameMode.SPECTATOR) {
 			return;
 		}
 		game.getRegion().addPlacedBlock(e.getClickedBlock().getRelative(e.getBlockFace()), null);
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onInteractEntity(PlayerInteractEntityEvent e) {
+		Main.getInstance().getArenaManager().getArenas().values().forEach(arena -> {
+			arena.onInteractEntity(e);
+		});
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -687,11 +653,100 @@ public class EventListener implements Listener {
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
 		Main.getInstance().getEditHolographicManager().remove(e.getPlayer());
+		Player player = (Player) e.getPlayer();
+		MenuManager man = Main.getInstance().getMenuManager();
+		man.removePlayer(player);
+	}
+
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+	public void onDamagePlayer(EntityDamageEvent e) {
+		if (!Config.fast_respawn) {
+			return;
+		}
+		if (!(e.getEntity() instanceof Player)) {
+			return;
+		}
+		Player player = (Player) e.getEntity();
+		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
+		if (game == null || !game.getState().equals(GameState.RUNNING)) {
+			return;
+		}
+		if (BedwarsUtil.isSpectator(game, player) || player.getGameMode().equals(GameMode.SPECTATOR)) {
+			return;
+		}
+		if (e.getDamage() <= 0) {
+			return;
+		}
+		if (e.getFinalDamage() < player.getHealth() && !e.getCause().equals(DamageCause.VOID)) {
+			return;
+		}
+		e.setCancelled(true);
+		e.setDamage(0);
+		Location location = player.getLocation();
+		location.getWorld().playSound(location, SoundMachine.get("HURT_FLESH", "ENTITY_PLAYER_HURT"), 1, 1);
+		PlayerInventory inventory = player.getInventory();
+		List<ItemStack> items = new ArrayList<ItemStack>();
+		for (ItemStack item : inventory.getContents()) {
+			if (item != null) {
+				items.add(item);
+			}
+		}
+		if (inventory.getHelmet() != null) {
+			items.add(inventory.getHelmet());
+		}
+		if (inventory.getChestplate() != null) {
+			items.add(inventory.getChestplate());
+		}
+		if (inventory.getLeggings() != null) {
+			items.add(inventory.getLeggings());
+		}
+		if (inventory.getBoots() != null) {
+			items.add(inventory.getBoots());
+		}
+		PlayerDeathEvent deathEvent = new PlayerDeathEvent(player, items, 0, null);
+		Bukkit.getPluginManager().callEvent(deathEvent);
+		if (!deathEvent.getKeepInventory()) {
+			inventory.clear();
+			inventory.setHelmet(new ItemStack(Material.AIR));
+			inventory.setChestplate(new ItemStack(Material.AIR));
+			inventory.setLeggings(new ItemStack(Material.AIR));
+			inventory.setBoots(new ItemStack(Material.AIR));
+			deathEvent.getDrops().forEach(item -> {
+				if (item != null && !item.getType().equals(Material.AIR)) {
+					location.getWorld().dropItemNaturally(location, item);
+				}
+			});
+		}
+		player.closeInventory();
+		PlayerRespawnEvent respawnEvent = new PlayerRespawnEvent(player, player.getWorld().getSpawnLocation(), false);
+		Bukkit.getPluginManager().callEvent(respawnEvent);
+		player.teleport(respawnEvent.getRespawnLocation());
+		player.setHealth(player.getMaxHealth());
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onDamage(EntityDamageEvent e) {
+		Main.getInstance().getArenaManager().getArenas().values().forEach(arena -> {
+			arena.onDamage(e);
+		});
+	}
+
+	@EventHandler
+	public void onHangingBreak(HangingBreakEvent e) {
+		Main.getInstance().getArenaManager().getArenas().values().forEach(arena -> {
+			arena.onHangingBreak(e);
+		});
+	}
+
+	@EventHandler
+	public void onClose(InventoryCloseEvent e) {
+		Player player = (Player) e.getPlayer();
+		MenuManager man = Main.getInstance().getMenuManager();
+		man.removePlayer(player);
 	}
 
 	private void onPacketReceiving() {
-		PacketListener packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST,
-				new PacketType[] { PacketType.Play.Client.BLOCK_DIG, PacketType.Play.Client.WINDOW_CLICK }) {
+		PacketListener packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Client.BLOCK_DIG, PacketType.Play.Client.WINDOW_CLICK }) {
 			public void onPacketReceiving(PacketEvent e) {
 				Player player = e.getPlayer();
 				PacketContainer packet = e.getPacket();
@@ -700,14 +755,13 @@ public class EventListener implements Listener {
 						return;
 					}
 					Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-					if (game == null || game.getState() != GameState.RUNNING || !game.isSpectator(player)) {
+					if (game == null || game.getState() != GameState.RUNNING || !BedwarsUtil.isSpectator(game, player)) {
 						return;
 					}
 					e.setCancelled(true);
 					Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
 						BlockPosition position = packet.getBlockPositionModifier().read(0);
-						Location location = new Location(e.getPlayer().getWorld(), position.getX(), position.getY(),
-								position.getZ());
+						Location location = new Location(e.getPlayer().getWorld(), position.getX(), position.getY(), position.getZ());
 						location.getBlock().getState().update();
 					});
 				} else if (e.getPacketType() == PacketType.Play.Client.WINDOW_CLICK) {
@@ -729,18 +783,7 @@ public class EventListener implements Listener {
 					if (leggings == null || boots == null) {
 						return;
 					}
-					if ((lore.contains("¡ìa¡ìr¡ìm¡ìo¡ìr¡ì0¡ì0¡ì1") && ((leggings.getType() == Material.CHAINMAIL_LEGGINGS
-							&& leggings.getType() == Material.CHAINMAIL_LEGGINGS)
-							|| (leggings.getType() == Material.IRON_LEGGINGS
-									&& leggings.getType() == Material.IRON_LEGGINGS)
-							|| (leggings.getType() == Material.DIAMOND_LEGGINGS
-									&& leggings.getType() == Material.DIAMOND_LEGGINGS)))
-							|| (lore.contains("¡ìa¡ìr¡ìm¡ìo¡ìr¡ì0¡ì0¡ì2") && ((leggings.getType() == Material.IRON_LEGGINGS
-									&& leggings.getType() == Material.IRON_LEGGINGS)
-									|| (leggings.getType() == Material.DIAMOND_LEGGINGS
-											&& leggings.getType() == Material.DIAMOND_LEGGINGS)))
-							|| (lore.contains("¡ìa¡ìr¡ìm¡ìo¡ìr¡ì0¡ì0¡ì3") && leggings.getType() == Material.DIAMOND_LEGGINGS
-									&& leggings.getType() == Material.DIAMOND_LEGGINGS)) {
+					if ((lore.contains("Â§aÂ§rÂ§mÂ§oÂ§rÂ§0Â§0Â§1") && ((leggings.getType() == Material.CHAINMAIL_LEGGINGS && leggings.getType() == Material.CHAINMAIL_LEGGINGS) || (leggings.getType() == Material.IRON_LEGGINGS && leggings.getType() == Material.IRON_LEGGINGS) || (leggings.getType() == Material.DIAMOND_LEGGINGS && leggings.getType() == Material.DIAMOND_LEGGINGS))) || (lore.contains("Â§aÂ§rÂ§mÂ§oÂ§rÂ§0Â§0Â§2") && ((leggings.getType() == Material.IRON_LEGGINGS && leggings.getType() == Material.IRON_LEGGINGS) || (leggings.getType() == Material.DIAMOND_LEGGINGS && leggings.getType() == Material.DIAMOND_LEGGINGS))) || (lore.contains("Â§aÂ§rÂ§mÂ§oÂ§rÂ§0Â§0Â§3") && leggings.getType() == Material.DIAMOND_LEGGINGS && leggings.getType() == Material.DIAMOND_LEGGINGS)) {
 						e.setCancelled(true);
 						new BukkitRunnable() {
 							@Override
@@ -758,16 +801,11 @@ public class EventListener implements Listener {
 	}
 
 	private void onPacketSending() {
-		PacketListener packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST,
-				new PacketType[] { PacketType.Play.Server.SCOREBOARD_DISPLAY_OBJECTIVE,
-						PacketType.Play.Server.SCOREBOARD_OBJECTIVE, PacketType.Play.Server.SCOREBOARD_SCORE,
-						PacketType.Play.Server.SCOREBOARD_TEAM }) {
+		PacketListener packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Server.SCOREBOARD_SCORE }) {
 			@Override
 			public void onPacketSending(PacketEvent e) {
 				PacketContainer packet = e.getPacket();
-				if (e.getPacketType().equals(PacketType.Play.Server.SCOREBOARD_SCORE)
-						&& packet.getScoreboardActions().read(0).equals(ScoreboardAction.REMOVE)
-						&& packet.getStrings().read(1).equals("") && getPlayer(packet.getStrings().read(0)) != null) {
+				if (e.getPacketType().equals(PacketType.Play.Server.SCOREBOARD_SCORE) && packet.getScoreboardActions().read(0).equals(ScoreboardAction.REMOVE) && packet.getStrings().read(1).equals("") && getPlayer(packet.getStrings().read(0)) != null) {
 					e.setCancelled(true);
 				}
 			}
@@ -822,8 +860,7 @@ public class EventListener implements Listener {
 		try {
 			String[] ary = loc.split(", ");
 			if (Bukkit.getWorld(ary[0]) != null) {
-				Location location = new Location(Bukkit.getWorld(ary[0]), Double.valueOf(ary[1]),
-						Double.valueOf(ary[2]), Double.valueOf(ary[3]));
+				Location location = new Location(Bukkit.getWorld(ary[0]), Double.valueOf(ary[1]), Double.valueOf(ary[2]), Double.valueOf(ary[3]));
 				if (ary.length > 4) {
 					location.setYaw(Float.valueOf(ary[4]));
 					location.setPitch(Float.valueOf(ary[5]));

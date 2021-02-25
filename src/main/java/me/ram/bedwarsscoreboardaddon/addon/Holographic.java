@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -32,9 +34,9 @@ public class Holographic {
 	private List<HolographicAPI> btitles;
 	private Map<String, HolographicAPI> pbtitles;
 	private ResourceUpgrade resourceupgrade;
-	private HashMap<HolographicAPI, Location> armorloc = new HashMap<HolographicAPI, Location>();
-	private HashMap<HolographicAPI, Boolean> armorupward = new HashMap<HolographicAPI, Boolean>();
-	private HashMap<HolographicAPI, Integer> armoralgebra = new HashMap<HolographicAPI, Integer>();
+	private HashMap<HolographicAPI, Location> armor_locations;
+	private HashMap<HolographicAPI, Boolean> armor_upward;
+	private HashMap<HolographicAPI, Integer> armor_algebra;
 
 	public Holographic(Game game, ResourceUpgrade resourceupgrade) {
 		this.game = game;
@@ -42,20 +44,22 @@ public class Holographic {
 		atitles = new ArrayList<HolographicAPI>();
 		btitles = new ArrayList<HolographicAPI>();
 		pbtitles = new HashMap<String, HolographicAPI>();
+		armor_locations = new HashMap<HolographicAPI, Location>();
+		armor_upward = new HashMap<HolographicAPI, Boolean>();
+		armor_algebra = new HashMap<HolographicAPI, Integer>();
 		this.resourceupgrade = resourceupgrade;
 		if (Config.holographic_resource_enabled) {
 			for (String r : Config.holographic_resource) {
 				this.setArmorStand(game, r);
 			}
 		}
-		if (Config.holographic_bed_title_enabled) {
+		if (Config.holographic_bed_title_bed_alive_enabled) {
 			new BukkitRunnable() {
 				@Override
 				public void run() {
 					for (Team team : game.getTeams().values()) {
 						Location location = team.getTargetHeadBlock().clone().add(0.5, 0, 0.5);
-						HolographicAPI holo = new HolographicAPI(location.clone().add(0, -1.25, 0),
-								Config.holographic_bedtitle_bed_alive);
+						HolographicAPI holo = new HolographicAPI(location.clone().add(0, -1.25, 0), Config.holographic_bedtitle_bed_alive_title);
 						for (Player player : team.getPlayers()) {
 							holo.display(player);
 						}
@@ -74,6 +78,7 @@ public class Holographic {
 			}.runTaskLater(Main.getInstance(), 20L);
 		}
 		new BukkitRunnable() {
+
 			@Override
 			public void run() {
 				if (game.getState() != GameState.RUNNING || game.getPlayers().size() < 1) {
@@ -92,6 +97,7 @@ public class Holographic {
 					}
 				}
 			}
+
 		}.runTaskTimer(Main.getInstance(), 1L, 1L);
 	}
 
@@ -100,7 +106,7 @@ public class Holographic {
 	}
 
 	public void onTargetBlockDestroyed(BedwarsTargetBlockDestroyedEvent e) {
-		if (Config.holographic_bed_title_enabled) {
+		if (Config.holographic_bed_title_bed_destroyed_enabled) {
 			Team team = e.getTeam();
 			Game game = e.getGame();
 			if (pbtitles.containsKey(team.getName())) {
@@ -116,8 +122,7 @@ public class Holographic {
 			if (!loc.getBlock().getChunk().isLoaded()) {
 				loc.getBlock().getChunk().load(true);
 			}
-			HolographicAPI holo = new HolographicAPI(loc, Config.holographic_bedtitle_bed_destroyed.replace("{player}",
-					game.getPlayerTeam(e.getPlayer()).getChatColor() + e.getPlayer().getName()));
+			HolographicAPI holo = new HolographicAPI(loc, Config.holographic_bedtitle_bed_destroyed_title.replace("{player}", game.getPlayerTeam(e.getPlayer()).getChatColor() + e.getPlayer().getName()));
 			btitles.add(holo);
 			for (Player player : game.getPlayers()) {
 				holo.display(player);
@@ -140,31 +145,19 @@ public class Holographic {
 	private void setArmorStand(Game game, String res) {
 		for (ResourceSpawner spawner : game.getResourceSpawners()) {
 			for (ItemStack itemStack : spawner.getResources()) {
-				if (itemStack.getType() == Material.getMaterial(
-						Main.getInstance().getConfig().getInt("holographic.resource.resources." + res + ".item"))) {
+				if (itemStack.getType() == Material.getMaterial(Main.getInstance().getConfig().getInt("holographic.resource.resources." + res + ".item"))) {
 					if (!spawner.getLocation().getBlock().getChunk().isLoaded()) {
 						spawner.getLocation().getBlock().getChunk().load(true);
 					}
-					HolographicAPI holo = new HolographicAPI(
-							spawner.getLocation()
-									.clone().add(0,
-											Main.getInstance().getConfig()
-													.getDouble("holographic.resource.resources." + res + ".height"),
-											0),
-							null);
-					holo.setEquipment(Arrays.asList(new ItemStack(Material.getMaterial(Main.getInstance().getConfig()
-							.getInt("holographic.resource.resources." + res + ".block")))));
-					new BukkitRunnable() {
-						@Override
-						public void run() {
-							for (Player player : game.getPlayers()) {
-								holo.display(player);
-							}
+					HolographicAPI holo = new HolographicAPI(spawner.getLocation().clone().add(0, Main.getInstance().getConfig().getDouble("holographic.resource.resources." + res + ".height") - 0.35, 0), null);
+					holo.setEquipment(Arrays.asList(new ItemStack(Material.getMaterial(Main.getInstance().getConfig().getInt("holographic.resource.resources." + res + ".block")))));
+					Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+						for (Player player : game.getPlayers()) {
+							holo.display(player);
 						}
-					}.runTaskLater(Main.getInstance(), 20L);
+					}, 20L);
 					ArrayList<String> titles = new ArrayList<String>();
-					for (String title : Main.getInstance().getConfig()
-							.getStringList("holographic.resource.resources." + res + ".title")) {
+					for (String title : Main.getInstance().getConfig().getStringList("holographic.resource.resources." + res + ".title")) {
 						titles.add(ColorUtil.color(title));
 					}
 					this.setArmorStandRun(game, holo, titles, itemStack);
@@ -175,26 +168,24 @@ public class Holographic {
 
 	private void setArmorStandRun(Game game, HolographicAPI holo, ArrayList<String> titles, ItemStack itemStack) {
 		Collections.reverse(titles);
-		Location aslocation = holo.getLocation().clone().add(0, 0.35, 0);
+		Location aslocation = holo.getLocation().clone().add(0, 0.5, 0);
 		for (String title : titles) {
 			this.setTitle(game, aslocation, title, itemStack);
-			aslocation.add(0, 0.4, 0);
+			aslocation.add(0, 0.375, 0);
 		}
 		ablocks.add(holo);
 		new BukkitRunnable() {
-			double y = holo.getLocation().getY();
-
 			@Override
 			public void run() {
 				if (game.getState() == GameState.RUNNING) {
 					if (!holo.getLocation().getBlock().getChunk().isLoaded()) {
 						holo.getLocation().getBlock().getChunk().load(true);
 					}
-					moveArmorStand(holo, y, game);
+					moveArmorStand(holo, game);
 				} else {
-					armorloc.remove(holo);
-					armorupward.remove(holo);
-					armoralgebra.remove(holo);
+					armor_locations.remove(holo);
+					armor_upward.remove(holo);
+					armor_algebra.remove(holo);
 					holo.remove();
 					ablocks.remove(holo);
 					cancel();
@@ -209,14 +200,11 @@ public class Holographic {
 		}
 		HolographicAPI holo = new HolographicAPI(location, " ");
 		atitles.add(holo);
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				for (Player player : game.getPlayers()) {
-					holo.display(player);
-				}
+		Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+			for (Player player : game.getPlayers()) {
+				holo.display(player);
 			}
-		}.runTaskLater(Main.getInstance(), 20L);
+		}, 20L);
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -228,8 +216,7 @@ public class Holographic {
 					customName = customName.replace("{level}", resourceupgrade.getLevel().get(itemStack.getType()));
 					for (Material sitem : resourceupgrade.getSpawnTime().keySet()) {
 						if (itemStack.getType() == sitem) {
-							customName = customName.replace("{generate_time}",
-									resourceupgrade.getSpawnTime().get(sitem) + "");
+							customName = customName.replace("{generate_time}", resourceupgrade.getSpawnTime().get(sitem) + "");
 						}
 					}
 					holo.setTitle(customName);
@@ -309,104 +296,41 @@ public class Holographic {
 		}
 	}
 
-	private void moveArmorStand(HolographicAPI holo, double height, Game game) {
-		if (!armorloc.containsKey(holo)) {
-			armorloc.put(holo, holo.getLocation().clone());
+	private void moveArmorStand(HolographicAPI holo, Game game) {
+		if (!armor_locations.containsKey(holo)) {
+			armor_locations.put(holo, holo.getLocation().clone());
 		}
-		if (!armorupward.containsKey(holo)) {
-			armorupward.put(holo, true);
+		if (!armor_upward.containsKey(holo)) {
+			armor_upward.put(holo, true);
 		}
-		if (!armoralgebra.containsKey(holo)) {
-			armoralgebra.put(holo, 0);
+		if (!armor_algebra.containsKey(holo)) {
+			armor_algebra.put(holo, 0);
 		}
-		armoralgebra.put(holo, armoralgebra.get(holo) + 1);
-		Location location = armorloc.get(holo);
-		if (location.getY() >= height + 0.30) {
-			armoralgebra.put(holo, 0);
-			armorupward.put(holo, false);
-		} else if (location.getY() <= height - 0.30) {
-			armoralgebra.put(holo, 0);
-			armorupward.put(holo, true);
-		}
-		Integer algebra = armoralgebra.get(holo);
-		if (39 > algebra) {
-			if (armorupward.get(holo)) {
-				location.setY(location.getY() + 0.015);
-			} else {
-				location.setY(location.getY() - 0.015);
-			}
-		} else if (algebra >= 50) {
-			armoralgebra.put(holo, 0);
-			armorupward.put(holo, !armorupward.get(holo));
-		}
-		Float turn = 1f;
-		if (!armorupward.get(holo)) {
+		Location location = armor_locations.get(holo);
+		Integer algebra = armor_algebra.get(holo);
+		boolean upward = armor_upward.get(holo);
+		double turn = 1;
+		if (!armor_upward.get(holo)) {
 			turn = -turn;
 		}
-		Float changeyaw = (float) 0;
-		if (algebra == 1 || algebra == 40) {
-			changeyaw += 2f * turn;
-		} else if (algebra == 2 || algebra == 39) {
-			changeyaw += 3f * turn;
-		} else if (algebra == 3 || algebra == 38) {
-			changeyaw += 4f * turn;
-		} else if (algebra == 4 || algebra == 37) {
-			changeyaw += 5f * turn;
-		} else if (algebra == 5 || algebra == 36) {
-			changeyaw += 6f * turn;
-		} else if (algebra == 6 || algebra == 35) {
-			changeyaw += 7f * turn;
-		} else if (algebra == 7 || algebra == 34) {
-			changeyaw += 8f * turn;
-		} else if (algebra == 8 || algebra == 33) {
-			changeyaw += 9f * turn;
-		} else if (algebra == 9 || algebra == 32) {
-			changeyaw += 10f * turn;
-		} else if (algebra == 10 || algebra == 31) {
-			changeyaw += 11f * turn;
-		} else if (algebra == 11 || algebra == 30) {
-			changeyaw += 11f * turn;
-		} else if (algebra == 12 || algebra == 29) {
-			changeyaw += 12f * turn;
-		} else if (algebra == 13 || algebra == 28) {
-			changeyaw += 12f * turn;
-		} else if (algebra == 14 || algebra == 27) {
-			changeyaw += 13f * turn;
-		} else if (algebra == 15 || algebra == 26) {
-			changeyaw += 13f * turn;
-		} else if (algebra == 16 || algebra == 25) {
-			changeyaw += 14f * turn;
-		} else if (algebra == 17 || algebra == 24) {
-			changeyaw += 14f * turn;
-		} else if (algebra == 18 || algebra == 23) {
-			changeyaw += 15f * turn;
-		} else if (algebra == 19 || algebra == 22) {
-			changeyaw += 15f * turn;
-		} else if (algebra == 20 || algebra == 21) {
-			changeyaw += 16f * turn;
-		} else if (algebra == 41) {
-			changeyaw += 2f * turn;
-		} else if (algebra == 42) {
-			changeyaw += 2f * turn;
-		} else if (algebra == 43) {
-			changeyaw += 2f * turn;
-		} else if (algebra == 44) {
-			changeyaw += 1f * turn;
-		} else if (algebra == 45) {
-			changeyaw += -1f * turn;
-		} else if (algebra == 46) {
-			changeyaw += -1f * turn;
-		} else if (algebra == 47) {
-			changeyaw += -2f * turn;
-		} else if (algebra == 48) {
-			changeyaw += -2f * turn;
-		} else if (algebra == 49) {
-			changeyaw += -2f * turn;
-		} else if (algebra == 50) {
-			changeyaw += -2f * turn;
+		double move_yaw = 0;
+		double move_y = 0;
+		if (algebra <= 30) {
+			move_yaw += algebra * 0.62 * turn;
+		} else {
+			move_yaw += (59 - algebra) * 0.62 * turn;
 		}
+		if (algebra >= 9 && algebra <= 50) {
+			move_y += 0.01125 * turn;
+		}
+		location.setY(location.getY() + move_y);
+		if (algebra >= 59) {
+			armor_algebra.put(holo, 0);
+			armor_upward.put(holo, !upward);
+		}
+		armor_algebra.put(holo, armor_algebra.get(holo) + 1);
 		double yaw = location.getYaw();
-		yaw += (changeyaw * Config.holographic_resource_speed);
+		yaw += (move_yaw * Config.holographic_resource_speed);
 		yaw = yaw > 360 ? (yaw - 360) : yaw;
 		yaw = yaw < -360 ? (yaw + 360) : yaw;
 		location.setYaw((float) yaw);
