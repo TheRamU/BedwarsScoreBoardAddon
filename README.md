@@ -122,9 +122,30 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 
 ```ini
 2.执行命令 "/bw join <游戏>" 就行测试
-1.Use command "/bw join <Game>" to test
+2.Use command "/bw join <Game>" to test
 ```
 
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/shop.png)
+
+###  > 添加钻石资源/Add Diamond Resources
+
+```ini
+1.编辑文件 "plugins/BedwarsRel/config.yml"，在 "resource" 中添加:
+1.Edit file ""plugins/BedwarsRel/config.yml", Find "resource", add:
+
+  diamond:  
+    item:  
+    - type: DIAMOND  
+      meta:  
+        ==: ItemMeta  
+        meta-type: UNSPECIFIC  
+        display-name: "§bDiamond"  
+    spawn-interval: 30000  
+    spread: 0.0  
+
+```
+
+![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/add_diamond.png)
+
 
 
