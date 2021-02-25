@@ -65,10 +65,10 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 </details>
 
 ## ⚙ 安装与设置/Install & Settings
-### 如何安装？/How to install?
+### 安装/Install
 
 1.确保服务器安装了前置插件BedwarsRel 1.3.6, ProtocolLib, Citizens  
 2.将下载的插件(Jar文件)放入服务器目录下的 “plugins” 文件夹内  
 3.重启(启动)服务器  
 
-
+### 切换语言/Change language
