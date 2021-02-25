@@ -82,9 +82,9 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 3.将目录下的所有文件复制，替换掉 "plugins\BedwarsScoreBoardAddon\" 目录下的原文件  
 4.输入指令 "/bwsba reload" 重载配置文件  
 
-1.Open folder "plugins\BedwarsScoreBoardAddon\locale\"
-2.Find the language you want to change, and enter this folder
-3.Copy all files in this folder, replace the original file in the "plugins\BedwarsScoreBoardAddon\" folder
-4.Use command "/bwsba reload" to reload configuration
+1.Open folder "plugins\BedwarsScoreBoardAddon\locale\"  
+2.Find the language you want to change, and enter this folder  
+3.Copy all files in this folder, replace the original file in the "plugins\BedwarsScoreBoardAddon\" folder  
+4.Use command "/bwsba reload" to reload configuration  
 
 
