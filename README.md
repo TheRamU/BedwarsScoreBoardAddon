@@ -44,7 +44,9 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 | /bwsba spawner list <游戏>  | 队伍资源点列表 | bedwarsscoreboardaddon.spawner.list |
 | /bwsba spawner remove <ID>  | 移除队伍资源点 | bedwarsscoreboardaddon.remove.list |
 | /bwsba spawner add <游戏> <队伍>  | 添加队伍资源点 | bedwarsscoreboardaddon.add.list |  
-
+</details>
+<details>
+  <summary>Click to show the commands</summary>
 
 | Command | Description | Permission |
 | --------- | ----- | ------- |
