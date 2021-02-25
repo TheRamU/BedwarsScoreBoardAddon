@@ -27,10 +27,10 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 - [WorldEdit](https://dev.bukkit.org/projects/worldedit)
 
 ## 📒 命令/Commands
-
- <summary>点击查看命令</summary>
 <details open=“open”>
- <summary>点击关闭命令列表</summary>
+  <br/>
+  <summary>点击查看命令</summary>
+ 
 | 命令 | 描述 | 权限 |
 | --------- | ----- | ------- |
 | /bwsba  | 显示插件信息 | | |
