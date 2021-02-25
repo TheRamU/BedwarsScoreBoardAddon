@@ -15,18 +15,18 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 
 
 ## 📒 命令/Commands
-| 命令       | 描述                                                         |
-| ---------- | ------------------------------------------------------------ |
-| /bwsba  | 显示插件信息|
-| /bwsba help  | 显示帮助菜单|
-| /bwsba reload  | 重新载入配置文件|
-| /bwsba upcheck  | 检查版本更新|
-| /bwsba edit <游戏>  | 编辑游戏|
-| /bwsba shop list <游戏>  | 已设置商店列表|
-| /bwsba shop remove <ID>  | 移除一个商店|
-| /bwsba shop set item <游戏>  | 设置一个道具商店|
-| /bwsba shop set team <游戏>  | 设置一个队伍商店|
-| /bwsba spawner list <游戏>  | 队伍资源点列表|
-| /bwsba spawner remove <ID>  | 移除队伍资源点|
-| /bwsba spawner add <游戏> <队伍>  | 添加队伍资源点|
+| 命令 | 描述 | 权限 |
+| --------- | ----- | ------- |
+| /bwsba  | 显示插件信息 | | |
+| /bwsba help  | 显示帮助菜单 | |
+| /bwsba reload  | 重新载入配置文件 | bedwarsscoreboardaddon.reload |
+| /bwsba upcheck  | 检查版本更新 | bedwarsscoreboardaddon.updatecheck |
+| /bwsba edit <游戏>  | 编辑游戏 | bedwarsscoreboardaddon.edit |
+| /bwsba shop list <游戏>  | 已设置商店列表 | bedwarsscoreboardaddon.shop.list |
+| /bwsba shop remove <ID>  | 移除一个商店 | bedwarsscoreboardaddon.shop.remove |
+| /bwsba shop set item <游戏>  | 设置一个道具商店 | bedwarsscoreboardaddon.shop.set |
+| /bwsba shop set team <游戏>  | 设置一个队伍商店 | bedwarsscoreboardaddon.shop.set |
+| /bwsba spawner list <游戏>  | 队伍资源点列表 | bedwarsscoreboardaddon.spawner.list |
+| /bwsba spawner remove <ID>  | 移除队伍资源点 | bedwarsscoreboardaddon.remove.list |
+| /bwsba spawner add <游戏> <队伍>  | 添加队伍资源点 | bedwarsscoreboardaddon.add.list |
 
