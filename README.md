@@ -20,7 +20,7 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 - [ProtocolLib](https://www.spigotmc.org/resources/1997/)
 - [Citizens](https://dev.bukkit.org/bukkit-plugins/citizens)
 
-> 依赖/SoftDepends：
+> 依赖/Soft Depends：
 - [PlaceholderAPI](https://www.spigotmc.org/resources/6245/)
 - [ServerJoiner](https://www.spigotmc.org/resources/53694/)
 - [BedwarsXP](https://www.mcbbs.net/thread-667617-1-1.html)
