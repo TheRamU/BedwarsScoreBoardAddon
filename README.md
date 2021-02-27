@@ -83,7 +83,7 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 5.Restart(Start) server  
 ```
 
-###  > 切换语言/Change language
+###  > 切换语言/Change Language
 
 ```ini
 1.打开目录 "plugins\BedwarsScoreBoardAddon\locale\"  
