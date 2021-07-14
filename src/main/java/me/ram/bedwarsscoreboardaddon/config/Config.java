@@ -28,6 +28,7 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.map.MapView.Scale;
 
+import io.github.bedwarsrel.BedwarsRel;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.addon.teamshop.upgrades.UpgradeType;
 import me.ram.bedwarsscoreboardaddon.utils.ColorUtil;
@@ -317,6 +318,25 @@ public class Config {
 	public static Map<String, String> game_team_spawners;
 	public static List<MapView> image_maps;
 
+	private static FileConfiguration getVerifiedConfig(String fileName) {
+		Map<String, String> configVersion = new HashMap<String, String>();
+		configVersion.put("config.yml", "23");
+		configVersion.put("language.yml", "4");
+		configVersion.put("team_shop.yml", "6");
+		File file = new File(Main.getInstance().getDataFolder(), "/" + fileName);
+		if (!file.exists()) {
+			Main.getInstance().getLocaleConfig().saveResource(fileName);
+			return YamlConfiguration.loadConfiguration(file);
+		}
+		FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+		if (!config.contains("version") || !config.getString("version").equals(configVersion.getOrDefault(fileName, ""))) {
+			file.renameTo(new File(Main.getInstance().getDataFolder(), "/" + fileName.split("\\.")[0] + "_" + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()) + "_old.yml"));
+			Main.getInstance().getLocaleConfig().saveResource(fileName);
+			config = YamlConfiguration.loadConfiguration(file);
+		}
+		return config;
+	}
+
 	public static void loadConfig() {
 		Main.getInstance().getEditHolographicManager().removeAll();
 		String prefix = "[" + Main.getInstance().getDescription().getName() + "] ";
@@ -326,22 +346,9 @@ public class Config {
 			folder.mkdirs();
 		}
 		Main.getInstance().getLocaleConfig().loadLocaleConfig();
-		File config_file = new File(folder.getAbsolutePath() + "/config.yml");
-		File team_shop_file = new File(folder.getAbsolutePath() + "/team_shop.yml");
-		if (!config_file.exists()) {
-			Main.getInstance().getLocaleConfig().saveResource("config.yml");
-		}
-		if (!team_shop_file.exists()) {
-			Main.getInstance().getLocaleConfig().saveResource("team_shop.yml");
-		}
-		file_config = YamlConfiguration.loadConfiguration(config_file);
-		if (file_config.getString("version") == null || !file_config.getString("version").equals(Main.getVersion())) {
-			config_file.renameTo(new File(folder.getAbsolutePath() + "/config_" + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()) + ".yml"));
-			Main.getInstance().getLocaleConfig().saveResource("config.yml");
-			file_config = YamlConfiguration.loadConfiguration(config_file);
-		}
-		language_config = YamlConfiguration.loadConfiguration(getLanguageFile());
-		FileConfiguration team_shop_config = YamlConfiguration.loadConfiguration(team_shop_file);
+		file_config = getVerifiedConfig("config.yml");
+		language_config = getVerifiedConfig("language.yml");
+		FileConfiguration team_shop_config = getVerifiedConfig("team_shop.yml");
 		Bukkit.getConsoleSender().sendMessage(prefix + Main.getInstance().getLocaleConfig().getLanguage("saved_config"));
 		Main.getInstance().reloadConfig();
 		FileConfiguration config = Main.getInstance().getConfig();
@@ -741,6 +748,10 @@ public class Config {
 		}
 		loadGameConfig();
 		loadImages();
+		if (fast_respawn) {
+			BedwarsRel.getInstance().getConfig().set("die-on-void", false);
+			BedwarsRel.getInstance().saveConfig();
+		}
 		Bukkit.getConsoleSender().sendMessage(prefix + Main.getInstance().getLocaleConfig().getLanguage("config_success"));
 	}
 
@@ -907,7 +918,7 @@ public class Config {
 		if (!folder.exists()) {
 			folder.mkdirs();
 			try {
-				writeToLocal(folder.getPath() + "/intro.txt", Main.getInstance().getResource("images/intro.txt"));
+				writeToLocal(folder.getPath() + "/README.txt", Main.getInstance().getResource("images/README.txt"));
 				writeToLocal(folder.getPath() + "/1.jpg", Main.getInstance().getResource("images/1.jpg"));
 			} catch (Exception e) {
 			}
@@ -996,17 +1007,5 @@ public class Config {
 			return ColorUtil.colorList(language_config.getStringList(path));
 		}
 		return Arrays.asList("null");
-	}
-
-	private static File getLanguageFile() {
-		File folder = new File(Main.getInstance().getDataFolder(), "/");
-		if (!folder.exists()) {
-			folder.mkdirs();
-		}
-		File file = new File(folder.getAbsolutePath() + "/language.yml");
-		if (!file.exists()) {
-			Main.getInstance().getLocaleConfig().saveResource("language.yml");
-		}
-		return file;
 	}
 }

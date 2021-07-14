@@ -16,6 +16,7 @@ import io.github.bedwarsrel.events.BedwarsGameStartedEvent;
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.events.BoardAddonPlayerShootWitherBowEvent;
 import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
@@ -26,13 +27,10 @@ public class WitherBow implements Listener {
 	@EventHandler
 	public void onStarted(BedwarsGameStartedEvent e) {
 		Game game = e.getGame();
-		new BukkitRunnable() {
+		Arena arena = Main.getInstance().getArenaManager().getArena(game.getName());
+		arena.addGameTask(new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (e.getGame().getState() != GameState.RUNNING) {
-					cancel();
-					return;
-				}
 				if (e.getGame().getTimeLeft() <= Config.witherbow_gametime && Config.witherbow_enabled) {
 					if (!Config.witherbow_title.equals("") || !Config.witherbow_subtitle.equals("")) {
 						game.getPlayers().forEach(player -> {
@@ -46,10 +44,9 @@ public class WitherBow implements Listener {
 					}
 					PlaySound.playSound(game, Config.play_sound_sound_enable_witherbow);
 					cancel();
-					return;
 				}
 			}
-		}.runTaskTimer(Main.getInstance(), 0L, 21L);
+		}.runTaskTimer(Main.getInstance(), 0L, 21L));
 	}
 
 	@EventHandler

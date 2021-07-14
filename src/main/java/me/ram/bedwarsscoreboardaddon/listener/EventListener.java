@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -25,7 +26,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -40,15 +40,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Scoreboard;
+
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
@@ -58,67 +56,34 @@ import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.EnumWrappers.ScoreboardAction;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
+
 import com.google.common.collect.ImmutableMap;
+
 import io.github.bedwarsrel.BedwarsRel;
-import io.github.bedwarsrel.events.BedwarsGameEndEvent;
-import io.github.bedwarsrel.events.BedwarsGameOverEvent;
-import io.github.bedwarsrel.events.BedwarsGameStartedEvent;
-import io.github.bedwarsrel.events.BedwarsOpenTeamSelectionEvent;
-import io.github.bedwarsrel.events.BedwarsPlayerJoinedEvent;
-import io.github.bedwarsrel.events.BedwarsPlayerKilledEvent;
-import io.github.bedwarsrel.events.BedwarsPlayerLeaveEvent;
-import io.github.bedwarsrel.events.BedwarsTargetBlockDestroyedEvent;
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
 import io.github.bedwarsrel.utils.ChatWriter;
-import io.github.bedwarsrel.utils.SoundMachine;
+
 import me.ram.bedwarsscoreboardaddon.Main;
-import me.ram.bedwarsscoreboardaddon.addon.SelectTeam;
 import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.edit.EditGame;
 import me.ram.bedwarsscoreboardaddon.events.BedwarsTeamDeadEvent;
 import me.ram.bedwarsscoreboardaddon.menu.MenuManager;
 import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
-import me.ram.bedwarsscoreboardaddon.utils.ScoreboardUtil;
+
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.CitizensEnableEvent;
 import net.citizensnpcs.api.npc.NPC;
 
 public class EventListener implements Listener {
 
+	private Map<String, Map<Event, PacketListener>> deathevents = new HashMap<String, Map<Event, PacketListener>>();;
+
 	public EventListener() {
 		onPacketReceiving();
 		onPacketSending();
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onStarted(BedwarsGameStartedEvent e) {
-		Game game = e.getGame();
-		Map<Player, Scoreboard> scoreboards = ScoreboardUtil.getScoreboards();
-		for (Player player : game.getPlayers()) {
-			if (scoreboards.containsKey(player)) {
-				ScoreboardUtil.removePlayer(player);
-			}
-		}
-		new Arena(game);
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-					Main.getInstance().getArenaManager().getArenas().get(game.getName()).getScoreBoard().updateScoreboard();
-				}
-			}
-		}.runTaskLater(Main.getInstance(), 2L);
-	}
-
-	@EventHandler
-	public void onOver(BedwarsGameOverEvent e) {
-		Game game = e.getGame();
-		if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-			Main.getInstance().getArenaManager().getArenas().get(game.getName()).onOver(e);
-		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -176,105 +141,6 @@ public class EventListener implements Listener {
 		player.sendMessage(Config.rejoin_message_error);
 	}
 
-	@EventHandler
-	public void onPlayerJoined(BedwarsPlayerJoinedEvent e) {
-		Player player = e.getPlayer();
-		Game game = e.getGame();
-		if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-			Main.getInstance().getArenaManager().getArenas().get(game.getName()).onPlayerJoined(player);
-		}
-		if (game.getState() == GameState.WAITING) {
-			for (Arena arena : Main.getInstance().getArenaManager().getArenas().values()) {
-				arena.getRejoin().removePlayer(player.getName());
-			}
-		}
-		Main.getInstance().getEditHolographicManager().remove(player);
-	}
-
-	@EventHandler
-	public void onPlayerLeave(BedwarsPlayerLeaveEvent e) {
-		Game game = e.getGame();
-		Team team = e.getTeam();
-		if (team == null) {
-			return;
-		}
-		Player player = e.getPlayer();
-		int players = 0;
-		for (Player p : team.getPlayers()) {
-			if (!game.isSpectator(p)) {
-				players++;
-			}
-		}
-		if (game.getState() == GameState.RUNNING && !game.isSpectator(player) && players <= 1) {
-			Bukkit.getPluginManager().callEvent(new BedwarsTeamDeadEvent(game, team));
-			if (Config.rejoin_enabled) {
-				destroyBlock(game, team);
-				if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-					Main.getInstance().getArenaManager().getArenas().get(game.getName()).getRejoin().removeTeam(team.getName());
-				}
-			}
-		}
-		if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-			Main.getInstance().getArenaManager().getArenas().get(game.getName()).onPlayerLeave(e.getPlayer());
-		}
-		if (player.isOnline()) {
-			ProtocolManager m = ProtocolLibrary.getProtocolManager();
-			try {
-				PacketContainer packet = m.createPacket(PacketType.Play.Server.SCOREBOARD_OBJECTIVE);
-				packet.getIntegers().write(0, 1);
-				packet.getStrings().write(0, "bwsba-game-list");
-				packet.getStrings().write(1, "bwsba-game-list");
-				m.sendServerPacket(player, packet);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			try {
-				PacketContainer packet = m.createPacket(PacketType.Play.Server.SCOREBOARD_OBJECTIVE);
-				packet.getIntegers().write(0, 1);
-				packet.getStrings().write(0, "bwsba-game-name");
-				packet.getStrings().write(1, "bwsba-game-name");
-				m.sendServerPacket(player, packet);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-		Main.getInstance().getEditHolographicManager().remove(player);
-		ScoreboardUtil.removePlayer(player);
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onEnd(BedwarsGameEndEvent e) {
-		Game game = e.getGame();
-		if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-			Main.getInstance().getArenaManager().getArenas().get(game.getName()).onEnd();
-		}
-		Main.getInstance().getArenaManager().removeArena(game.getName());
-		Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
-			game.getPlayers().forEach(p -> {
-				try {
-					game.playerLeave(p, false);
-				} catch (Exception ex) {
-				}
-			});
-		});
-	}
-
-	@EventHandler
-	public void onTargetBlockDestroyed(BedwarsTargetBlockDestroyedEvent e) {
-		Game game = e.getGame();
-		if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-			Main.getInstance().getArenaManager().getArenas().get(game.getName()).onTargetBlockDestroyed(e);
-			new BukkitRunnable() {
-				@Override
-				public void run() {
-					if (Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-						Main.getInstance().getArenaManager().getArenas().get(game.getName()).getScoreBoard().updateScoreboard();
-					}
-				}
-			}.runTaskLater(Main.getInstance(), 1L);
-		}
-	}
-
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDeath(PlayerDeathEvent e) {
 		Player player = e.getEntity();
@@ -303,7 +169,7 @@ public class EventListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onRespawn(PlayerRespawnEvent e) {
 		Player player = e.getPlayer();
 		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
@@ -334,16 +200,6 @@ public class EventListener implements Listener {
 		}, 1L);
 	}
 
-	@EventHandler
-	public void onPlayerKilled(BedwarsPlayerKilledEvent e) {
-		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(e.getKiller());
-		if (game != null && Main.getInstance().getArenaManager().getArenas().containsKey(game.getName())) {
-			Main.getInstance().getArenaManager().getArenas().get(game.getName()).onPlayerKilled(e);
-		}
-	}
-
-	private Map<String, Map<Event, PacketListener>> deathevents = new HashMap<String, Map<Event, PacketListener>>();;
-
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDeathLowest(PlayerDeathEvent e) {
 		if (!Config.final_killed_enabled) {
@@ -359,7 +215,7 @@ public class EventListener implements Listener {
 			return;
 		}
 		Map<Event, PacketListener> map = deathevents.getOrDefault(game.getName(), new HashMap<Event, PacketListener>());
-		map.put(e, addPacketListener(killer, game.getPlayerTeam(killer), player, game.getPlayerTeam(player)));
+		map.put(e, registerPacketListener(killer, game.getPlayerTeam(killer), player, game.getPlayerTeam(player)));
 		deathevents.put(game.getName(), map);
 	}
 
@@ -402,7 +258,7 @@ public class EventListener implements Listener {
 		}
 	}
 
-	private PacketListener addPacketListener(Player killer, Team killerTeam, Player player, Team deathTeam) {
+	private PacketListener registerPacketListener(Player killer, Team killerTeam, Player player, Team deathTeam) {
 		PacketListener listener = new PacketAdapter(Main.getInstance(), new PacketType[] { PacketType.Play.Server.CHAT }) {
 			public void onPacketSending(PacketEvent e) {
 				Player p = e.getPlayer();
@@ -467,48 +323,6 @@ public class EventListener implements Listener {
 		}
 	}
 
-	@EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-	public void onItemConsume(PlayerItemConsumeEvent e) {
-		if (!Config.invisibility_player_enabled) {
-			return;
-		}
-		if (!(e.getItem().getType() == Material.POTION || e.getItem().getType() == Material.GOLDEN_APPLE || e.getItem().getType() == Material.ROTTEN_FLESH || e.getItem().getType() == Material.RAW_FISH || e.getItem().getType() == Material.RAW_CHICKEN || e.getItem().getType() == Material.SPIDER_EYE || e.getItem().getType() == Material.POISONOUS_POTATO)) {
-			return;
-		}
-		Player player = e.getPlayer();
-		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (game == null || game.getState() != GameState.RUNNING || BedwarsUtil.isSpectator(game, player)) {
-			return;
-		}
-		Arena arena = Main.getInstance().getArenaManager().getArenas().get(game.getName());
-		if (arena == null) {
-			return;
-		}
-		ItemStack itemStack = e.getItem();
-		if (itemStack.getType() != Material.POTION) {
-			return;
-		}
-		PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
-		PotionEffect potionEffect = null;
-		for (PotionEffect potion : potionMeta.getCustomEffects()) {
-			if (potion.getType().equals(PotionEffectType.INVISIBILITY)) {
-				potionEffect = potion;
-				break;
-			}
-		}
-		if (potionEffect == null) {
-			return;
-		}
-		arena.getInvisiblePlayer().hidePlayer(player);
-		Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
-			if (player.isOnline() && Config.invisibility_player_hide_particles && player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-				for (PotionEffect effect : player.getActivePotionEffects()) {
-					player.addPotionEffect(new PotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier(), true, false), true);
-				}
-			}
-		});
-	}
-
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onDamageByEntity(EntityDamageByEntityEvent e) {
 		if (!Config.invisibility_player_enabled) {
@@ -570,41 +384,69 @@ public class EventListener implements Listener {
 		e.setFoodLevel(20);
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
 	public void onPlayerItemConsume(PlayerItemConsumeEvent e) {
-		if (!Config.clear_bottle) {
-			return;
-		}
-		if (e.getItem().getType() != Material.POTION) {
-			return;
-		}
 		Player player = e.getPlayer();
 		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (game == null) {
+		if (game == null || game.getState() != GameState.RUNNING || BedwarsUtil.isSpectator(game, player)) {
 			return;
 		}
-		if (game.getState() != GameState.RUNNING) {
+		Arena arena = Main.getInstance().getArenaManager().getArenas().get(game.getName());
+		if (arena == null) {
 			return;
 		}
-		if (game.isSpectator(player)) {
-			return;
-		}
-		new BukkitRunnable() {
-			public void run() {
+		if (e.getItem().getType().equals(Material.POTION)) {
+			ItemStack itemStack = e.getItem().clone();
+			PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
+			if (Config.clear_bottle) {
+				potionMeta.getCustomEffects().forEach(effect -> {
+					if (player.hasPotionEffect(effect.getType())) {
+						for (PotionEffect playerEffect : player.getActivePotionEffects()) {
+							if (playerEffect.getType().equals(effect.getType())) {
+								if (effect.getAmplifier() > playerEffect.getAmplifier() || (effect.getAmplifier() == playerEffect.getAmplifier() && effect.getDuration() > playerEffect.getDuration())) {
+									player.addPotionEffect(new PotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier(), false, true), true);
+								}
+								break;
+							}
+						}
+					} else {
+						player.addPotionEffect(new PotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier(), false, true), true);
+					}
+				});
+				e.setCancelled(true);
 				if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
-					if (player.getInventory().getItemInHand().getType() == Material.GLASS_BOTTLE) {
+					if (player.getInventory().getItemInHand().isSimilar(itemStack)) {
 						player.getInventory().setItemInHand(new ItemStack(Material.AIR));
 					}
-				} else {
-					if (player.getInventory().getItemInMainHand().getType() == Material.GLASS_BOTTLE) {
-						player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-					}
-					if (player.getInventory().getItemInOffHand().getType() == Material.GLASS_BOTTLE) {
-						player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+				} else if (player.getInventory().getItemInMainHand().isSimilar(itemStack)) {
+					player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+				} else if (player.getInventory().getItemInOffHand().isSimilar(itemStack)) {
+					player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+				}
+			}
+			if (Config.invisibility_player_enabled) {
+				for (PotionEffect potion : potionMeta.getCustomEffects()) {
+					if (potion.getType().equals(PotionEffectType.INVISIBILITY)) {
+						arena.getInvisiblePlayer().hidePlayer(player);
+						if (Config.invisibility_player_hide_particles) {
+							for (PotionEffect effect : player.getActivePotionEffects()) {
+								player.addPotionEffect(new PotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier(), true, false), true);
+							}
+						}
+						break;
 					}
 				}
 			}
-		}.runTaskLater(Main.getInstance(), 0L);
+		}
+		if (Config.invisibility_player_enabled && Config.invisibility_player_hide_particles && arena.getInvisiblePlayer().isInvisiblePlayer(player) && (e.getItem().getType() == Material.POTION || e.getItem().getType() == Material.GOLDEN_APPLE || e.getItem().getType() == Material.ROTTEN_FLESH || e.getItem().getType() == Material.RAW_FISH || e.getItem().getType() == Material.RAW_CHICKEN || e.getItem().getType() == Material.SPIDER_EYE || e.getItem().getType() == Material.POISONOUS_POTATO)) {
+			Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
+				if (player.isOnline()) {
+					for (PotionEffect effect : player.getActivePotionEffects()) {
+						player.addPotionEffect(new PotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier(), true, false), true);
+					}
+				}
+			});
+		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -636,15 +478,6 @@ public class EventListener implements Listener {
 		});
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onOpenTeamSelection(BedwarsOpenTeamSelectionEvent e) {
-		if (!Config.select_team_enabled) {
-			return;
-		}
-		e.setCancelled(true);
-		SelectTeam.openSelectTeam(e.getGame(), (Player) e.getPlayer());
-	}
-
 	@EventHandler
 	public void onChangedWorld(PlayerChangedWorldEvent e) {
 		Main.getInstance().getEditHolographicManager().remove(e.getPlayer());
@@ -656,72 +489,6 @@ public class EventListener implements Listener {
 		Player player = (Player) e.getPlayer();
 		MenuManager man = Main.getInstance().getMenuManager();
 		man.removePlayer(player);
-	}
-
-	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-	public void onDamagePlayer(EntityDamageEvent e) {
-		if (!Config.fast_respawn) {
-			return;
-		}
-		if (!(e.getEntity() instanceof Player)) {
-			return;
-		}
-		Player player = (Player) e.getEntity();
-		Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer(player);
-		if (game == null || !game.getState().equals(GameState.RUNNING)) {
-			return;
-		}
-		if (BedwarsUtil.isSpectator(game, player) || player.getGameMode().equals(GameMode.SPECTATOR)) {
-			return;
-		}
-		if (e.getDamage() <= 0) {
-			return;
-		}
-		if (e.getFinalDamage() < player.getHealth() && !e.getCause().equals(DamageCause.VOID)) {
-			return;
-		}
-		e.setCancelled(true);
-		e.setDamage(0);
-		Location location = player.getLocation();
-		location.getWorld().playSound(location, SoundMachine.get("HURT_FLESH", "ENTITY_PLAYER_HURT"), 1, 1);
-		PlayerInventory inventory = player.getInventory();
-		List<ItemStack> items = new ArrayList<ItemStack>();
-		for (ItemStack item : inventory.getContents()) {
-			if (item != null) {
-				items.add(item);
-			}
-		}
-		if (inventory.getHelmet() != null) {
-			items.add(inventory.getHelmet());
-		}
-		if (inventory.getChestplate() != null) {
-			items.add(inventory.getChestplate());
-		}
-		if (inventory.getLeggings() != null) {
-			items.add(inventory.getLeggings());
-		}
-		if (inventory.getBoots() != null) {
-			items.add(inventory.getBoots());
-		}
-		PlayerDeathEvent deathEvent = new PlayerDeathEvent(player, items, 0, null);
-		Bukkit.getPluginManager().callEvent(deathEvent);
-		if (!deathEvent.getKeepInventory()) {
-			inventory.clear();
-			inventory.setHelmet(new ItemStack(Material.AIR));
-			inventory.setChestplate(new ItemStack(Material.AIR));
-			inventory.setLeggings(new ItemStack(Material.AIR));
-			inventory.setBoots(new ItemStack(Material.AIR));
-			deathEvent.getDrops().forEach(item -> {
-				if (item != null && !item.getType().equals(Material.AIR)) {
-					location.getWorld().dropItemNaturally(location, item);
-				}
-			});
-		}
-		player.closeInventory();
-		PlayerRespawnEvent respawnEvent = new PlayerRespawnEvent(player, player.getWorld().getSpawnLocation(), false);
-		Bukkit.getPluginManager().callEvent(respawnEvent);
-		player.teleport(respawnEvent.getRespawnLocation());
-		player.setHealth(player.getMaxHealth());
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -811,21 +578,6 @@ public class EventListener implements Listener {
 			}
 		};
 		ProtocolLibrary.getProtocolManager().addPacketListener(packetListener);
-	}
-
-	private void destroyBlock(Game game, Team team) {
-		Material type = team.getTargetHeadBlock().getBlock().getType();
-		if (type.equals(game.getTargetMaterial())) {
-			if (type.equals(Material.BED_BLOCK)) {
-				if (BedwarsRel.getInstance().getCurrentVersion().startsWith("v1_8")) {
-					team.getTargetFeetBlock().getBlock().setType(Material.AIR);
-				} else {
-					team.getTargetHeadBlock().getBlock().setType(Material.AIR);
-				}
-			} else {
-				team.getTargetHeadBlock().getBlock().setType(Material.AIR);
-			}
-		}
 	}
 
 	private Player getPlayer(String name) {

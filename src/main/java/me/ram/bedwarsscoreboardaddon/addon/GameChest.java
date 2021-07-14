@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.Team;
 import lombok.Getter;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 
@@ -22,10 +23,13 @@ public class GameChest {
 	@Getter
 	private Game game;
 	@Getter
+	private Arena arena;
+	@Getter
 	private Map<Team, Block> teamChests;
 
-	public GameChest(Game game) {
-		this.game = game;
+	public GameChest(Arena arena) {
+		this.arena = arena;
+		this.game = arena.getGame();
 		teamChests = new HashMap<Team, Block>();
 		game.getPlayers().forEach(player -> {
 			player.getEnderChest().clear();

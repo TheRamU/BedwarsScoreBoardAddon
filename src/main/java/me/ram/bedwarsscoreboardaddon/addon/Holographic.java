@@ -20,6 +20,7 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.ResourceSpawner;
 import io.github.bedwarsrel.game.Team;
+import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.api.HolographicAPI;
 import me.ram.bedwarsscoreboardaddon.arena.Arena;
@@ -28,7 +29,10 @@ import me.ram.bedwarsscoreboardaddon.utils.ColorUtil;
 
 public class Holographic {
 
+	@Getter
 	private Game game;
+	@Getter
+	private Arena arena;
 	private List<HolographicAPI> ablocks;
 	private List<HolographicAPI> atitles;
 	private List<HolographicAPI> btitles;
@@ -38,8 +42,9 @@ public class Holographic {
 	private HashMap<HolographicAPI, Boolean> armor_upward;
 	private HashMap<HolographicAPI, Integer> armor_algebra;
 
-	public Holographic(Game game, ResourceUpgrade resourceupgrade) {
-		this.game = game;
+	public Holographic(Arena arena, ResourceUpgrade resourceupgrade) {
+		this.arena = arena;
+		this.game = arena.getGame();
 		ablocks = new ArrayList<HolographicAPI>();
 		atitles = new ArrayList<HolographicAPI>();
 		btitles = new ArrayList<HolographicAPI>();
@@ -64,15 +69,15 @@ public class Holographic {
 							holo.display(player);
 						}
 						pbtitles.put(team.getName(), holo);
-						new BukkitRunnable() {
+						arena.addGameTask(new BukkitRunnable() {
 							@Override
 							public void run() {
-								if (game.getState() != GameState.RUNNING || team.isDead(game)) {
+								if (team.isDead(game)) {
 									cancel();
 									holo.remove();
 								}
 							}
-						}.runTaskTimer(Main.getInstance(), 1L, 1L);
+						}.runTaskTimer(Main.getInstance(), 1L, 1L));
 					}
 				}
 			}.runTaskLater(Main.getInstance(), 20L);
@@ -82,7 +87,7 @@ public class Holographic {
 			@Override
 			public void run() {
 				if (game.getState() != GameState.RUNNING || game.getPlayers().size() < 1) {
-					this.cancel();
+					cancel();
 					for (HolographicAPI holo : ablocks) {
 						holo.remove();
 					}
@@ -97,12 +102,7 @@ public class Holographic {
 					}
 				}
 			}
-
 		}.runTaskTimer(Main.getInstance(), 1L, 1L);
-	}
-
-	public Game getGame() {
-		return game;
 	}
 
 	public void onTargetBlockDestroyed(BedwarsTargetBlockDestroyedEvent e) {

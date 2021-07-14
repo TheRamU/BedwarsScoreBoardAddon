@@ -4,7 +4,9 @@ import com.comphenix.protocol.*;
 import com.comphenix.protocol.wrappers.*;
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
+import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
@@ -16,27 +18,31 @@ import com.comphenix.protocol.events.*;
 
 public class NoBreakBed {
 
+	@Getter
 	private Game game;
+	@Getter
+	private Arena arena;
 	private boolean bre;
 	private String formattime = "00:00";
-	private PacketListener packetlistener;
+	private PacketListener packetListener;
 
-	public NoBreakBed(Game game) {
-		this.game = game;
+	public NoBreakBed(Arena arena) {
+		this.arena = arena;
+		this.game = arena.getGame();
 		bre = false;
 		if (!Config.nobreakbed_enabled) {
 			return;
 		}
-		breakbed();
-		new BukkitRunnable() {
+		registerPacketListener();
+		arena.addGameTask(new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (Config.nobreakbed_enabled && game.getState() != GameState.WAITING && game.getState() == GameState.RUNNING) {
-					int time = game.getTimeLeft() - Config.nobreakbed_gametime;
-					String ftime = time / 60 + ":" + ((time % 60 < 10) ? ("0" + time % 60) : (time % 60));
-					formattime = ftime;
-					if (game.getTimeLeft() <= Config.nobreakbed_gametime) {
-						bre = true;
+				int time = game.getTimeLeft() - Config.nobreakbed_gametime;
+				String ftime = time / 60 + ":" + ((time % 60 < 10) ? ("0" + time % 60) : (time % 60));
+				formattime = ftime;
+				if (game.getTimeLeft() <= Config.nobreakbed_gametime) {
+					bre = true;
+					if (Config.nobreakbed_enabled) {
 						for (Player player : game.getPlayers()) {
 							if (!Config.nobreakbed_title.equals("") || !Config.nobreakbed_subtitle.equals("")) {
 								Utils.sendTitle(player, 10, 50, 10, Config.nobreakbed_title, Config.nobreakbed_subtitle);
@@ -45,28 +51,26 @@ public class NoBreakBed {
 								player.sendMessage(Config.nobreakbed_message);
 							}
 						}
-						cancel();
-						return;
 					}
-				} else {
 					cancel();
+					return;
 				}
 			}
-		}.runTaskTimer(Main.getInstance(), 0L, 21L);
+		}.runTaskTimer(Main.getInstance(), 0L, 21L));
 	}
 
 	public String getTime() {
 		return formattime;
 	}
 
-	public void onOver() {
-		if (packetlistener != null) {
-			ProtocolLibrary.getProtocolManager().removePacketListener(packetlistener);
+	public void onEnd() {
+		if (packetListener != null) {
+			ProtocolLibrary.getProtocolManager().removePacketListener(packetListener);
 		}
 	}
 
-	private void breakbed() {
-		PacketListener packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Client.BLOCK_DIG }) {
+	private void registerPacketListener() {
+		packetListener = new PacketAdapter(Main.getInstance(), ListenerPriority.HIGHEST, new PacketType[] { PacketType.Play.Client.BLOCK_DIG }) {
 			public void onPacketReceiving(PacketEvent e) {
 				if (!Config.nobreakbed_enabled) {
 					return;
@@ -92,6 +96,5 @@ public class NoBreakBed {
 			}
 		};
 		ProtocolLibrary.getProtocolManager().addPacketListener(packetListener);
-		this.packetlistener = packetListener;
 	}
 }

@@ -3,67 +3,74 @@ package me.ram.bedwarsscoreboardaddon.manager;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.bedwarsrel.game.Game;
+import lombok.Getter;
+import me.ram.bedwarsscoreboardaddon.placeholder.Placeholder;
+
 public class PlaceholderManager {
 
-	private Map<String, String> GamePlaceholder;
-	private Map<String, Map<String, String>> TeamPlaceholder;
-	private Map<String, Map<String, String>> PlayerPlaceholder;
+	@Getter
+	private Game game;
+	private Map<String, Placeholder> gamePlaceholder;
+	private Map<String, Map<String, Placeholder>> teamPlaceholder;
+	private Map<String, Map<String, Placeholder>> playerPlaceholder;
 
-	public PlaceholderManager() {
-		GamePlaceholder = new HashMap<String, String>();
-		TeamPlaceholder = new HashMap<String, Map<String, String>>();
-		PlayerPlaceholder = new HashMap<String, Map<String, String>>();
+	public PlaceholderManager(Game game) {
+		this.game = game;
+		gamePlaceholder = new HashMap<String, Placeholder>();
+		teamPlaceholder = new HashMap<String, Map<String, Placeholder>>();
+		playerPlaceholder = new HashMap<String, Map<String, Placeholder>>();
 	}
 
-	public void setGamePlaceholder(String placeholder, String info) {
-		GamePlaceholder.put(placeholder, info);
+	public void registerGamePlaceholder(String identifier, Placeholder placeholder) {
+		gamePlaceholder.put(identifier, placeholder);
 	}
 
-	public void removeGamePlaceholder(String placeholder) {
-		GamePlaceholder.remove(placeholder);
+	public void unregisterGamePlaceholder(String identifier) {
+		gamePlaceholder.remove(identifier);
 	}
 
-	public Map<String, String> getGamePlaceholder() {
-		return GamePlaceholder;
+	public Map<String, Placeholder> getGamePlaceholder() {
+		return gamePlaceholder;
 	}
 
-	public void setTeamPlaceholder(String team, String placeholder, String info) {
-		Map<String, String> placeholders = TeamPlaceholder.getOrDefault(team, new HashMap<String, String>());
-		placeholders.put(placeholder, info);
-		TeamPlaceholder.put(team, placeholders);
+	public void registerTeamPlaceholder(String team, String identifier, Placeholder placeholder) {
+		Map<String, Placeholder> placeholders = teamPlaceholder.getOrDefault(team, new HashMap<String, Placeholder>());
+		placeholders.put(identifier, placeholder);
+		teamPlaceholder.put(team, placeholders);
 	}
 
-	public void removeTeamPlaceholder(String team, String placeholder) {
-		Map<String, String> placeholders = TeamPlaceholder.getOrDefault(team, new HashMap<String, String>());
-		placeholders.remove(placeholder);
-		TeamPlaceholder.put(placeholder, placeholders);
+	public void unregisterTeamPlaceholder(String team, String identifier) {
+		Map<String, Placeholder> placeholders = teamPlaceholder.getOrDefault(team, new HashMap<String, Placeholder>());
+		placeholders.remove(identifier);
+		teamPlaceholder.put(identifier, placeholders);
 	}
 
-	public Map<String, String> getTeamPlaceholder(String team) {
-		return TeamPlaceholder.getOrDefault(team, new HashMap<String, String>());
+	public Map<String, Placeholder> getTeamPlaceholder(String team) {
+		return teamPlaceholder.getOrDefault(team, new HashMap<String, Placeholder>());
 	}
 
-	public Map<String, Map<String, String>> getTeamPlaceholders() {
-		return TeamPlaceholder;
+	public Map<String, Map<String, Placeholder>> getTeamPlaceholders() {
+		return teamPlaceholder;
 	}
 
-	public void setPlayerPlaceholder(String player, String placeholder, String info) {
-		Map<String, String> placeholders = TeamPlaceholder.getOrDefault(player, new HashMap<String, String>());
-		placeholders.put(placeholder, info);
-		PlayerPlaceholder.put(player, placeholders);
+	public void registerPlayerPlaceholder(String player, String identifier, Placeholder placeholder) {
+		Map<String, Placeholder> placeholders = teamPlaceholder.getOrDefault(player, new HashMap<String, Placeholder>());
+		placeholders.put(identifier, placeholder);
+		playerPlaceholder.put(player, placeholders);
 	}
 
-	public void removePlayerPlaceholder(String player, String placeholder) {
-		Map<String, String> placeholders = TeamPlaceholder.getOrDefault(player, new HashMap<String, String>());
-		placeholders.remove(placeholder);
-		PlayerPlaceholder.put(placeholder, placeholders);
+	public void unregisterPlayerPlaceholder(String player, String identifier) {
+		Map<String, Placeholder> placeholders = teamPlaceholder.getOrDefault(player, new HashMap<String, Placeholder>());
+		placeholders.remove(identifier);
+		playerPlaceholder.put(player, placeholders);
 	}
 
-	public Map<String, String> getPlayerPlaceholder(String player) {
-		return PlayerPlaceholder.getOrDefault(player, new HashMap<String, String>());
+	public Map<String, Placeholder> getPlayerPlaceholder(String player) {
+		return playerPlaceholder.getOrDefault(player, new HashMap<String, Placeholder>());
 	}
 
-	public Map<String, Map<String, String>> getPlayerPlaceholders() {
-		return PlayerPlaceholder;
+	public Map<String, Map<String, Placeholder>> getPlayerPlaceholders() {
+		return playerPlaceholder;
 	}
 }

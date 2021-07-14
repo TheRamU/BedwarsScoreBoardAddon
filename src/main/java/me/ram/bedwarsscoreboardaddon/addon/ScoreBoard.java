@@ -7,19 +7,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import io.github.bedwarsrel.BedwarsRel;
 import io.github.bedwarsrel.game.Game;
-import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
-import me.clip.placeholderapi.PlaceholderAPI;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.manager.PlaceholderManager;
+import me.ram.bedwarsscoreboardaddon.utils.PlaceholderAPIUtil;
 import me.ram.bedwarsscoreboardaddon.utils.ScoreboardUtil;
 
 public class ScoreBoard {
@@ -35,43 +33,35 @@ public class ScoreBoard {
 	public ScoreBoard(Arena arena) {
 		this.arena = arena;
 		game = arena.getGame();
-		placeholderManager = new PlaceholderManager();
+		placeholderManager = new PlaceholderManager(game);
 		team_status = new HashMap<String, String>();
 		timer_placeholder = new HashMap<String, String>();
 		over_plan_info = new HashMap<String, String>();
 		for (String id : Config.timer.keySet()) {
-			new BukkitRunnable() {
+			arena.addGameTask(new BukkitRunnable() {
 				int i = Config.timer.get(id);
 
 				@Override
 				public void run() {
-					if (game.getState() == GameState.RUNNING) {
-						String format = i / 60 + ":" + ((i % 60 < 10) ? ("0" + i % 60) : (i % 60));
-						timer_placeholder.put("{timer_" + id + "}", format);
-						i--;
-					} else {
-						this.cancel();
-					}
+					String format = i / 60 + ":" + ((i % 60 < 10) ? ("0" + i % 60) : (i % 60));
+					timer_placeholder.put("{timer_" + id + "}", format);
+					i--;
 				}
-			}.runTaskTimer(Main.getInstance(), 0L, 21L);
+			}.runTaskTimer(Main.getInstance(), 0L, 21L));
 		}
-		new BukkitRunnable() {
+		arena.addGameTask(new BukkitRunnable() {
 			int i = Config.scoreboard_interval;
 
 			@Override
 			public void run() {
 				i--;
 				if (i <= 0) {
+					updateScoreboard();
 					i = Config.scoreboard_interval;
-					if (game.getState() != GameState.WAITING && game.getState() == GameState.RUNNING) {
-						updateScoreboard();
-					} else
-						cancel();
-					return;
 				}
 			}
-		}.runTaskTimer(Main.getInstance(), 0L, 1L);
-		new BukkitRunnable() {
+		}.runTaskTimer(Main.getInstance(), 0L, 1L));
+		arena.addGameTask(new BukkitRunnable() {
 			@Override
 			public void run() {
 				for (BukkitTask task : game.getRunningTasks()) {
@@ -80,7 +70,7 @@ public class ScoreBoard {
 				game.getRunningTasks().clear();
 				startTimerCountdown(game);
 			}
-		}.runTaskLater(Main.getInstance(), 19L);
+		}.runTaskLater(Main.getInstance(), 19L));
 	}
 
 	public PlaceholderManager getPlaceholderManager() {
@@ -104,7 +94,7 @@ public class ScoreBoard {
 	}
 
 	private void startTimerCountdown(Game game) {
-		BukkitRunnable task = new BukkitRunnable() {
+		game.addRunningTask(new BukkitRunnable() {
 			public void run() {
 				if (game.getTimeLeft() == 0) {
 					game.setOver(true);
@@ -114,8 +104,7 @@ public class ScoreBoard {
 				}
 				game.setTimeLeft(game.getTimeLeft() - 1);
 			}
-		};
-		game.addRunningTask(task.runTaskTimer(BedwarsRel.getInstance(), 0L, 20L));
+		}.runTaskTimer(BedwarsRel.getInstance(), 0L, 20L));
 	}
 
 	public void updateScoreboard() {
@@ -222,7 +211,7 @@ public class ScoreBoard {
 						add_line = add_line.replace("{resource_upgrade_" + key + "}", arena.getResourceUpgrade().getUpgTime().get(key));
 					}
 					for (String key : placeholderManager.getGamePlaceholder().keySet()) {
-						add_line = add_line.replace(key, placeholderManager.getGamePlaceholder().get(key));
+						add_line = add_line.replace(key, placeholderManager.getGamePlaceholder().get(key).onGamePlaceholderRequest(game));
 					}
 					for (Team t : game.getTeams().values()) {
 						if (add_line.contains("{team_" + t.getName() + "_status}")) {
@@ -243,26 +232,20 @@ public class ScoreBoard {
 							add_line = add_line.replace("{team_" + t.getName() + "_peoples}", t.getPlayers().size() + "");
 						}
 					}
-					if (player_team == null) {
+					if (player_team == null || !placeholderManager.getTeamPlaceholders().containsKey(player_team.getName())) {
 						for (String teamname : placeholderManager.getTeamPlaceholders().keySet()) {
 							for (String placeholder : placeholderManager.getTeamPlaceholders().get(teamname).keySet()) {
 								add_line = add_line.replace(placeholder, "");
 							}
-						}
-					} else if (placeholderManager.getTeamPlaceholders().containsKey(player_team.getName())) {
-						for (String placeholder : placeholderManager.getTeamPlaceholder(player_team.getName()).keySet()) {
-							add_line = add_line.replace(placeholder, placeholderManager.getTeamPlaceholder(player_team.getName()).get(placeholder));
 						}
 					} else {
-						for (String teamname : placeholderManager.getTeamPlaceholders().keySet()) {
-							for (String placeholder : placeholderManager.getTeamPlaceholders().get(teamname).keySet()) {
-								add_line = add_line.replace(placeholder, "");
-							}
+						for (String identifier : placeholderManager.getTeamPlaceholder(player_team.getName()).keySet()) {
+							add_line = add_line.replace(identifier, placeholderManager.getTeamPlaceholder(player_team.getName()).get(identifier).onTeamPlaceholderRequest(player_team));
 						}
 					}
 					if (placeholderManager.getPlayerPlaceholders().containsKey(player.getName())) {
-						for (String placeholder : placeholderManager.getPlayerPlaceholder(player.getName()).keySet()) {
-							add_line = add_line.replace(placeholder, placeholderManager.getPlayerPlaceholder(player.getName()).get(placeholder));
+						for (String identifier : placeholderManager.getPlayerPlaceholder(player.getName()).keySet()) {
+							add_line = add_line.replace(identifier, placeholderManager.getPlayerPlaceholder(player.getName()).get(identifier).onPlayerPlaceholderRequest(game, player));
 						}
 					} else {
 						for (String playername : placeholderManager.getPlayerPlaceholders().keySet()) {
@@ -274,16 +257,11 @@ public class ScoreBoard {
 					for (String placeholder : timer_placeholder.keySet()) {
 						add_line = add_line.replace(placeholder, timer_placeholder.get(placeholder));
 					}
-					if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-						add_line = PlaceholderAPI.setPlaceholders(player, add_line);
-					}
+					add_line = PlaceholderAPIUtil.setPlaceholders(player, add_line);
 					lines.add(add_line);
 				}
 			}
-			String title = score_title;
-			if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-				title = PlaceholderAPI.setPlaceholders(player, title);
-			}
+			String title = PlaceholderAPIUtil.setPlaceholders(player, score_title);
 			ScoreboardUtil.setGameScoreboard(player, title, lines, game);
 		}
 	}

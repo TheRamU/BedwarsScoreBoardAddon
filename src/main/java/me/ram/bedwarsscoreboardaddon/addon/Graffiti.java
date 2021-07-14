@@ -33,6 +33,7 @@ import io.github.bedwarsrel.game.Game;
 import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.api.HolographicAPI;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 
@@ -40,11 +41,14 @@ public class Graffiti {
 
 	@Getter
 	private Game game;
+	@Getter
+	private Arena arena;
 	private Map<ItemFrame, HolographicAPI> holographics;
 	private List<ItemFrame> itemFrames;
 
-	public Graffiti(Game game) {
-		this.game = game;
+	public Graffiti(Arena arena) {
+		this.arena = arena;
+		this.game = arena.getGame();
 		itemFrames = new ArrayList<ItemFrame>();
 		holographics = new HashMap<ItemFrame, HolographicAPI>();
 		if (Config.graffiti_enabled) {
@@ -54,7 +58,7 @@ public class Graffiti {
 			int x = Math.abs(loc1.getBlockX() - loc2.getBlockX());
 			int y = Math.abs(loc1.getBlockY() - loc2.getBlockY());
 			int z = Math.abs(loc1.getBlockZ() - loc2.getBlockZ());
-			new BukkitRunnable() {
+			arena.addGameTask(new BukkitRunnable() {
 
 				@Override
 				public void run() {
@@ -77,7 +81,7 @@ public class Graffiti {
 						}
 					}
 				}
-			}.runTaskAsynchronously(Main.getInstance());
+			}.runTaskAsynchronously(Main.getInstance()));
 		}
 	}
 

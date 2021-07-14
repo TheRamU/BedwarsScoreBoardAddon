@@ -20,6 +20,7 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
@@ -31,13 +32,14 @@ public class Title implements Listener {
 	@EventHandler
 	public void onStarted(BedwarsGameStartedEvent e) {
 		Game game = e.getGame();
+		Arena arena = Main.getInstance().getArenaManager().getArena(game.getName());
 		Times.put(e.getGame().getName(), e.getGame().getTimeLeft());
 		if (Config.start_title_enabled) {
 			for (Player player : e.getGame().getPlayers()) {
 				Utils.clearTitle(player);
 			}
 			int delay = game.getRegion().getWorld().getName().equals(game.getLobby().getWorld().getName()) ? 5 : 30;
-			new BukkitRunnable() {
+			arena.addGameTask(new BukkitRunnable() {
 				int rn = 0;
 
 				@Override
@@ -51,17 +53,17 @@ public class Title implements Listener {
 						this.cancel();
 					}
 				}
-			}.runTaskTimer(Main.getInstance(), delay, 0L);
+			}.runTaskTimer(Main.getInstance(), delay, 0L));
 		}
 		if (game.getLobby().getWorld().equals(game.getRegion().getWorld())) {
 			PlaySound.playSound(e.getGame(), Config.play_sound_sound_start);
 		} else {
-			new BukkitRunnable() {
+			arena.addGameTask(new BukkitRunnable() {
 				@Override
 				public void run() {
 					PlaySound.playSound(e.getGame(), Config.play_sound_sound_start);
 				}
-			}.runTaskLater(Main.getInstance(), 30L);
+			}.runTaskLater(Main.getInstance(), 30L));
 		}
 	}
 
@@ -96,6 +98,8 @@ public class Title implements Listener {
 	@EventHandler
 	public void onOver(BedwarsGameOverEvent e) {
 		if (Config.victory_title_enabled) {
+			Game game = e.getGame();
+			Arena arena = Main.getInstance().getArenaManager().getArena(game.getName());
 			Team team = e.getWinner();
 			int time = Times.getOrDefault(e.getGame().getName(), 3600) - e.getGame().getTimeLeft();
 			String formattime = time / 60 + ":" + ((time % 60 < 10) ? ("0" + time % 60) : (time % 60));
@@ -111,7 +115,7 @@ public class Title implements Listener {
 					}
 				}
 			}.runTaskLater(Main.getInstance(), 1L);
-			new BukkitRunnable() {
+			arena.addGameTask(new BukkitRunnable() {
 				int rn = 0;
 
 				@Override
@@ -131,7 +135,7 @@ public class Title implements Listener {
 						this.cancel();
 					}
 				}
-			}.runTaskTimer(Main.getInstance(), 40L, 0L);
+			}.runTaskTimer(Main.getInstance(), 40L, 0L));
 		}
 		new BukkitRunnable() {
 			@Override

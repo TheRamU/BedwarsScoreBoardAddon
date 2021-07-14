@@ -26,23 +26,30 @@ import com.comphenix.protocol.events.PacketContainer;
 
 import io.github.bedwarsrel.BedwarsRel;
 import io.github.bedwarsrel.game.Game;
+import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
+import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.events.BoardAddonPlayerRespawnEvent;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
 
 public class Respawn {
 
+	@Getter
 	private Game game;
+	@Getter
+	private Arena arena;
 	private List<Player> players;
 	private Map<Player, Long> protected_time;
 
-	public Respawn(Game game) {
-		this.game = game;
+	public Respawn(Arena arena) {
+		this.arena = arena;
+		this.game = arena.getGame();
 		players = new ArrayList<Player>();
 		protected_time = new HashMap<Player, Long>();
-		Main.getInstance().getArenaManager().getArena(game.getName()).addGameTask(new BukkitRunnable() {
+		arena.addGameTask(new BukkitRunnable() {
 			@Override
 			public void run() {
 				players.forEach(player -> {
@@ -50,10 +57,6 @@ public class Respawn {
 				});
 			}
 		}.runTaskTimer(Main.getInstance(), 1L, 1L));
-	}
-
-	public Game getGame() {
-		return game;
 	}
 
 	public boolean isRespawning(Player player) {
@@ -91,6 +94,18 @@ public class Respawn {
 		});
 	}
 
+	private void sendGameModeChange(Player player, int mode) {
+		ProtocolManager man = ProtocolLibrary.getProtocolManager();
+		PacketContainer packet = man.createPacket(PacketType.Play.Server.GAME_STATE_CHANGE);
+		packet.getIntegers().write(0, 3);
+		packet.getFloat().write(0, (float) mode);
+		try {
+			man.sendServerPacket(player, packet, false);
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void onRespawn(Player player, boolean rejoin) {
 		if (!Config.respawn_enabled || game.isSpectator(player) || (game.getPlayerTeam(player).isDead(game) && !rejoin) || players.contains(player)) {
 			return;
@@ -120,6 +135,9 @@ public class Respawn {
 		}
 		Location location = new Location(world, (x / Double.valueOf(i)), Config.respawn_centre_height, (z / Double.valueOf(i)));
 		Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+			if (!game.getState().equals(GameState.RUNNING)) {
+				return;
+			}
 			if (!player.isOnline() || !players.contains(player)) {
 				return;
 			}
@@ -127,7 +145,8 @@ public class Respawn {
 			player.teleport(location);
 			player.setAllowFlight(true);
 			player.setFlying(true);
-			new BukkitRunnable() {
+			sendGameModeChange(player, 3);
+			arena.addGameTask(new BukkitRunnable() {
 				int respawntime = Config.respawn_respawn_delay;
 
 				@Override
@@ -139,6 +158,7 @@ public class Respawn {
 					if (!players.contains(player)) {
 						cancel();
 						player.setGameMode(GameMode.SURVIVAL);
+						sendGameModeChange(player, 0);
 						player.setAllowFlight(false);
 						player.removePotionEffect(PotionEffectType.INVISIBILITY);
 						player.updateInventory();
@@ -147,6 +167,7 @@ public class Respawn {
 					if (game.getPlayerTeam(player) == null) {
 						cancel();
 						player.setGameMode(GameMode.SURVIVAL);
+						sendGameModeChange(player, 0);
 						player.setAllowFlight(false);
 						player.removePotionEffect(PotionEffectType.INVISIBILITY);
 						player.updateInventory();
@@ -168,7 +189,11 @@ public class Respawn {
 						player.setVelocity(new Vector(0, 0.01, 0));
 						player.setAllowFlight(false);
 						player.setGameMode(GameMode.SURVIVAL);
-						player.removePotionEffect(PotionEffectType.INVISIBILITY);
+						sendGameModeChange(player, 0);
+						player.getActivePotionEffects().forEach(effect -> {
+							player.removePotionEffect(effect.getType());
+						});
+						player.setFoodLevel(20);
 						player.updateInventory();
 						if (!Config.respawn_respawn_title.equals("") || !Config.respawn_respawn_subtitle.equals("")) {
 							Utils.sendTitle(player, 10, 30, 10, Config.respawn_respawn_title, Config.respawn_respawn_subtitle);
@@ -182,25 +207,8 @@ public class Respawn {
 					}
 					respawntime--;
 				}
-			}.runTaskTimer(Main.getInstance(), 0L, 21L);
+			}.runTaskTimer(Main.getInstance(), 0L, 21L));
 		}, 1L);
-	}
-
-	public void onDeath(Player player) {
-		if (!Config.respawn_enabled || game.isSpectator(player) || game.getPlayerTeam(player).isDead(game) || players.contains(player)) {
-			return;
-		}
-		int ateams = 0;
-		for (Team team : game.getTeams().values()) {
-			if (!(team.isDead(game) && team.getPlayers().size() <= 0)) {
-				ateams++;
-			}
-		}
-		if (ateams <= 1) {
-			return;
-		}
-		player.setGameMode(GameMode.SPECTATOR);
-		player.setVelocity(new Vector(0, 0, 0));
 	}
 
 	public void onDamage(EntityDamageEvent e) {

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,9 +13,10 @@ import io.github.bedwarsrel.BedwarsRel;
 import io.github.bedwarsrel.events.BedwarsPlayerJoinedEvent;
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
-import me.clip.placeholderapi.PlaceholderAPI;
+import io.github.bedwarsrel.game.Team;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.config.Config;
+import me.ram.bedwarsscoreboardaddon.utils.PlaceholderAPIUtil;
 import me.ram.bedwarsscoreboardaddon.utils.ScoreboardUtil;
 
 public class LobbyScoreBoard implements Listener {
@@ -94,11 +94,20 @@ public class LobbyScoreBoard implements Listener {
 			counter = counter > lobbytime ? lobbytime : counter;
 			countdown = counter + "";
 		}
+		String team_name = "";
+		String team_color = "";
+		String team_initials = "";
+		String player_team_players = "";
+		Team team = game.getPlayerTeam(player);
+		if (team != null) {
+			team_name = team.getName();
+			team_color = team.getChatColor().toString();
+			team_initials = team.getChatColor().name().substring(0, 1);
+			player_team_players = game.getPlayerTeam(player).getPlayers().size() + "";
+		}
 		for (String li : Config.lobby_scoreboard_lines) {
-			String l = li.replace("{date}", getDate()).replace("{state}", state).replace("{game}", game.getName()).replace("{players}", game.getPlayers().size() + "").replace("{maxplayers}", game.getMaxPlayers() + "").replace("{minplayers}", game.getMinPlayers() + "").replace("{needplayers}", needplayers + "").replace("{countdown}", countdown);
-			if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-				l = PlaceholderAPI.setPlaceholders(player, l);
-			}
+			String l = li.replace("{date}", getDate()).replace("{state}", state).replace("{game}", game.getName()).replace("{players}", game.getPlayers().size() + "").replace("{maxplayers}", game.getMaxPlayers() + "").replace("{minplayers}", game.getMinPlayers() + "").replace("{needplayers}", needplayers + "").replace("{countdown}", countdown).replace("{team}", team_name).replace("{color}", team_color).replace("{team_initials}", team_initials).replace("{team_peoples}", player_team_players);
+			l = PlaceholderAPIUtil.setPlaceholders(player, l);
 			lines.add(getQuellLine(lines, l));
 		}
 		return lines;

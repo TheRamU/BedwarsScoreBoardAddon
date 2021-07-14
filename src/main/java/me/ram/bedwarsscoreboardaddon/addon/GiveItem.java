@@ -2,6 +2,8 @@ package me.ram.bedwarsscoreboardaddon.addon;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,21 +20,20 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 
 public class GiveItem implements Listener {
 
 	@EventHandler
 	public void onStarted(BedwarsGameStartedEvent e) {
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				for (Player player : e.getGame().getPlayers()) {
-					Team team = e.getGame().getPlayerTeam(player);
-					GiveItem.giveItem(player, team, false);
-				}
+		Arena arena = Main.getInstance().getArenaManager().getArena(e.getGame().getName());
+		arena.addGameTask(Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+			for (Player player : e.getGame().getPlayers()) {
+				Team team = e.getGame().getPlayerTeam(player);
+				GiveItem.giveItem(player, team, false);
 			}
-		}.runTaskLater(Main.getInstance(), 5L);
+		}, 5L));
 	}
 
 	public static void giveItem(Player player, Team team, boolean respawn) {
@@ -192,18 +193,22 @@ public class GiveItem implements Listener {
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
 		if (e.getEntity() instanceof Player) {
-			Game getGame = BedwarsRel.getInstance().getGameManager().getGameOfPlayer((Player) e.getEntity());
-			if (getGame == null) {
+			Game game = BedwarsRel.getInstance().getGameManager().getGameOfPlayer((Player) e.getEntity());
+			if (game == null) {
+				return;
+			}
+			Arena arena = Main.getInstance().getArenaManager().getArena(game.getName());
+			if (arena == null) {
 				return;
 			}
 			Player p = e.getEntity();
-			if (getGame.getPlayerTeam(p) == null) {
+			if (game.getPlayerTeam(p) == null) {
 				return;
 			}
-			if (getGame.getPlayerTeam(p).isDead(getGame)) {
+			if (game.getPlayerTeam(p).isDead(game)) {
 				return;
 			}
-			new BukkitRunnable() {
+			arena.addGameTask(new BukkitRunnable() {
 				Player player = e.getEntity();
 				ItemStack stack1 = player.getInventory().getHelmet();
 				ItemStack stack2 = player.getInventory().getChestplate();
@@ -212,7 +217,7 @@ public class GiveItem implements Listener {
 
 				@Override
 				public void run() {
-					Team team = getGame.getPlayerTeam(player);
+					Team team = game.getPlayerTeam(player);
 					GiveItem.giveItem(player, team, true);
 					if (Config.giveitem_keeparmor) {
 						if (stack1 != null) {
@@ -229,7 +234,7 @@ public class GiveItem implements Listener {
 						}
 					}
 				}
-			}.runTaskLater(Main.getInstance(), 1L);
+			}.runTaskLater(Main.getInstance(), 1L));
 		}
 	}
 }

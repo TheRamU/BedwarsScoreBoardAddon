@@ -44,14 +44,17 @@ public class TeamShop {
 
 	@Getter
 	private Game game;
+	@Getter
+	private Arena arena;
 	private Map<Team, List<Upgrade>> upgrades;
 	private Map<Team, List<Upgrade>> upgrades_trap;
 	private Map<Team, Map<Player, Long>> player_cooldown;
 	private List<Player> immune_players;
 	private List<Listener> listeners;
 
-	public TeamShop(Game game) {
-		this.game = game;
+	public TeamShop(Arena arena) {
+		this.arena = arena;
+		this.game = arena.getGame();
 		upgrades = new HashMap<Team, List<Upgrade>>();
 		upgrades_trap = new HashMap<Team, List<Upgrade>>();
 		player_cooldown = new HashMap<Team, Map<Player, Long>>();
@@ -67,7 +70,6 @@ public class TeamShop {
 			Bukkit.getPluginManager().registerEvents(ironForge, Main.getInstance());
 			listeners.add(ironForge);
 		}
-		Arena arena = Main.getInstance().getArenaManager().getArena(game.getName());
 		arena.addGameTask(new BukkitRunnable() {
 
 			@Override
@@ -291,6 +293,9 @@ public class TeamShop {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
+				if (!game.getState().equals(GameState.RUNNING)) {
+					return;
+				}
 				ItemStack[] stacks = player.getInventory().getContents();
 				for (int i = 0; i < stacks.length; i++) {
 					ItemStack stack = stacks[i];

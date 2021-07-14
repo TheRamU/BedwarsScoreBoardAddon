@@ -8,33 +8,33 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.github.bedwarsrel.game.Game;
-import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
 import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.manager.PlaceholderManager;
+import me.ram.bedwarsscoreboardaddon.utils.PlaceholderAPIUtil;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
 
 public class Actionbar {
+
+	@Getter
+	private Arena arena;
 	@Getter
 	private Game game;
 	@Getter
 	private PlaceholderManager placeholderManager;
 
-	public Actionbar(Game game) {
-		this.game = game;
-		placeholderManager = new PlaceholderManager();
-		new BukkitRunnable() {
+	public Actionbar(Arena arena) {
+		this.game = arena.getGame();
+		placeholderManager = new PlaceholderManager(game);
+		Main.getInstance().getArenaManager().getArena(game.getName()).addGameTask(new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (game.getState() != GameState.RUNNING) {
-					cancel();
-					return;
-				}
 				sendActionbar();
 			}
-		}.runTaskTimer(Main.getInstance(), 0L, 21L);
+		}.runTaskTimer(Main.getInstance(), 0L, 21L));
 	}
 
 	private void sendActionbar() {
@@ -57,30 +57,24 @@ public class Actionbar {
 						}
 					}
 					Team playerteam = game.getPlayerTeam(player);
-					String ab = Config.actionbar.replace("{team_peoples}", game.getPlayerTeam(player).getPlayers().size() + "").replace("{bowtime}", bowtime).replace("{color}", game.getPlayerTeam(player).getChatColor() + "").replace("{team}", game.getPlayerTeam(player).getName()).replace("{range}", (int) player.getLocation().distance(game.getPlayerTeam(player).getSpawnLocation()) + "").replace("{time}", (game.getTimeLeft() / 60) + "").replace("{formattime}", getFormattedTimeLeft(game.getTimeLeft())).replace("{game}", game.getName()).replace("{date}", new SimpleDateFormat(Config.date_format).format(new Date())).replace("{online}", Bukkit.getOnlinePlayers().size() + "").replace("{alive_players}", alive_players + "");
-					for (String placeholder : placeholderManager.getGamePlaceholder().keySet()) {
-						ab = ab.replace(placeholder, placeholderManager.getGamePlaceholder().get(placeholder));
+					String ab = Config.actionbar;
+					for (String identifier : placeholderManager.getGamePlaceholder().keySet()) {
+						ab = ab.replace(identifier, placeholderManager.getGamePlaceholder().get(identifier).onGamePlaceholderRequest(game));
 					}
-					if (playerteam == null) {
+					if (playerteam == null || !placeholderManager.getTeamPlaceholders().containsKey(playerteam.getName())) {
 						for (String teamname : placeholderManager.getTeamPlaceholders().keySet()) {
 							for (String placeholder : placeholderManager.getTeamPlaceholders().get(teamname).keySet()) {
 								ab = ab.replace(placeholder, "");
 							}
-						}
-					} else if (placeholderManager.getTeamPlaceholders().containsKey(playerteam.getName())) {
-						for (String placeholder : placeholderManager.getTeamPlaceholder(playerteam.getName()).keySet()) {
-							ab = ab.replace(placeholder, placeholderManager.getTeamPlaceholder(playerteam.getName()).get(placeholder));
 						}
 					} else {
-						for (String teamname : placeholderManager.getTeamPlaceholders().keySet()) {
-							for (String placeholder : placeholderManager.getTeamPlaceholders().get(teamname).keySet()) {
-								ab = ab.replace(placeholder, "");
-							}
+						for (String identifier : placeholderManager.getTeamPlaceholder(playerteam.getName()).keySet()) {
+							ab = ab.replace(identifier, placeholderManager.getTeamPlaceholder(playerteam.getName()).get(identifier).onTeamPlaceholderRequest(playerteam));
 						}
 					}
 					if (placeholderManager.getPlayerPlaceholders().containsKey(player.getName())) {
-						for (String placeholder : placeholderManager.getPlayerPlaceholder(player.getName()).keySet()) {
-							ab = ab.replace(placeholder, placeholderManager.getPlayerPlaceholder(player.getName()).get(placeholder));
+						for (String identifier : placeholderManager.getPlayerPlaceholder(player.getName()).keySet()) {
+							ab = ab.replace(identifier, placeholderManager.getPlayerPlaceholder(player.getName()).get(identifier).onPlayerPlaceholderRequest(game, player));
 						}
 					} else {
 						for (String playername : placeholderManager.getPlayerPlaceholders().keySet()) {
@@ -89,6 +83,8 @@ public class Actionbar {
 							}
 						}
 					}
+					ab = PlaceholderAPIUtil.setPlaceholders(player, ab);
+					ab = ab.replace("{team_peoples}", game.getPlayerTeam(player).getPlayers().size() + "").replace("{bowtime}", bowtime).replace("{color}", game.getPlayerTeam(player).getChatColor() + "").replace("{team}", game.getPlayerTeam(player).getName()).replace("{range}", (int) player.getLocation().distance(game.getPlayerTeam(player).getSpawnLocation()) + "").replace("{time}", (game.getTimeLeft() / 60) + "").replace("{formattime}", getFormattedTimeLeft(game.getTimeLeft())).replace("{game}", game.getName()).replace("{date}", new SimpleDateFormat(Config.date_format).format(new Date())).replace("{online}", Bukkit.getOnlinePlayers().size() + "").replace("{alive_players}", alive_players + "");
 					Utils.sendPlayerActionbar(player, ab);
 				}
 			}

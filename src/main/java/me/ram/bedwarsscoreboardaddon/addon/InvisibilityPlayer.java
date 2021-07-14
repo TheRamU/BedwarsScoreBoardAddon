@@ -18,20 +18,25 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import io.github.bedwarsrel.BedwarsRel;
 import io.github.bedwarsrel.game.Game;
-import io.github.bedwarsrel.game.GameState;
+import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.events.BoardAddonPlayerInvisibilityEvent;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
 
 public class InvisibilityPlayer {
 
+	@Getter
 	private Game game;
+	@Getter
+	private Arena arena;
 	private List<UUID> players;
 	private List<UUID> hplayers;
 
-	public InvisibilityPlayer(Game game) {
-		this.game = game;
+	public InvisibilityPlayer(Arena arena) {
+		this.arena = arena;
+		this.game = arena.getGame();
 		players = new ArrayList<UUID>();
 		hplayers = new ArrayList<UUID>();
 	}
@@ -50,8 +55,8 @@ public class InvisibilityPlayer {
 		showArmor(player);
 	}
 
-	public Game getGame() {
-		return game;
+	public Boolean isInvisiblePlayer(Player player) {
+		return players.contains(player.getUniqueId());
 	}
 
 	public void hidePlayer(Player player) {
@@ -67,27 +72,25 @@ public class InvisibilityPlayer {
 			return;
 		}
 		players.add(player.getUniqueId());
-		BukkitTask task = new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (Config.invisibility_player_footstep) {
-					new BukkitRunnable() {
-						Location loc = player.getLocation().clone();
+		BukkitTask task = Bukkit.getScheduler().runTaskTimer(Main.getInstance(), () -> {
+			if (Config.invisibility_player_footstep) {
+				arena.addGameTask(new BukkitRunnable() {
+					Location loc = player.getLocation().clone();
 
-						@Override
-						public void run() {
-							if (player.isOnline() && (loc.getX() != player.getLocation().getX() || loc.getY() != player.getLocation().getY() || loc.getZ() != player.getLocation().getZ())) {
-								player.getWorld().playEffect(player.getLocation().clone().add((Math.random() - Math.random()) * 0.5, 0.05, (Math.random() - Math.random()) * 0.5), Effect.FOOTSTEP, 0);
-							}
+					@Override
+					public void run() {
+						if (player.isOnline() && (loc.getX() != player.getLocation().getX() || loc.getY() != player.getLocation().getY() || loc.getZ() != player.getLocation().getZ())) {
+							player.getWorld().playEffect(player.getLocation().clone().add((Math.random() - Math.random()) * 0.5, 0.05, (Math.random() - Math.random()) * 0.5), Effect.FOOTSTEP, 0);
 						}
-					}.runTaskLater(Main.getInstance(), 8L);
-				}
+					}
+				}.runTaskLater(Main.getInstance(), 8L));
 			}
-		}.runTaskTimer(Main.getInstance(), 1L, 8L);
-		new BukkitRunnable() {
+		}, 0, 0);
+		arena.addGameTask(task);
+		arena.addGameTask(new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (game.getState() != GameState.RUNNING || !player.isOnline() || !player.hasPotionEffect(PotionEffectType.INVISIBILITY) || !players.contains(player.getUniqueId()) || !game.getPlayers().contains(player) || game.isSpectator(player)) {
+				if (!player.isOnline() || !player.hasPotionEffect(PotionEffectType.INVISIBILITY) || !players.contains(player.getUniqueId()) || !game.getPlayers().contains(player) || game.isSpectator(player)) {
 					cancel();
 					task.cancel();
 					players.remove(player.getUniqueId());
@@ -106,7 +109,7 @@ public class InvisibilityPlayer {
 					hideArmor(player);
 				}
 			}
-		}.runTaskTimer(Main.getInstance(), 2L, 1L);
+		}.runTaskTimer(Main.getInstance(), 2L, 1L));
 	}
 
 	private void hideArmor(Player player) {

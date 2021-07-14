@@ -14,10 +14,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import io.github.bedwarsrel.BedwarsRel;
 import io.github.bedwarsrel.events.BedwarsGameOverEvent;
+import io.github.bedwarsrel.events.BedwarsOpenShopEvent;
 import io.github.bedwarsrel.events.BedwarsPlayerKilledEvent;
 import io.github.bedwarsrel.events.BedwarsTargetBlockDestroyedEvent;
 import io.github.bedwarsrel.game.Game;
@@ -39,10 +41,13 @@ import me.ram.bedwarsscoreboardaddon.addon.Rejoin;
 import me.ram.bedwarsscoreboardaddon.addon.ResourceUpgrade;
 import me.ram.bedwarsscoreboardaddon.addon.Respawn;
 import me.ram.bedwarsscoreboardaddon.addon.ScoreBoard;
+import me.ram.bedwarsscoreboardaddon.addon.Shop;
+import me.ram.bedwarsscoreboardaddon.addon.TimeTask;
 import me.ram.bedwarsscoreboardaddon.addon.teamshop.TeamShop;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.storage.PlayerGameStorage;
 import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
+import me.ram.bedwarsscoreboardaddon.utils.PlaceholderAPIUtil;
 
 public class Arena {
 
@@ -78,6 +83,10 @@ public class Arena {
 	private GameChest gameChest;
 	@Getter
 	private Rejoin rejoin;
+	@Getter
+	private Shop shop;
+	@Getter
+	private TimeTask timeTask;
 	private Boolean isOver;
 	private List<BukkitTask> gameTasks;
 
@@ -85,22 +94,33 @@ public class Arena {
 		Main.getInstance().getArenaManager().addArena(game.getName(), this);
 		this.game = game;
 		gameTasks = new ArrayList<BukkitTask>();
-		playerGameStorage = new PlayerGameStorage(game);
+		playerGameStorage = new PlayerGameStorage(this);
 		scoreBoard = new ScoreBoard(this);
-		deathMode = new DeathMode(game);
-		healthLevel = new HealthLevel(game);
-		noBreakBed = new NoBreakBed(game);
-		resourceUpgrade = new ResourceUpgrade(game);
-		holographic = new Holographic(game, resourceUpgrade);
-		teamShop = new TeamShop(game);
-		invisiblePlayer = new InvisibilityPlayer(game);
-		lobbyBlock = new LobbyBlock(game);
-		respawn = new Respawn(game);
-		actionbar = new Actionbar(game);
-		graffiti = new Graffiti(game);
-		gameChest = new GameChest(game);
-		rejoin = new Rejoin(game);
+		deathMode = new DeathMode(this);
+		healthLevel = new HealthLevel(this);
+		noBreakBed = new NoBreakBed(this);
+		resourceUpgrade = new ResourceUpgrade(this);
+		holographic = new Holographic(this, resourceUpgrade);
+		teamShop = new TeamShop(this);
+		invisiblePlayer = new InvisibilityPlayer(this);
+		lobbyBlock = new LobbyBlock(this);
+		respawn = new Respawn(this);
+		actionbar = new Actionbar(this);
+		graffiti = new Graffiti(this);
+		gameChest = new GameChest(this);
+		rejoin = new Rejoin(this);
+		shop = new Shop(this);
+		timeTask = new TimeTask(this);
 		isOver = false;
+		addGameTask(new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (!game.getState().equals(GameState.RUNNING)) {
+					onOver(new BedwarsGameOverEvent(game, null));
+					onEnd();
+				}
+			}
+		}.runTaskTimer(Main.getInstance(), 1L, 1L));
 	}
 
 	public void addGameTask(BukkitTask task) {
@@ -126,6 +146,7 @@ public class Arena {
 	}
 
 	public void onDeath(Player player) {
+		invisiblePlayer.removePlayer(player);
 		if (!isGamePlayer(player)) {
 			return;
 		}
@@ -136,7 +157,6 @@ public class Arena {
 			dies.put(player.getName(), 1);
 		}
 		PlaySound.playSound(player, Config.play_sound_sound_death);
-		respawn.onDeath(player);
 		teamShop.removeImmunePlayer(player);
 	}
 
@@ -235,13 +255,11 @@ public class Arena {
 				}
 				for (Player player : game.getPlayers()) {
 					for (String msg : Config.overstats_message) {
+						msg = PlaceholderAPIUtil.setPlaceholders(player, msg);
 						player.sendMessage(msg.replace("{color}", winner.getChatColor() + "").replace("{win_team}", winner.getName()).replace("{win_team_players}", win_team_player_list).replace("{first_1_kills_player}", player_rank_name.get(0)).replace("{first_2_kills_player}", player_rank_name.get(1)).replace("{first_3_kills_player}", player_rank_name.get(2)).replace("{first_1_kills}", player_rank_kills.get(0) + "").replace("{first_2_kills}", player_rank_kills.get(1) + "").replace("{first_3_kills}", player_rank_kills.get(2) + ""));
 					}
 				}
 			}
-			noBreakBed.onOver();
-			holographic.remove();
-			gameChest.clearChest();
 		}
 	}
 
@@ -250,12 +268,16 @@ public class Arena {
 			task.cancel();
 		});
 		teamShop.onEnd();
+		noBreakBed.onEnd();
+		holographic.remove();
+		shop.remove();
 		graffiti.reset();
 		gameChest.clearChest();
 	}
 
 	public void onDisable() {
 		holographic.remove();
+		shop.remove();
 		graffiti.reset();
 		gameChest.clearChest();
 	}
@@ -300,6 +322,11 @@ public class Arena {
 		respawn.onPlayerJoined(player);
 		holographic.onPlayerJoin(player);
 		graffiti.onPlayerJoin(player);
+		shop.onPlayerJoined(player);
+	}
+
+	public void onOpenShop(BedwarsOpenShopEvent e) {
+		shop.onOpenShop(e);
 	}
 
 	private Boolean isGamePlayer(Player player) {

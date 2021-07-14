@@ -12,15 +12,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.github.bedwarsrel.game.Game;
+import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 
 public class LobbyBlock {
 
+	@Getter
 	private Game game;
+	@Getter
+	private Arena arena;
 
-	public LobbyBlock(Game game) {
-		this.game = game;
+	public LobbyBlock(Arena arena) {
+		this.arena = arena;
+		this.game = arena.getGame();
 		Location lobby = game.getLobby().clone();
 		if (!Config.lobby_block_enabled) {
 			return;
@@ -33,10 +39,6 @@ public class LobbyBlock {
 			return;
 		}
 		removeBlock(block.getLocation());
-	}
-
-	public Game getGame() {
-		return game;
 	}
 
 	private void removeBlock(Location loc) {
@@ -53,7 +55,6 @@ public class LobbyBlock {
 					Block block = location.getBlock();
 					if (block != null && !block.getType().equals(Material.AIR)) {
 						list.add(block);
-
 					}
 				}
 			}
@@ -65,7 +66,7 @@ public class LobbyBlock {
 				}
 			}
 		});
-		Main.getInstance().getArenaManager().getArena(game.getName()).addGameTask(new BukkitRunnable() {
+		arena.addGameTask(new BukkitRunnable() {
 			int i = 0;
 
 			@Override

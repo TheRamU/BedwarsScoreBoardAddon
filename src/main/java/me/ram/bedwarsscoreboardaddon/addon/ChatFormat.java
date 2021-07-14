@@ -1,6 +1,5 @@
 package me.ram.bedwarsscoreboardaddon.addon;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,8 +9,8 @@ import io.github.bedwarsrel.BedwarsRel;
 import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
-import me.clip.placeholderapi.PlaceholderAPI;
 import me.ram.bedwarsscoreboardaddon.config.Config;
+import me.ram.bedwarsscoreboardaddon.utils.PlaceholderAPIUtil;
 
 public class ChatFormat implements Listener {
 
@@ -31,7 +30,7 @@ public class ChatFormat implements Listener {
 		if (e.getMessage().length() <= 7) {
 			return;
 		}
-		String msg = Config.chat_format_ingame_all;
+
 		String prefix = e.getMessage().substring(0, 7);
 		if (!prefix.equals("/shout ")) {
 			return;
@@ -40,9 +39,7 @@ public class ChatFormat implements Listener {
 		if (!Config.chat_format_chat_all) {
 			return;
 		}
-		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-			msg = PlaceholderAPI.setPlaceholders(player, msg);
-		}
+		String msg = PlaceholderAPIUtil.setPlaceholders(player, Config.chat_format_ingame_all);
 		String playermsg = e.getMessage();
 		playermsg = playermsg.substring(7, playermsg.length());
 		for (Player p : game.getPlayers()) {
@@ -61,23 +58,17 @@ public class ChatFormat implements Listener {
 			return;
 		}
 		e.setCancelled(true);
-		boolean papi = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
 		if (game.getState() == GameState.WAITING) {
 			if (Config.chat_format_chat_lobby) {
 				if (game.getPlayerTeam(player) == null) {
-					String msg = Config.chat_format_lobby;
-					if (papi) {
-						msg = PlaceholderAPI.setPlaceholders(player, msg);
-					}
+					String msg = PlaceholderAPIUtil.setPlaceholders(player, Config.chat_format_lobby);
 					msg = msg.replace("{player}", player.getName()).replace("{message}", e.getMessage());
 					for (Player p : game.getPlayers()) {
 						p.sendMessage(msg);
 					}
 				} else {
 					String msg = Config.chat_format_lobby_team;
-					if (papi) {
-						msg = PlaceholderAPI.setPlaceholders(player, msg);
-					}
+					msg = PlaceholderAPIUtil.setPlaceholders(player, msg);
 					Team team = game.getPlayerTeam(player);
 					msg = msg.replace("{player}", player.getName()).replace("{message}", e.getMessage()).replace("{color}", team.getChatColor().toString()).replace("{team}", team.getName());
 					for (Player p : game.getPlayers()) {
@@ -90,9 +81,7 @@ public class ChatFormat implements Listener {
 			if (game.isSpectator(player)) {
 				if (Config.chat_format_chat_spectator) {
 					String msg = Config.chat_format_spectator;
-					if (papi) {
-						msg = PlaceholderAPI.setPlaceholders(player, msg);
-					}
+					msg = PlaceholderAPIUtil.setPlaceholders(player, msg);
 					msg = msg.replace("{player}", player.getName()).replace("{message}", e.getMessage());
 					for (Player p : game.getPlayers()) {
 						p.sendMessage(msg);
@@ -112,9 +101,7 @@ public class ChatFormat implements Listener {
 						String playermsg = e.getMessage();
 						playermsg = playermsg.substring(prefix.length(), playermsg.length());
 						String msg = Config.chat_format_ingame_all;
-						if (papi) {
-							msg = PlaceholderAPI.setPlaceholders(player, msg);
-						}
+						msg = PlaceholderAPIUtil.setPlaceholders(player, msg);
 						msg = msg.replace("{player}", player.getName()).replace("{message}", playermsg).replace("{color}", game.getPlayerTeam(player).getChatColor() + "").replace("{team}", game.getPlayerTeam(player).getName());
 						for (Player p : game.getPlayers()) {
 							p.sendMessage(msg);
@@ -123,9 +110,7 @@ public class ChatFormat implements Listener {
 					}
 				}
 				String msg = Config.chat_format_ingame;
-				if (papi) {
-					msg = PlaceholderAPI.setPlaceholders(player, msg);
-				}
+				msg = PlaceholderAPIUtil.setPlaceholders(player, msg);
 				msg = msg.replace("{player}", player.getName()).replace("{message}", e.getMessage()).replace("{color}", game.getPlayerTeam(player).getChatColor() + "").replace("{team}", game.getPlayerTeam(player).getName());
 				for (Player p : game.getPlayerTeam(player).getPlayers()) {
 					p.sendMessage(msg);

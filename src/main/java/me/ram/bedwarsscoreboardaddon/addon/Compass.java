@@ -16,7 +16,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Wool;
-import org.bukkit.scheduler.BukkitRunnable;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -29,6 +28,7 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.Team;
 import me.ram.bedwarsscoreboardaddon.Main;
+import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.utils.BedwarsUtil;
 import me.ram.bedwarsscoreboardaddon.utils.ColorUtil;
@@ -45,16 +45,14 @@ public class Compass implements Listener {
 	public void onStarted(BedwarsGameStartedEvent e) {
 		compassItem = getItemItem();
 		if (Config.compass_enabled) {
-			new BukkitRunnable() {
-				@Override
-				public void run() {
-					for (Player player : e.getGame().getPlayers()) {
-						if (!e.getGame().isSpectator(player)) {
-							giveCompass(player);
-						}
+			Arena arena = Main.getInstance().getArenaManager().getArena(e.getGame().getName());
+			arena.addGameTask(Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+				for (Player player : e.getGame().getPlayers()) {
+					if (!e.getGame().isSpectator(player)) {
+						giveCompass(player);
 					}
 				}
-			}.runTaskLater(Main.getInstance(), 5L);
+			}, 5L));
 		}
 	}
 

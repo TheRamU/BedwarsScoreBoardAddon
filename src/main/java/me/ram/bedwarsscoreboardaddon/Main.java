@@ -17,33 +17,34 @@ import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.addon.ChatFormat;
 import me.ram.bedwarsscoreboardaddon.addon.Compass;
 import me.ram.bedwarsscoreboardaddon.addon.DeathItem;
+import me.ram.bedwarsscoreboardaddon.addon.FastRespawn;
 import me.ram.bedwarsscoreboardaddon.addon.GiveItem;
 import me.ram.bedwarsscoreboardaddon.addon.HidePlayer;
 import me.ram.bedwarsscoreboardaddon.addon.LobbyScoreBoard;
-import me.ram.bedwarsscoreboardaddon.addon.Shop;
 import me.ram.bedwarsscoreboardaddon.addon.SpawnNoBuild;
 import me.ram.bedwarsscoreboardaddon.addon.Spectator;
-import me.ram.bedwarsscoreboardaddon.addon.TimeTask;
 import me.ram.bedwarsscoreboardaddon.addon.Title;
 import me.ram.bedwarsscoreboardaddon.addon.WitherBow;
 import me.ram.bedwarsscoreboardaddon.arena.Arena;
-import me.ram.bedwarsscoreboardaddon.command.BedwarsRelCommandTabCompleter;
-import me.ram.bedwarsscoreboardaddon.command.CommandTabCompleter;
-import me.ram.bedwarsscoreboardaddon.command.Commands;
+import me.ram.bedwarsscoreboardaddon.commands.BedwarsRelCommandTabCompleter;
+import me.ram.bedwarsscoreboardaddon.commands.CommandTabCompleter;
+import me.ram.bedwarsscoreboardaddon.commands.Commands;
 import me.ram.bedwarsscoreboardaddon.config.Config;
 import me.ram.bedwarsscoreboardaddon.config.LocaleConfig;
 import me.ram.bedwarsscoreboardaddon.edit.EditGame;
 import me.ram.bedwarsscoreboardaddon.listener.EventListener;
+import me.ram.bedwarsscoreboardaddon.listener.GameListener;
+import me.ram.bedwarsscoreboardaddon.listener.ShopListener;
 import me.ram.bedwarsscoreboardaddon.listener.XPEventListener;
 import me.ram.bedwarsscoreboardaddon.manager.ArenaManager;
 import me.ram.bedwarsscoreboardaddon.manager.EditHolographicManager;
 import me.ram.bedwarsscoreboardaddon.manager.HolographicManager;
 import me.ram.bedwarsscoreboardaddon.menu.MenuManager;
-import me.ram.bedwarsscoreboardaddon.networld.UpdateCheck;
+import me.ram.bedwarsscoreboardaddon.network.UpdateCheck;
 
 /**
  * @author Ram
- * @version 2.12.0
+ * @version 2.13.0
  */
 public class Main extends JavaPlugin {
 
@@ -61,7 +62,7 @@ public class Main extends JavaPlugin {
 	private LocaleConfig localeConfig;
 
 	public static String getVersion() {
-		return "2.12.0";
+		return "2.13.0";
 	}
 
 	@Override
@@ -106,7 +107,7 @@ public class Main extends JavaPlugin {
 					init();
 				}
 			}
-		}.runTaskTimer(this, 0L, 0L);
+		}.runTaskTimer(this, 1L, 1L);
 	}
 
 	public void onDisable() {
@@ -231,7 +232,6 @@ public class Main extends JavaPlugin {
 		} catch (Exception e) {
 		}
 		BedwarsRel.getInstance().getConfig().set("teamname-on-tab", false);
-		BedwarsRel.getInstance().getConfig().set("die-on-void", false);
 		BedwarsRel.getInstance().saveConfig();
 	}
 
@@ -241,19 +241,20 @@ public class Main extends JavaPlugin {
 
 	private void registerEvents() {
 		Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+		Bukkit.getPluginManager().registerEvents(new GameListener(), this);
 		Bukkit.getPluginManager().registerEvents(new LobbyScoreBoard(), this);
 		Bukkit.getPluginManager().registerEvents(new SpawnNoBuild(), this);
 		Bukkit.getPluginManager().registerEvents(new UpdateCheck(), this);
+		Bukkit.getPluginManager().registerEvents(new ShopListener(), this);
+		Bukkit.getPluginManager().registerEvents(new FastRespawn(), this);
 		Bukkit.getPluginManager().registerEvents(new ChatFormat(), this);
 		Bukkit.getPluginManager().registerEvents(new HidePlayer(), this);
 		Bukkit.getPluginManager().registerEvents(new WitherBow(), this);
 		Bukkit.getPluginManager().registerEvents(new DeathItem(), this);
 		Bukkit.getPluginManager().registerEvents(new Spectator(), this);
 		Bukkit.getPluginManager().registerEvents(new GiveItem(), this);
-		Bukkit.getPluginManager().registerEvents(new TimeTask(), this);
 		Bukkit.getPluginManager().registerEvents(new EditGame(), this);
 		Bukkit.getPluginManager().registerEvents(new Compass(), this);
 		Bukkit.getPluginManager().registerEvents(new Title(), this);
-		Bukkit.getPluginManager().registerEvents(new Shop(), this);
 	}
 }

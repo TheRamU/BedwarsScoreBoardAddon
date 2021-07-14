@@ -17,6 +17,7 @@ import io.github.bedwarsrel.game.Game;
 import io.github.bedwarsrel.game.GameState;
 import io.github.bedwarsrel.game.PlayerSettings;
 import io.github.bedwarsrel.game.Team;
+import lombok.Getter;
 import me.ram.bedwarsscoreboardaddon.Main;
 import me.ram.bedwarsscoreboardaddon.arena.Arena;
 import me.ram.bedwarsscoreboardaddon.config.Config;
@@ -27,12 +28,17 @@ import me.ram.bedwarsscoreboardaddon.events.BoardAddonPlayerRemoveRejoinEvent;
 import me.ram.bedwarsscoreboardaddon.utils.Utils;
 
 public class Rejoin {
+
+	@Getter
 	private Game game;
+	@Getter
+	private Arena arena;
 	private Map<String, RejoinData> players;
 	private Map<String, List<String>> teams;
 
-	public Rejoin(Game game) {
-		this.game = game;
+	public Rejoin(Arena arena) {
+		this.arena = arena;
+		this.game = arena.getGame();
 		players = new HashMap<String, RejoinData>();
 		teams = new HashMap<String, List<String>>();
 	}
@@ -175,7 +181,6 @@ public class Rejoin {
 							player.setHealth(player.getMaxHealth());
 							if (Config.respawn_enabled) {
 								Respawn respawn = arena.getRespawn();
-								respawn.onDeath(player);
 								respawn.onRespawn(player, true);
 							} else {
 								player.setVelocity(new Vector(0, 0, 0));
