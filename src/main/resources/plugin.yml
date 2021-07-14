@@ -1,0 +1,48 @@
+description: |
+  ##############################################
+  #                                            #
+  #           BedwarsScoreBoardAddon           #
+  #                                            #
+  #  This is a plugin running on BedwarsRel    #
+  #  It can expand your BedWars function       #
+  #  Make your BedWars more fun!               #
+  #                                            #
+  ##############################################
+name: BedwarsScoreBoardAddon
+main: me.ram.bedwarsscoreboardaddon.Main
+version: 2.13.0
+author: Ram
+website: https://github.com/TheRamU/BedwarsScoreBoardAddon
+depends: [BedwarsRel,ProtocolLib,Citizens]
+softdepends: [PlaceholderAPI,ServerJoiner,WorldEdit]
+
+commands:
+  bedwarsscoreboardaddon:
+    description: Base command.
+    aliases: [bwsba]
+  shout:
+    description: Shout to everyone.
+  rejoin:
+    description: Rejoin the game.
+
+permissions:
+  bedwarsscoreboardaddon.reload:
+    default: op
+  bedwarsscoreboardaddon.updatecheck:
+    default: op
+  bedwarsscoreboardaddon.edit:
+    default: op
+  bedwarsscoreboardaddon.teleport:
+    default: op
+  bedwarsscoreboardaddon.shop.list:
+    default: op
+  bedwarsscoreboardaddon.shop.set:
+    default: op
+  bedwarsscoreboardaddon.shop.remove:
+    default: op
+  bedwarsscoreboardaddon.spawner.list:
+    default: op
+  bedwarsscoreboardaddon.spawner.set:
+    default: op
+  bedwarsscoreboardaddon.spawner.remove:
+    default: op
