@@ -1,0 +1,96 @@
+#配置版本 (请勿修改)
+version: 4
+
+button:
+  list_teleport: "&f[&e传送&f]"
+  list_remove: "&f[&c删除&f]"
+show_text:
+  list_teleport: "&e点击传送！"
+  list_remove: "&c点击删除！"
+commands:
+  help:
+  - " &e/bwsba  &7-&f  显示插件信息"
+  - " &e/bwsba help  &7-&f  显示帮助菜单"
+  - " &e/bwsba shop  &7-&f  商店设置"
+  - " &e/bwsba spawner  &7-&f  资源点设置"
+  - " &e/bwsba edit <游戏>  &7-&f  编辑游戏"
+  - " &e/bwsba reload  &7-&f  重载配置文件"
+  - " &e/bwsba upcheck  &7-&f  检测版本更新"
+  message:
+    prefix: "&b&lBWSBA &f>> "
+    no_permission: "&c你没有使用该命令的权限！"
+    reloaded: "&a配置文件重载完成！"
+    not_player: "&c你不是一个玩家！"
+    set_item_shop: "&a商店设置成功！"
+    set_shop_error: "&f缺少必要前置: &aCitizens"
+    failed_set_shop: "&c商店设置失败！"
+    shop_list_error: "&c游戏不存在或未设置商店！"
+    remove_shop: "&a商店移除成功！"
+    failed_remove_shop: "&c商店不存在！"
+    shop_list: "&f已设置商店列表:"
+    add_spawner: "&a资源点添加成功！"
+    remove_spawner: "&a资源点移除成功！"
+    spawner_list: "&f队伍资源点列表:"
+    spawner_list_error: "&c游戏不存在或未设置资源点！"
+    failed_remove_spawner: "&c资源点不存在！"
+    edit_game_error: "&c游戏不存在！"
+    help:
+      shop_list: "&e/bwsba shop list <游戏> &7-&f 已设置商店列表"
+      remove_shop: "&e/bwsba shop remove <ID> &7-&f 移除一个商店"
+      set_item_shop: "&e/bwsba shop set item <游戏> &7-&f 设置一个道具商店"
+      set_team_shop: "&e/bwsba shop set team <游戏> &7-&f 设置一个队伍商店"
+      spawner_list: "&e/bwsba spawner list <游戏> &7-&f 队伍资源点列表"
+      remove_spawner: "&e/bwsba spawner remove <ID> &7-&f 移除队伍资源点"
+      add_spawner: "&e/bwsba spawner add <游戏> <队伍> &7-&f 添加队伍资源点"
+      edit_game: "&e/bwsba edit <游戏> &7-&f 编辑游戏"
+      unknown: "未知指令！ 使用 &e/bwsba help &f显示帮助菜单"
+inventory:
+  edit_game: "编辑游戏"
+item:
+  edit_game:
+    name:
+      menu_item: "&e游戏编辑菜单"
+      align_angle_item: "&e快速对齐视角"
+      align_location_item: "&e快速对齐位置"
+      teleport_tool: "&e传送工具"
+      back: "&f返回"
+      set_lobby: "&f设置大厅"
+      set_mix_players: "&f设置最少玩家人数"
+      edit_team: "&f编辑队伍"
+      set_bed: "&f设置队伍床"
+      set_spawn: "&f设置队伍出生点"
+      set_item_shop: "&f设置物品商店"
+      set_team_shop: "&f设置队伍商店"
+      set_spawner: "&f设置资源生成点"
+      set_team_spawner: "&f队伍资源生成点"
+      set_game_spawner: "&f游戏资源生成点"
+      set_region_loc1: "&f设置游戏区域A"
+      set_region_loc2: "&f设置游戏区域B"
+      save_game: "&b保存游戏"
+      start_game: "&a启用游戏"
+      stop_game: "&c停止游戏"
+    lore:
+      set: "&e点击设置！"
+      add: "&e点击添加！"
+      remove: "&c点击移除！"
+      complete: "&a已设置！"
+      mix_players: "&e已设置 &c{players} &e人"
+      max_players: "&e最大人数 &c{players} &e人"
+      browse: "&e点击浏览！"
+anvil:
+  edit_game:
+    set_mix_players: "输入最小玩家人数"
+    set_team_name: "输入队伍名称"
+    set_team_max_players: "输入队伍最大玩家数"
+holographic:
+  edit_game:
+    loc1: "&a坐标A"
+    loc2: "&a坐标B"
+    lobby: "&a等待大厅"
+    bed: "{team}&f床"
+    spawn: "{team}&f出生点"
+    spawner: "&a{resource}资源点"
+    team_spawner: "{team}&f队伍资源点"
+  shop:
+    item: "&fID: &a{id} &e物品商店"
+    team: "&fID: &a{id} &e队伍商店"

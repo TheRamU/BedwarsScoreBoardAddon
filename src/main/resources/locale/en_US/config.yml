@@ -1,0 +1,1433 @@
+#   ____           _                         _____                    ____                      _             _     _             
+#  |  _ \         | |                       / ____|                  |  _ \                    | |   /\      | |   | |            
+#  | |_) | ___  __| |_      ____ _ _ __ ___| (___   ___ ___  _ __ ___| |_) | ___   __ _ _ __ __| |  /  \   __| | __| | ___  _ __  
+#  |  _ < / _ \/ _` \ \ /\ / / _` | '__/ __|\___ \ / __/ _ \| '__/ _ \  _ < / _ \ / _` | '__/ _` | / /\ \ / _` |/ _` |/ _ \| '_ \ 
+#  | |_) |  __/ (_| |\ V  V / (_| | |  \__ \____) | (_| (_) | | |  __/ |_) | (_) | (_| | | | (_| |/ ____ \ (_| | (_| | (_) | | | |
+#  |____/ \___|\__,_| \_/\_/ \__,_|_|  |___/_____/ \___\___/|_|  \___|____/ \___/ \__,_|_|  \__,_/_/    \_\__,_|\__,_|\___/|_| |_|
+#
+#
+# By Ram
+#
+# Update October 31, 2021
+#
+# Website: https://github.com/TheRamU/BedwarsScoreBoardAddon
+#
+
+#Config version (Don't edit!)
+version: 23
+
+#Check the version update with the network
+update_check:
+
+  #Enable update check?
+  enabled:  true
+
+  #Report version updates to the online admin player
+  report: true
+
+#Language locale
+locale: en_US
+
+#Initialization debug
+#  Enable this option when the plugin fails to initialize
+#  When enabled, a detailed error report will be printed
+init_debug: false
+
+#Hide players in other game
+hide_player: true
+
+#Show health in tab
+tab_health: true
+
+#Show health in tag
+tag_health: true
+
+#Merge drop items
+item_merge: false
+
+#Make players hungry
+hunger_change: false
+
+#After drinking potion, clear the bottle
+clear_bottle: true
+
+#Skip death GUI
+fast_respawn: true
+
+#Chat format
+chat_format:
+
+  enabled: true
+  
+  #Chat permission
+  chat:
+
+    #Chat in lobby
+    lobby: true
+
+    #Shout to everyone
+    all: true
+
+    #Chat in spectator mode
+    spectator: true
+
+  #Shout prefix
+  all_prefix:
+  - "!"
+  - "#"
+  - "@"
+
+  #Chat format in the lobby
+  lobby: "{player} > {message}"
+
+  #Joined the team, chat format in the lobby
+  lobby_team: "{color}{player} &f> {message}"
+
+  #Chat format in game
+  ingame: "&7[{color}{team}&7] {color}{player} &f> {message}"
+
+  #Shout format
+  ingame_all: "&7[&fAll&7] &7[{color}{team}&7] {color}{player} &f> {message}"
+
+  #Spectator chat format
+  spectator: "&7[&fSpectator&7] &f{player} > {message}"
+
+
+#Final kill message
+final_killed:
+
+  enabled: true
+
+  message: "&6{player} &6was killed by {killer} &b&lFINAL KILLRD"
+
+
+#Timed execute commands
+#Placeholders:
+# {player}   Player name
+timecommand:
+
+  #Execute commands on game start
+  startcommand:
+    - ""
+
+
+  #Format:
+  #
+  # Custom ID
+  # 1:
+  # 
+  #   #Execute the command when time left in the game is what number
+  #   gametime: 3600
+  #  
+  #   #Commands execute
+  #   command:
+  #   - ""
+  #
+  #Custom ID
+  cmd1:
+
+    #Execute the command when time left in the game is what number
+    gametime: 3000
+
+    #Commands execute
+    command:
+    - ""
+
+
+#Team selection menu
+select_team:
+
+  enabled: true
+
+  #Tean status
+  status:
+
+    select: "&eClick select!"
+    inteam: "&eJoined!"
+    team_full: "&cTeam is full!"
+
+  #No player
+  no_players: "&7(None)"
+
+  #Option items
+  item:
+
+    #Item name
+    name: "{color}{team}"
+
+    #Item lore
+    lore:
+    - ""
+    - "&fPlayers: &e{players}&7/&e{maxplayers}"
+    - ""
+    - "&fPlayer list:"
+    - "  {color}{players_list}"
+    - ""
+    - "{status}"
+
+
+#Clear the lobby block at the game start
+lobby_block:
+
+  enabled: false
+
+  #Position 1
+  position_1:
+    x: 12
+    y: 10
+    z: 12
+
+  #Position 2
+  position_2:
+    x: -12
+    y: -5
+    z: -12
+
+
+#Rejoin the game
+rejoin:
+
+  enabled: true
+
+  message:
+
+    #Rejoined successfully
+    rejoin: "&e{player} rejoined the game!"
+
+    #Rejoin failed
+    error: "&cCan't rejoin the game!"
+
+
+#Arrow damage title
+#Placeholders:
+# {player}     Player name
+# {damage}     Damage
+# {health}     Player health
+# {maxhealth}  Player max health
+bowdamage:
+
+  enabled: true
+
+  title: ""
+
+  subtitle: ""
+
+  message: "&fYou do &a{damage} &fdamage to player &a{player}  &fHealth &a{health}/{maxhealth}"
+
+#Damage title
+#Placeholders:
+# {player}     Player name
+# {damage}     Damage
+# {health}     Player health
+# {maxhealth}  Player max health
+damagetitle:
+
+  enabled: true
+
+  title: ""
+
+  subtitle: "&bDamage &f- &e{damage}  &bHealth &f- &e{health}&f/&e{maxhealth}"
+
+
+#Title when the player joins the game
+#Placeholders:
+# {player}     Player name
+jointitle:
+
+  enabled: true
+
+  title: "&f{player} &aJoin the game"
+
+  subtitle: ""
+
+
+#Game start title
+start_title:
+
+  enabled: true
+
+  title:
+    - "&c&lF        I        G        H        T"
+    - "&c&lF       I       G       H       T"
+    - "&c&lF      I      G      H      T"
+    - "&c&lF     I     G     H     T"
+    - "&c&lF    I    G    H    T"
+    - "&c&lF   I   G   H   T"
+    - "&c&lF  I  G  H  T"
+    - "&c&lF I G H T"
+    - "&c&lFIGHT"
+
+  subtitle: "&7Defend your bed!"
+
+
+#Die out title
+die_out_title:
+
+  enabled: true
+
+  title: "&c&lGAME OVER!"
+
+  subtitle: "&7You are now a spectator"
+
+
+#Destroyed bed title
+destroyed_title:
+
+  enabled: true
+
+  title: "&cBED DESTROYRD!"
+
+  subtitle: "&7You will not be respawn!"
+
+
+#Victory title
+#Placeholders:
+#  {color}    Victory team color
+#  {team}     Victory team name
+#  {time}     Victory in time
+victory_title:
+
+  enabled: true
+
+  title:
+    - "&6&lVICTORY"
+    - "&6&lVICTORY"
+    - "&6&lVICTORY"
+    - "&6&lVICTORY"
+    - "&6&lVICTORY"
+    - "&6&lVICTORY"
+    - "&e&lV&6&lICTORY"
+    - "&6&lV&e&lI&6&lCTORY"
+    - "&6&lVI&e&lC&6&lTORY"
+    - "&6&lVIC&e&lT&6&lORY"
+    - "&6&lVICT&e&lO&6&lRY"
+    - "&6&lVICTO&e&lR&6&lY"
+    - "&6&lVICTOR&e&lY"
+    - "&6&lVICTORY"
+
+  subtitle: ""
+
+
+#Play sound
+play_sound:
+
+  enabled: true
+  #Sounds
+  #  Sounds in random play list
+  #  Use {} to cancel play
+  #  Format:
+  #    - <Sound>,<Volume>,<Pitch>
+  sound:
+
+    #Game start
+    start:
+    - ENDERDRAGON_GROWL,1,1
+
+    #Player death
+    death: {}
+
+    #Kill player
+    kill:
+    - CAT_MEOW,1,1
+    - WOLF_BARK,1,1
+
+    #Generator upgrade
+    upgrade: {}
+
+    #Set health volume
+    sethealth: {}
+
+    #No resources
+    no_resource:
+    - ENDERMAN_TELEPORT,1,0.5
+
+    #Enable wither bow
+    enable_witherbow:
+    - ENDERDRAGON_GROWL,1,1
+
+    #Launch wither bow
+    witherbow:
+    - WITHER_HURT,1,0
+
+    #Enable death mode
+    deathmode: {}
+
+    #Game over
+    over:
+    - ENDERDRAGON_DEATH,1,1
+
+
+#Spectator mode
+spectator:
+
+  enabled: true
+
+  #Spawn in the center of the map
+  centre:
+
+    enabled: true
+
+    height: 120
+
+  #Spectating a player
+  spectator_target:
+
+    title: "&aSpectating &7{player}"
+
+    subtitle: "&aLEFT CLICK for menu   &cSNEAK to exit"
+
+  #Exiting Spectator mode
+  quit_spectator:
+
+    title: ""
+
+    subtitle: "&eExiting Spectator mode"
+
+  #Spectator speed option
+  speed:
+
+    enabled: true
+
+    #Item slot
+    slot: 5
+
+    #Item ID
+    item: 404
+
+    item_name: "&aSpectator Settings &7(Right Click)"
+
+    item_lore: {}
+
+    gui_title: "Spectator Settings"
+
+    #Item lore
+    no_speed: "&aNo Speed"
+    speed_1: "&aSpeed I"
+    speed_2: "&aSpeed II"
+    speed_3: "&aSpeed III"
+    speed_4: "&aSpeed IV"
+
+  #Quick join the next game (Dependent on ServerJoiner)
+  fast_join:
+
+    enabled: false
+
+    #Item slot
+    slot: 8
+
+    #Item ID
+    item: 339
+
+    item_name: "&aPlay Again &7(Right Click)"
+
+    item_lore: {}
+
+    #ServerJoiner server group
+    group: "bedwars"
+
+
+#Shortcut menu
+compass:
+
+  enabled: true
+
+  gui_title: "Quick Communications"
+
+  item_name: "&aCompass"
+
+  item_lore: {}
+
+  #Back button
+  back: "&fBack"
+
+  #Item lore
+  lore:
+    send_message:
+    - ""
+    - "&eClick to send!"
+    select_team:
+    - "&7You will be able to select"
+    - "&7the Team."
+    - ""
+    - "&eClick to select!"
+    select_resources:
+    - "&7You will be able to select"
+    - "&7the Resource."
+    - ""
+    - "&eClick to select!"
+
+  #Resources name
+  resources:
+    CLAY_BRICK: "&4CLAY_BRICK"
+    IRON_INGOT: "&7IRON_INGOT"
+    GOLD_INGOT: "&6GOLD_INGOT"
+    DIAMOND: "&bDIAMOND"
+    EMERALD: "&2EMERALD"
+
+  #Item name
+  item:
+    III_II: "&aHello( \uff9f\u25e1\uff9f)/!"
+    IV_II: "&aI'm coming back to base!"
+    V_II: "&aI'm defending!"
+    VI_II: "&aI'm attacking!"
+    VII_II: "&aI'm collection resources!"
+    VIII_II: "&aI have resources!"
+    III_III: "&aThank you!"
+    IV_III: "&aGet back to base!"
+    V_III: "&aPlease defend!"
+    VI_III: "&aLet's attack!"
+    VII_III: "&aWe need resources!"
+
+  message:
+    III_II: "&a&lTEAM> &7{player}&f: &aHello( \uff9f\u25e1\uff9f)/"
+    IV_II: "&a&lTEAM> &7{player}&f: &aI'm coming back to base!"
+    V_II: "&a&lTEAM> &7{player}&f: &aI'm defending!"
+    VI_II: "&a&lTEAM> &7{player}&f: &aI'm attacking {color}{team}"
+    VII_II: "&a&lTEAM> &7{player}&f: &aI'm collection {resource}"
+    VIII_II: "&a&lTEAM> &7{player}&f: &aI have {resource}"
+    III_III: "&a&lTEAM> &7{player}&f: &aThank you!"
+    IV_III: "&a&lTEAM> &7{player}&f: &aGet back to base!"
+    V_III: "&a&lTEAM> &7{player}&f: &aPlease defend!"
+    VI_III: "&a&lTEAM> &7{player}&f: &aLet's attack {color}{team}"
+    VII_III: "&a&lTEAM> &7{player}&f: &aWe need {resource}"
+
+
+#Graffiti
+graffiti:
+
+  enabled: true
+
+  #Holographic title
+  holographic:
+
+    enabled: true
+
+    #Holographic text
+    text: "&eClick!"
+
+
+#NPC shop
+shop:
+
+  enabled: true
+
+  #Item shop
+  item_shop:
+
+    #NPC type
+    type: VILLAGER
+
+    #NPC skin
+    skin: Steve
+
+    #Shop name
+    name:
+      - "&bITEM SHOP"
+      - "&e&lRIGHT CLICK"
+
+    #NPC looks at the player
+    look: false
+
+  #Team upgrade shop
+  team_shop:
+
+    #NPC type
+    type: BLAZE
+
+    #NPC skin
+    skin: Steve
+
+    #Shop name
+    name:
+      - "&bTEAM"
+      - "&bUPGRADES"
+      - "&e&lRIGHT CLICK"
+
+    #NPC looks at the player
+    look: false
+
+
+#Countdown respawn
+respawn:
+
+  enabled: true
+
+  #Spawn at the center of the countdown map
+  centre:
+
+    enabled: true
+
+    height: 120
+
+  #Respawn delay (Second)
+  respawn_delay: 5
+
+  #Respawn protection time
+  protected:
+
+    enabled: true
+
+    #Protection time (Second)
+    time: 5
+
+  #Countdown
+  countdown:
+
+    title: "&cYOU DIED!"
+
+    subtitle: "&eYou will respawn in &c{respawntime} &eseconds!"
+ 
+    message: "&eYou will respawn in &c{respawntime} &eseconds!"
+
+  #Respawned
+  respawn:
+
+    title: "&aRESPAWNED!"
+
+    subtitle: ""
+
+    message: "&eYou have respawned!"
+
+
+#Give items
+giveitem:
+
+  #Death keep armor
+  keeparmor: false
+
+  #Give armor
+  armor:
+
+    helmet:
+
+      #Give options
+      #  true        Give at Game start or respawn
+      #  start       Give at Game start
+      #  respawn     Give at respawn
+      #  false       Don't give
+      give: true
+
+      #Armor can be move
+      move: true
+
+      item:
+      - type: TEAM_ARMOR
+        meta:
+          ==: ItemMeta
+          meta-type: LEATHER_ARMOR
+          enchants:
+            WATER_WORKER: 1
+          Unbreakable: true
+        probability: 1
+
+    chestplate:
+
+      #Give options
+      #  true        Give at Game start or respawn
+      #  start       Give at Game start
+      #  respawn     Give at respawn
+      #  false       Don't give
+      give: true
+
+      #Armor can be move
+      move: true
+
+      item:
+      - type: TEAM_ARMOR
+        meta:
+          ==: ItemMeta
+          meta-type: LEATHER_ARMOR
+          Unbreakable: true
+        probability: 1
+
+    leggings:
+
+      #Give options
+      #  true        Give at Game start or respawn
+      #  start       Give at Game start
+      #  respawn     Give at respawn
+      #  false       Don't give
+      give: true
+
+      #Armor can be move
+      move: true
+
+      item:
+      - type: TEAM_ARMOR
+        meta:
+          ==: ItemMeta
+          meta-type: LEATHER_ARMOR
+          Unbreakable: true
+        probability: 1
+
+    boots:
+
+      #Give options
+      #  true        Give at Game start or respawn
+      #  start       Give at Game start
+      #  respawn     Give at respawn
+      #  false       Don't give
+      give: true
+
+      #Armor can be move
+      move: true
+
+      item:
+      - type: TEAM_ARMOR
+        meta:
+          ==: ItemMeta
+          meta-type: LEATHER_ARMOR
+          Unbreakable: true
+        probability: 1
+
+  #Player inventory
+  #
+  #Format:
+  #
+  #  #Custom ID
+  #  item1:
+  #
+  #    #Give options
+  #    #  true        Give at Game start or respawn
+  #    #  start       Give at Game start
+  #    #  respawn     Give at respawn
+  #    #  false       Don't give
+  #    give: true
+  #   
+  #    #Inventory slot
+  #    slot: 0
+  #    
+  #    item:
+  #    - type: WOOD_SWORD
+  #      meta:
+  #        ==: ItemMeta
+  #        meta-type: UNSPECIFIC
+  #        Unbreakable: true
+  #      probability: 1
+  item:
+
+    #Custom ID
+    item1:
+
+      #Give options
+      #  true        Give at Game start or respawn
+      #  start       Give at Game start
+      #  respawn     Give at respawn
+      #  false       Don't give
+      give: true
+
+      #Inventory slot
+      slot: 0
+
+      item:
+      - type: WOOD_SWORD
+        meta:
+          ==: ItemMeta
+          meta-type: UNSPECIFIC
+          Unbreakable: true
+        probability: 1
+
+#Set health
+sethealth:
+
+  #The game start to set health
+  start:
+
+    enabled: true
+
+    health: 20
+
+  #Custom ID
+  1:
+
+    #Set health when time left in the game is what number
+    gametime: 2700
+
+    health: 30
+
+    title: "&bHEALTH UPGRADE!"
+
+    subtitle: ""
+
+    message: ""
+
+  #Custom ID
+  2:
+
+    #Set health when time left in the game is what number
+    gametime: 1500
+
+    health: 40
+
+    title: "&bHEALTH UPGRADE!"
+
+    subtitle: ""
+
+    message: ""
+
+
+#Resource generator upgrade
+resourceupgrade:
+  1:
+
+    #Generator upgrade when time left in the game is what number
+    gametime: 3240
+
+    #Resource spawn interval time
+    #1 second = 20 tick
+    #Format:
+    #  upgrade:
+    #  - "<Resource item name>,<Interval time>"
+    upgrade:
+    - "DIAMOND,500"
+
+    message: "&bDiamond &ehave been upgraded to Tier &cII"
+  2:
+    gametime: 2880
+    upgrade:
+    - "EMERALD,900"
+    message: "&2Emerald &ehave been upgraded to Tier &cII"
+  3:
+    gametime: 2520
+    upgrade:
+    - "DIAMOND,400"
+    message: "&bDiamond &ehave been upgraded to Tier &cIII"
+  4:
+    gametime: 2160
+    upgrade:
+    - "EMERALD,800"
+    message: "&2Emerald &ehave been upgraded to Tier &cIII"
+  5:
+    gametime: 1800
+    upgrade:
+    - "DIAMOND,300"
+    message: "&bDiamond &ehave been upgraded to Tier &cIV"
+  6:
+    gametime: 1440
+    upgrade:
+    - "EMERALD,700"
+    message: "&2Emerald &ehave been upgraded to Tier &cIV"
+  7:
+    gametime: 1080
+    upgrade:
+    - "DIAMOND,200"
+    message: "&bDiamond &ehave been upgraded to Tier &cV"
+  8:
+    gametime: 720
+    upgrade:
+    - "EMERALD,600"
+    message: "&2Emerald &ehave been upgraded to Tier &cV"
+
+
+#Generator amount limit
+resourcelimit:
+
+  enabled: true
+
+  #Amount limit
+  limit:
+    - 'CLAY_BRICK,45'
+    - 'IRON_INGOT,30'
+    - 'GOLD_INGOT,5'
+    - 'DIAMOND,8'
+    - 'EMERALD,4'
+
+
+#Evenly spread team generator (Iron forge)
+spread_resource:
+
+  enabled: true
+
+  #Lock player's launch item (Suitable for a long range)
+  launch: false
+
+  #Radius distance
+  range: 1.0
+
+
+#Player, Team chest
+game_chest:
+
+  enabled: true
+
+  #Chest and team spawn max distance 
+  range: 10
+
+  #When opening the alive team chest
+  message: "&cThe {team} team is not die out, you can't open this chest!"
+
+
+#Hide invisibility players (Drink invisibility potion trigger)
+invisibility_player:
+
+  enabled: true
+
+  #Show footstep
+  footstep: true
+
+  #Hide potion particles
+  hide_particles: true
+
+  #Show body when attacked(false, show armor only)
+  damage_show_player: false
+
+
+#Wither bow
+witherbow:
+
+  enabled: true
+
+  #Enable wither bow when time left in the game is what number
+  gametime: 2400
+
+  #When the wither bow is Enabled, the value of placeholder {bowtime}
+  already_starte: "Enabled"
+
+  #Title when wither bow is enabled
+  title: "&b&lWITHER BOW"
+
+  #Subtitle when wither bow is enabled
+  subtitle: "&fAll arrows will be replaced with wither skull!"
+
+  #Message when wither bow is enabled
+  message: "&bWither bow enabled, All arrows will be replaced with wither skull!"
+
+
+#Death mode
+deathmode:
+
+  enabled: true
+
+  #Enable when time left in the game is what number
+  gametime: 900
+
+  title: "&c&lDEATH MODE"
+
+  subtitle: "&fAll team beds have been destroyed!"
+
+  message: "&fDeath mode, All team beds have been destroyed!"
+
+
+#Kill resource capture
+deathitem:
+
+  enabled: true
+
+  #Capture items
+  items:
+    - 'CLAY_BRICK'
+    - 'IRON_INGOT'
+    - 'GOLD_INGOT'
+    - 'EMERALD'
+    - 'DIAMOND'
+
+  #Chinesize item name
+  item_name_chinesize: false
+
+  #Message
+  #Placeholders:
+  # {amount}           Item amount
+  # {item}             Item name
+  message: "+{amount} {item}"
+
+
+#No destroy to the bed
+nobreakbed:
+
+  enabled: false
+
+  #Can destroy when time left in the game is what number
+  gametime: 3300
+
+  #Game start message
+  nobreakmessage: "&eYou can't destroy the bed for &c5 &eminutes after the game starts!"
+
+  title: ""
+
+  subtitle: ""
+
+  message: "&fCan destroy the bed!"
+
+
+#Team spawn, Resource generator protection
+spawn_no_build:
+
+  #Team spawn protection
+  spawn:
+
+    enabled: true
+
+    #Radius range
+    range: 2
+
+  #Resource generator protection
+  resource:
+
+    enabled: true
+
+    #Radius range
+    range: 2
+
+  message: "&cYou can't place blocks here!"
+
+
+#Holographic
+holographic:
+
+  #Resource generator holographic
+  resource:
+
+    enabled: true
+
+    #Rotation speed
+    speed: 1.0
+
+    #Resource generators
+    resources:
+
+      #Format:
+      #
+      #  #Custom ID
+      #  diamond:
+      #
+      #    #Resource item id
+      #    item: 264
+      #
+      #    #Holographic block item id
+      #    block: 57
+      #
+      #    #Holographic height
+      #    height: 1.5
+      #
+      #    #Item Drop
+      #    drop: true
+      #
+      #    #Holographic title text
+      #    title:
+      #    - "It's a generator"
+      diamond:
+        item: 264
+        block: 57
+        height: 1.5
+        drop: true
+        title:
+          - "&eTier &c{level}"
+          - "&b&lDiamond"
+          - "&eSpawns in &c{generate_time} &eseconds"
+      emerald:
+        item: 388
+        block: 133
+        height: 1.5
+        drop: true
+        title:
+          - "&eTier &c{level}"
+          - "&2&lEmerald"
+          - "&eSpawns in &c{generate_time} &eseconds"
+
+  #Bed holographic title
+  bed_title:
+
+    #Bed is alive
+    bed_alive:
+
+      enabled: true
+
+      title: "&cDefend your bed!"
+
+    #Bed is destroyed
+    bed_destroyed:
+
+      enabled: true
+
+      title: "&7This bed has been destroyed by {player}"
+
+
+#Statistics at the game over
+overstats:
+
+  enabled: true
+
+  #Message
+  #Placeholders:
+  # {win_team}               Win team
+  # {color}                  Win team color
+  # {win_team_players}       Win team player list
+  # {first_1_kills_player}   First player in total kills
+  # {first_2_kills_player}   Second player in total kills
+  # {first_3_kills_player}   Third player in total kills
+  # {first_1_kills}          Total kills of the first player
+  # {first_2_kills}          Total kills of the second player
+  # {first_3_kills}          Total kills of the third player
+  message:
+    - "&a\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac"
+    - "                             &e&lBEDWARS"
+    - ""
+    - "                             {color}{win_team}"
+    - "                             {win_team_players}"
+    - ""
+    - "    &e&l1st&7 - &f{first_1_kills_player} &7- &f{first_1_kills}"
+    - "    &6&l2nd&7 - &f{first_2_kills_player} &7- &f{first_2_kills}"
+    - "    &c&l3rd&7 - &f{first_3_kills_player} &7- &f{first_3_kills}"
+    - ""
+    - "&a\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac"
+
+
+#Actionbar
+#Placeholders:
+# {team}               Player team
+# {range}              Range of team
+# {color}              Player team color
+# {bowtime}            Witherbow time
+# {date}               Date
+# {online}             Online players
+# {time}               Game time
+# {formattime}         Format game time
+# {game}               Game name
+# {team_peoples}       Player team players
+# {alive_players}      Alive players
+actionbar: "&fTeam: {color}{team} &fWitherBow: {color}{bowtime} &fRange: {color}{range}m"
+
+
+#Custom timer
+#Format:
+#  Custom ID: Time
+timer:
+  1: 3600
+
+
+#Plan info
+#The value of placeholder {plan_<Custom ID>}
+#
+#Format:
+# #Custom ID
+# 0:
+#
+#   #Start when time left in the game is what number
+#   start_time: 3600
+#  
+#   #End when time left in the game is what number
+#   end_time: 0
+#  
+#   #Set the value of placeholder {plan_<Custom ID>}
+#   plans:
+#     <Custom ID 1>: "Text 1"
+#     <Custom ID 2>: "Text 2"
+#     <Custom ID 3>: "Text 3"
+planinfo:
+
+  1:
+    start_time: 3600
+    end_time: 3240
+    plans:
+      plan_1: "Diamond II"
+      plan_2: "{resource_upgrade_1}"
+
+  2:
+    start_time: 3240
+    end_time: 2880
+    plans:
+      plan_1: "Emerald II"
+      plan_2: "{resource_upgrade_2}"
+
+  3:
+    start_time: 2880
+    end_time: 2700
+    plans:
+      plan_1: "Health I"
+      plan_2: "{sethealthtime_1}"
+
+  4:
+    start_time: 2700
+    end_time: 2520
+    plans:
+      plan_1: "Diamond III"
+      plan_2: "{resource_upgrade_3}"
+
+  5:
+    start_time: 2520
+    end_time: 2400
+    plans:
+      plan_1: "Wither Bow"
+      plan_2: "{bowtime}"
+
+  6:
+    start_time: 2400
+    end_time: 2160
+    plans:
+      plan_1: "Emerald III"
+      plan_2: "{resource_upgrade_4}"
+
+  7:
+    start_time: 2160
+    end_time: 1800
+    plans:
+      plan_1: "Diamond IV"
+      plan_2: "{resource_upgrade_5}"
+
+  8:
+    start_time: 1800
+    end_time: 1500
+    plans:
+      plan_1: "Health II"
+      plan_2: "{sethealthtime_2}"
+
+  9:
+    start_time: 1500
+    end_time: 1440
+    plans:
+      plan_1: "Emerald IV"
+      plan_2: "{resource_upgrade_6}"
+
+  10:
+    start_time: 1440
+    end_time: 1080
+    plans:
+      plan_1: "Diamond V"
+      plan_2: "{resource_upgrade_7}"
+
+  11:
+    start_time: 1080
+    end_time: 900
+    plans:
+      plan_1: "Death Mode"
+      plan_2: "{death_mode}"
+
+  12:
+    start_time: 900
+    end_time: 720
+    plans:
+      plan_1: "Emerald V"
+      plan_2: "{resource_upgrade_8}"
+
+  13:
+    start_time: 720
+    end_time: 0
+    plans:
+      plan_1: "Game End"
+      plan_2: "{formattime}"
+
+
+#Player tag
+#Placeholders:
+# {team}               Player team
+# {team_initials}      Player team initials
+# {color}              Player team color
+# {color_name}         Player team color name
+# {color_initials}     Player team color name initials
+playertag:
+
+  prefix: "{color}{color_initials} &f| {color}"
+
+  suffix: ""
+
+
+#Date format
+date_format: "MM/dd/yy"
+
+#Lobby Scoreboard
+lobby_scoreboard:
+
+  enabled: true
+
+  #Scoreboard refresh interval(tick)
+  # 1 Second = 20 tick
+  interval: 2
+
+  #Scoreboard title
+  #Placeholders:
+  # {game}             Game name
+  title:
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&6&lB&e&lED WARS"
+    - "&f&lB&6&lE&e&lD WARS"
+    - "&f&lBE&6&lD&e&l WARS"
+    - "&f&lBED&6&l &e&lWARS"
+    - "&f&lBED &6&lW&e&lARS"
+    - "&f&lBED W&6&lA&e&lRS"
+    - "&f&lBED WA&6&lR&e&lS"
+    - "&f&lBED WAR&6&lS"
+    - "&f&lBED WARS"
+    - "&e&lBED WARS"
+    - "&f&lBED WARS"
+
+  #Waiting state
+  state:
+
+    waiting: "&fWaiting..."
+
+    countdown: "&fStarting in &a{countdown}s"
+
+  #Scoreboard lines
+  #Placeholders:
+  # {date}                    Date
+  # {state}                   Waiting state
+  # {game}                    Game name
+  # {players}                 Number of players
+  # {maxplayers}              Max number of players
+  # {minplayers}              Mix number of players
+  # {needplayers}             How many players are needed to start countdown
+  # {countdown}               Countdown time
+  lines:
+    - "&7{date}"
+    - ""
+    - "&fMap: &a{game}"
+    - "&fPlayers: &a{players}/{maxplayers}"
+    - ""
+    - "{state}"
+    - ""
+    - "&fMode: &a4v4v4v4"
+    - "&fVersion: &7v1.0"
+    - ""
+    - "&ewww.minecraft.net"
+
+
+#Game scoreboard
+scoreboard:
+
+  #Scoreboard refresh interval(tick)
+  # 1 Second = 20 tick
+  interval: 2
+
+  #Scoreboard title
+  #Placeholders:
+  # {game}             Game name
+  # {time}             Game time
+  title:
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&e&lBED WARS"
+    - "&6&lB&e&lED WARS"
+    - "&f&lB&6&lE&e&lD WARS"
+    - "&f&lBE&6&lD&e&l WARS"
+    - "&f&lBED&6&l &e&lWARS"
+    - "&f&lBED &6&lW&e&lARS"
+    - "&f&lBED W&6&lA&e&lRS"
+    - "&f&lBED WA&6&lR&e&lS"
+    - "&f&lBED WAR&6&lS"
+    - "&f&lBED WARS"
+    - "&e&lBED WARS"
+    - "&f&lBED WARS"
+
+  #The value of the placeholder {you}
+  you: "&7(You)"
+
+  #Team bed status
+  team_bed_status:
+
+    #Bed is alive
+    bed_alive: "&a\u2714"
+
+    #Bed is destroyed
+    bed_destroyed: "&c\u2718"
+
+  #Team status format
+  #Placeholders:
+  # {color}            Team color
+  # {color_name}       Team color name
+  # {color_initials}   Team color name initials
+  # {team}             Team name
+  # {team_initials}    Team name initials
+  # {players}          Team players
+  # {bed_status}       Team bed status
+  team_status_format:
+
+    #Bed is alive
+    bed_alive: "{color}{color_initials} &f{color_name}: &a\u2714 {you}"
+
+    #Bed is destroyed
+    bed_destroyed: "{color}{color_initials} &f{color_name}: &a{players} {you}"
+
+    #Team is dead
+    team_dead: "{color}{color_initials} &f{color_name}: &c\u2718 {you}"
+
+  #Placeholders:
+  # {date}                         Date
+  # {time}                         Game time
+  # {formattime}                   Format game time
+  # {game}                         Game name
+  # {online}                       Game players
+  # {bowtime}                      Witherbow time
+  # {sethealthtime_<Custom ID>}    Set health time
+  # {plan_<Custom ID>}             Plan info
+  # {plantime}                     Plan info
+  # {kills}                        Kills
+  # {finalkills}                   Final kills
+  # {totalkills}                   Total kills
+  # {dies}                         Dies
+  # {beds}                         Destroy bed
+  # {team}                         Player team
+  # {color}                        Player team color
+  # {teams}                        Game teams
+  # {player_name}                  Player name
+  # {team_peoples}                 Player team players
+  # {team_bed_status}              Player team status
+  # {remain_teams}                 Remain teams
+  # {alive_teams}                  Alive teams
+  # {alive_players}                Alive players
+  # {team_status}                  Game teams status
+  # {no_break_bed}                 No break bed time
+  # {resource_upgrade_<Custom ID>} Resource upgrade time
+  # {team_<team>_status}           Team status
+  # {team_<team>_bed_status}       Team bed status
+  # {team_<team>_peoples}          Team players
+  # {timer_<Custom ID>}            Timer
+  lines:
+
+    default:
+      - "&7{date}"
+      - ""
+      - "&f{plan_plan_1} &f- &a{plan_plan_2}"
+      - ""
+      - "{team_status}"
+      - ""
+      - "&fKills: &a{kills}"
+      - "&fFinal Kills: &a{finalkills}"
+      - "&fBed Broken: &a{beds}"
+      - ""
+      - "&ewww.minecraft.net"
+
+    #When 8 teams
+    8:
+      - "&7{date}"
+      - ""
+      - "&f{plan_plan_1} &f- &a{plan_plan_2}"
+      - ""
+      - "{team_status}"
+      - ""
+      - "&ewww.minecraft.net"

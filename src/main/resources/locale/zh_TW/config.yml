@@ -1,0 +1,1556 @@
+#   ____           _                         _____                    ____                      _             _     _             
+#  |  _ \         | |                       / ____|                  |  _ \                    | |   /\      | |   | |            
+#  | |_) | ___  __| |_      ____ _ _ __ ___| (___   ___ ___  _ __ ___| |_) | ___   __ _ _ __ __| |  /  \   __| | __| | ___  _ __  
+#  |  _ < / _ \/ _` \ \ /\ / / _` | '__/ __|\___ \ / __/ _ \| '__/ _ \  _ < / _ \ / _` | '__/ _` | / /\ \ / _` |/ _` |/ _ \| '_ \ 
+#  | |_) |  __/ (_| |\ V  V / (_| | |  \__ \____) | (_| (_) | | |  __/ |_) | (_) | (_| | | | (_| |/ ____ \ (_| | (_| | (_) | | | |
+#  |____/ \___|\__,_| \_/\_/ \__,_|_|  |___/_____/ \___\___/|_|  \___|____/ \___/ \__,_|_|  \__,_/_/    \_\__,_|\__,_|\___/|_| |_|
+#
+#
+# By Ram
+#
+# 更新時間: 2021年10月31日
+#
+# 網站: https://github.com/TheRamU/BedwarsScoreBoardAddon
+#
+
+#配置版本 (請勿修改!)
+version: 23
+
+
+#更新檢測
+update_check:
+
+  #是否啟用
+  enabled:  true
+
+  #向在線管理員報告版本更新
+  report: true
+
+
+#區域語言
+locale: zh_CN
+
+
+#初始化調試
+#  當插件加載失敗時啟用此項
+#  啟用後將顯示詳細錯誤報告
+init_debug: false
+
+
+#隱藏非遊戲玩家
+hide_player: true
+
+
+#Tab血量顯示
+tab_health: true
+
+
+#頭頂血量顯示
+tag_health: true
+
+
+#合併掉落物品
+item_merge: false
+
+
+#改變飢餓值
+hunger_change: false
+
+
+#喝藥水清除玻璃瓶
+clear_bottle: true
+
+
+#快速重生
+fast_respawn: true
+
+
+#聊天格式
+chat_format:
+
+  #是否啟用
+  enabled: true
+
+  #發言權限
+  chat:
+
+    #大廳
+    lobby: true
+
+    #全體聊天
+    all: true
+
+    #旁觀者
+    spectator: true
+    
+
+  #全體聊天前綴
+  all_prefix:
+  - "!"
+  - "#"
+  - "@"
+
+  #大廳聊天格式
+  lobby: "{player} > {message}"
+
+  #已選擇隊伍大廳聊天格式
+  lobby_team: "{color}{player} &f> {message}"
+
+  #遊戲中聊天格式
+  ingame: "&7[{color}{team}&7] {color}{player} &f> {message}"
+
+  #遊戲中全體聊天格式
+  ingame_all: "&7[&f全體&7] &7[{color}{team}&7] {color}{player} &f> {message}"
+
+  #旁觀者聊天格式
+  spectator: "&7[&f旁觀者&7] &f{player} > {message}"
+
+
+#最終擊殺顯示
+final_killed:
+
+  #是否啟用
+  enabled: true
+
+  #信息
+  message: "&6{player} &6被擊殺，擊殺者： {killer} &b&l最終擊殺"
+
+
+#定時執行命令
+#變量:
+# {player}   所有遊戲中玩家
+timecommand:
+
+  #遊戲開始時執行的命令
+  startcommand:
+    - ""
+
+  #指令名稱
+  #格式:
+  #
+  # 指令名稱
+  # 1:
+  # 
+  #   當遊戲剩餘多少時間時執行命令
+  #   gametime: 3600
+  #  
+  #   執行的命令
+  #   command:
+  #   - ""
+  #
+  cmd1:
+
+    #當遊戲剩餘多少時間時執行命令
+    gametime: 3000
+
+    #執行的命令
+    command:
+    - ""
+
+
+#隊伍選擇菜單
+select_team:
+
+  #是否啟用
+  enabled: true
+
+  #隊伍狀態
+  status:
+
+    select: "&e點擊選擇！"
+    inteam: "&e已在隊伍中！"
+    team_full: "&c隊伍已滿！"
+
+  #無玩家
+  no_players: "&7(無)"
+
+  #隊伍選項物品
+  item:
+
+    #物品名稱
+    name: "{color}{team}"
+
+    #描述
+    lore:
+    - ""
+    - "&f玩家: &e{players}&7/&e{maxplayers}"
+    - ""
+    - "&f玩家列表:"
+    - "  {color}{players_list}"
+    - ""
+    - "{status}"
+
+
+#清除大廳方塊
+lobby_block:
+
+  #是否啟用
+  enabled: false
+
+  #範圍1
+  position_1:
+    x: 12
+    y: 10
+    z: 12
+
+  #範圍2
+  position_2:
+    x: -12
+    y: -5
+    z: -12
+
+
+#掉線重連
+rejoin:
+
+  #是否啟用
+  enabled: true
+
+  #信息
+  message:
+
+    #重新加入成功
+    rejoin: "&e{player} 重新加入了遊戲！"
+
+    #重新加入失敗
+    error: "&c無法重新加入遊戲！"
+
+
+#弓箭傷害顯示
+#變量:
+# {player}     玩家名稱
+# {damage}     造成傷害值
+# {health}     玩家剩餘血量
+# {maxhealth}  玩家最大血量
+bowdamage:
+
+  #是否啟用
+  enabled: true
+
+  #大標題
+  title: ""
+
+  #小標題
+  subtitle: ""
+
+  #顯示信息
+  message: "&f你對玩家 &a{player} &f造成了 &a{damage} &f點傷害 血量 &a{health}/{maxhealth}"
+
+#傷害顯示
+#變量:
+# {player}     玩家名稱
+# {damage}     造成傷害值
+# {health}     玩家剩餘血量
+# {maxhealth}  玩家最大血量
+damagetitle:
+
+  #是否啟用
+  enabled: true
+
+  #大標題
+  title: ""
+
+  #小標題
+  subtitle: "&b傷害 &f- &e{damage}  &b血量 &f- &e{health}&f/&e{maxhealth}"
+
+
+#玩家加入遊戲時的標題
+#變量:
+# {player}   玩家名稱
+jointitle:
+
+  #是否啟用
+  enabled: true
+
+  #大標題
+  title: "&f{player}&a加入了遊戲"
+
+  #小標題
+  subtitle: ""
+
+
+#遊戲開始後標題
+start_title:
+
+  #是否啟用
+  enabled: true
+
+  #大標題
+  title:
+    - "&c&l游      戲      開      始"
+    - "&c&l游    戲    開    始"
+    - "&c&l游  戲  開  始"
+    - "&c&l游 戲 開 始"
+    - "&c&l遊戲開始"
+
+  #小標題
+  subtitle: "&7保護你的床"
+
+
+#被淘汰後標題
+die_out_title:
+
+  #是否啟用
+  enabled: true
+
+  #大標題
+  title: "&c&l遊戲結束"
+
+  #小標題
+  subtitle: "&7你現在是一名旁觀者"
+
+
+#床被摧毀標題
+destroyed_title:
+
+  #是否啟用
+  enabled: true
+
+  #大標題
+  title: "&c床被摧毀"
+
+  #小標題
+  subtitle: "&7你將不能重生!"
+
+
+#勝利標題
+#變量:
+#  {color}    勝利隊伍顏色
+#  {team}     勝利隊伍名稱
+#  {time}     勝利耗時
+victory_title:
+
+  #是否啟用
+  enabled: true
+
+  #大標題
+  title:
+    - "&6&l勝利"
+    - "&6&l勝利"
+    - "&6&l勝利"
+    - "&6&l勝利"
+    - "&6&l勝利"
+    - "&6&l勝利"
+    - "&e&l勝&6&l利"
+    - "&e&l勝&6&l利"
+    - "&e&l勝&6&l利"
+    - "&6&l勝&e&l利"
+    - "&6&l勝&e&l利"
+    - "&6&l勝&e&l利"
+    - "&6&l勝利"
+    - "&6&l勝利"
+    - "&6&l勝利"
+    - "&e&l勝&6&l利"
+    - "&e&l勝&6&l利"
+    - "&e&l勝&6&l利"
+    - "&6&l勝&e&l利"
+    - "&6&l勝&e&l利"
+    - "&6&l勝&e&l利"
+    - "&6&l勝利"
+
+  #小標題
+  subtitle: ""
+
+
+#播放聲音
+play_sound:
+
+  #是否啟用
+  enabled: true
+
+  #聲音
+  #  隨機播放列表中的聲音
+  #  使用 {} 關閉聲音
+  #  格式:
+  #    - <聲音>,<音量>,<音調>
+  sound:
+
+    #遊戲開始
+    start:
+    - ENDERDRAGON_GROWL,1,1
+
+    #死亡
+    death: {}
+
+    #擊殺
+    kill:
+    - CAT_MEOW,1,1
+    - WOLF_BARK,1,1
+
+    #資源升級
+    upgrade: {}
+
+    #血量設置
+    sethealth: {}
+
+    #資源不足
+    no_resource:
+    - ENDERMAN_TELEPORT,1,0.5
+
+    #啟用凋零弓
+    enable_witherbow:
+    - ENDERDRAGON_GROWL,1,1
+
+    #使用凋零弓
+    witherbow:
+    - WITHER_HURT,1,0
+
+    #死亡模式
+    deathmode: {}
+
+    #遊戲結束
+    over:
+    - ENDERDRAGON_DEATH,1,1
+
+
+#旁觀設置
+spectator:
+
+  #是否啟用
+  enabled: true
+
+  #在地圖中心
+  centre:
+
+    #是否啟用
+    enabled: true
+
+    #高度
+    height: 120
+
+  #旁觀玩家時
+  spectator_target:
+
+    #標題
+    title: "&a正在旁觀&7{player}"
+
+    #小標題
+    subtitle: "&a點擊左鍵打開菜單   &c按Shift鍵退出"
+
+  #退出旁觀時
+  quit_spectator:
+
+    #標題
+    title: ""
+
+    #小標題
+    subtitle: "&e退出旁觀模式"
+
+  #旁觀者速度設置
+  speed:
+
+    #是否啟用
+    enabled: true
+
+    #物品位置
+    slot: 5
+
+    #物品數字ID
+    item: 404
+
+    #物品名稱
+    item_name: "&a旁觀設置"
+
+    #物品描述
+    item_lore: {}
+
+    #菜單標題
+    gui_title: "旁觀者設置"
+
+    #速度描述
+    no_speed: "&a沒有速度效果"
+    speed_1: "&a速度 I"
+    speed_2: "&a速度 II"
+    speed_3: "&a速度 III"
+    speed_4: "&a速度 IV"
+
+  #快速加入 (需要前置 ServerJoiner)
+  fast_join:
+
+    #是否啟用
+    enabled: false
+
+    #物品位置
+    slot: 8
+
+    #物品數字ID
+    item: 339
+
+    #物品名稱
+    item_name: "&a再玩一局"
+
+    #物品描述
+    item_lore: {}
+
+    #ServerJoiner伺服器組
+    group: "bedwars"
+
+
+#指南針
+compass:
+
+  #是否啟用
+  enabled: true
+
+  #菜單標題
+  gui_title: "閃聊"
+
+  #物品名稱
+  item_name: "&a指南針"
+
+  #物品描述
+  item_lore: {}
+
+  #返回按鈕
+  back: "&f返回"
+
+  #物品描述
+  lore:
+    send_message:
+    - ""
+    - "&e點擊發送！"
+    select_team:
+    - "&7您可以選擇隊伍"
+    - ""
+    - "&e點擊選擇！"
+    select_resources:
+    - "&7您可以選擇資源"
+    - ""
+    - "&e點擊選擇！"
+
+  #資源
+  resources:
+    CLAY_BRICK: "&4紅磚"
+    IRON_INGOT: "&7鐵錠"
+    GOLD_INGOT: "&6金錠"
+    DIAMOND: "&b鑽石"
+    EMERALD: "&2綠寶石"
+
+  #物品名稱
+  item:
+    III_II: "&a你好( \uff9f\u25e1\uff9f)/！"
+    IV_II: "&a我回到基地了！"
+    V_II: "&a我正在防守！"
+    VI_II: "&a我正在進攻！"
+    VII_II: "&a我正在收集資源！"
+    VIII_II: "&a我有資源！"
+    III_III: "&a謝謝！"
+    IV_III: "&a返回基地！"
+    V_III: "&a請防守！"
+    VI_III: "&a我們進攻！"
+    VII_III: "&a我需要資源！"
+
+  #信息
+  message:
+    III_II: "&a&l隊伍> &7{player}&f: &a你好( \uff9f\u25e1\uff9f)/"
+    IV_II: "&a&l隊伍> &7{player}&f: &a我回到基地了"
+    V_II: "&a&l隊伍> &7{player}&f: &a我正在防守"
+    VI_II: "&a&l隊伍> &7{player}&f: &a我正在進攻 {color}{team}"
+    VII_II: "&a&l隊伍> &7{player}&f: &a我正在收集 {resource}"
+    VIII_II: "&a&l隊伍> &7{player}&f: &a我有 {resource}"
+    III_III: "&a&l隊伍> &7{player}&f: &a謝謝"
+    IV_III: "&a&l隊伍> &7{player}&f: &a返回基地"
+    V_III: "&a&l隊伍> &7{player}&f: &a請防守"
+    VI_III: "&a&l隊伍> &7{player}&f: &a我們進攻 {color}{team}"
+    VII_III: "&a&l隊伍> &7{player}&f: &a我需要 {resource}"
+
+
+#噴漆塗鴉
+graffiti:
+
+  #是否啟用
+  enabled: true
+
+  #全息顯示
+  holographic:
+
+    #是否啟用
+    enabled: true
+
+    #全息文本
+    text: "&e點擊！"
+
+
+#商店
+shop:
+
+  #是否啟用
+  enabled: true
+
+  #物品商店
+  item_shop:
+
+    #NPC類型
+    type: VILLAGER
+
+    #皮膚
+    skin: Steve
+
+    #商店名稱
+    name:
+      - "&b道具商店"
+      - "&e&l右鍵點擊"
+
+    #NPC視角跟隨附近玩家
+    look: false
+
+  #隊伍商店
+  team_shop:
+
+    #NPC類型
+    type: BLAZE
+
+    #皮膚
+    skin: Steve
+
+    #商店名稱
+    name:
+      - "&b組隊模式"
+      - "&b升級"
+      - "&e&l右鍵點擊"
+
+    #NPC視角跟隨附近玩家
+    look: false
+
+
+#倒計時重生設置
+respawn:
+
+  #是否啟用
+  enabled: true
+
+  #在地圖中心倒計時
+  centre:
+
+    #是否啟用
+    enabled: true
+
+    #高度
+    height: 120
+
+  #重生時間(秒)
+  respawn_delay: 5
+
+  #重生保護時間
+  protected:
+
+    #啟用
+    enabled: true
+
+    #時間 (秒)
+    time: 5
+
+  #正在重生時
+  countdown:
+
+    #大標題
+    title: "&c你死了！"
+
+    #小標題
+    subtitle: "&e你將在&c{respawntime}&e秒後復活"
+
+    #信息
+    message: "&e你將在&c{respawntime}&e秒後復活！"
+
+  #已經重生
+  respawn:
+
+    #大標題
+    title: "&a已重生"
+
+    #小標題
+    subtitle: ""
+
+    #信息
+    message: "&a你已重生！"
+
+
+#物品給予
+giveitem:
+
+  #死亡後不重置護甲
+  keeparmor: false
+
+  #護甲
+  armor:
+
+    #頭盔
+    helmet:
+
+      #給予選項
+      #  true        遊戲開始、重生時給予
+      #  start       遊戲開始時給予
+      #  respawn     重生時給予
+      #  false       不給予
+      give: true
+
+      #護甲是否可以脫下
+      move: true
+
+      #物品
+      item:
+      - type: TEAM_ARMOR
+        meta:
+          ==: ItemMeta
+          meta-type: LEATHER_ARMOR
+          enchants:
+            WATER_WORKER: 1
+          Unbreakable: true
+        probability: 1
+
+    #胸甲
+    chestplate:
+
+      #給予選項
+      #  true        遊戲開始、重生時給予
+      #  start       遊戲開始時給予
+      #  respawn     重生時給予
+      #  false       不給予
+      give: true
+
+      #護甲是否可以脫下
+      move: true
+
+      #物品
+      item:
+      - type: TEAM_ARMOR
+        meta:
+          ==: ItemMeta
+          meta-type: LEATHER_ARMOR
+          Unbreakable: true
+        probability: 1
+
+    #護腿
+    leggings:
+
+      #給予選項
+      #  true        遊戲開始、重生時給予
+      #  start       遊戲開始時給予
+      #  respawn     重生時給予
+      #  false       不給予
+      give: true
+
+      #護甲是否可以脫下
+      move: true
+
+      #物品
+      item:
+      - type: TEAM_ARMOR
+        meta:
+          ==: ItemMeta
+          meta-type: LEATHER_ARMOR
+          Unbreakable: true
+        probability: 1
+
+    #靴子
+    boots:
+
+      #給予選項
+      #  true        遊戲開始、重生時給予
+      #  start       遊戲開始時給予
+      #  respawn     重生時給予
+      #  false       不給予
+      give: true
+
+      #護甲是否可以脫下
+      move: true
+
+      #物品
+      item:
+      - type: TEAM_ARMOR
+        meta:
+          ==: ItemMeta
+          meta-type: LEATHER_ARMOR
+          Unbreakable: true
+        probability: 1
+
+  #物品欄
+  #
+  #格式:
+  #
+  #  #物品名稱
+  #  item1:
+  #
+  #    #給予選項
+  #    #  true        遊戲開始、重生時給予
+  #    #  start       遊戲開始時給予
+  #    #  respawn     重生時給予
+  #    #  false       不給予
+  #    give: true
+  #   
+  #    #物品所在背包的位置
+  #    slot: 0
+  #    
+  #    #物品
+  #    item:
+  #    - type: WOOD_SWORD
+  #      meta:
+  #        ==: ItemMeta
+  #        meta-type: UNSPECIFIC
+  #        Unbreakable: true
+  #      probability: 1
+  item:
+
+    #物品名稱
+    item1:
+
+      #給予選項
+      #  true        遊戲開始、重生時給予
+      #  start       遊戲開始時給予
+      #  respawn     重生時給予
+      #  false       不給予
+      give: true
+
+      #物品所在背包的位置
+      slot: 0
+
+      #物品
+      item:
+      - type: WOOD_SWORD
+        meta:
+          ==: ItemMeta
+          meta-type: UNSPECIFIC
+          Unbreakable: true
+        probability: 1
+
+#血量設置
+sethealth:
+
+  #開始遊戲時設置血量
+  start:
+
+    #是否啟用
+    enabled: true
+
+    #設置血量
+    health: 20
+
+  #編號
+  1:
+
+    #當遊戲剩餘多少秒時改變血量
+    gametime: 2700
+
+    #設置血量
+    health: 30
+
+    #顯示大標題消息
+    title: "&b全體血量提升!"
+
+    #顯示小標題消息
+    subtitle: ""
+
+    #顯示的信息
+    message: ""
+
+  #編號
+  2:
+
+    #當遊戲剩餘多少秒時改變血量
+    gametime: 1500
+
+    #設置血量
+    health: 40
+
+    #顯示大標題消息
+    title: "&b全體血量提升!"
+
+    #顯示小標題消息
+    subtitle: ""
+
+    #顯示的信息
+    message: ""
+
+
+#資源點升級
+resourceupgrade:
+  1:
+
+    #當遊戲時間剩餘多少時升級
+    gametime: 3240
+
+    #資源生成時間間隔 (每隔多少tick生成一個資源)
+    #1 秒 = 20 tick
+    #格式:
+    #  upgrade:
+    #  - "<資源物品名稱>,<間隔時間>"
+    upgrade:
+      - "DIAMOND,500"
+
+    #信息提示
+    message: "&b鑽石生成點&e已升至&cII&e級"
+  2:
+    gametime: 2880
+    upgrade:
+      - "EMERALD,900"
+    message: "&2綠寶石生成點&e已升至&cII&e級"
+  3:
+    gametime: 2520
+    upgrade:
+      - "DIAMOND,400"
+    message: "&b鑽石生成點&e已升至&cIII&e級"
+  4:
+    gametime: 2160
+    upgrade:
+      - "EMERALD,800"
+    message: "&2綠寶石生成點&e已升至&cIII&e級"
+  5:
+    gametime: 1800
+    upgrade:
+      - "DIAMOND,300"
+    message: "&b鑽石生成點&e已升至&cIV&e級"
+  6:
+    gametime: 1440
+    upgrade:
+      - "EMERALD,700"
+    message: "&2綠寶石生成點&e已升至&cIV&e級"
+  7:
+    gametime: 1080
+    upgrade:
+      - "DIAMOND,200"
+    message: "&b鑽石生成點&e已升至&cV&e級"
+  8:
+    gametime: 720
+    upgrade:
+      - "EMERALD,600"
+    message: "&2綠寶石生成點&e已升至&cV&e級"
+
+
+#資源數量上限
+resourcelimit:
+
+  #是否啟用
+  enabled: true
+
+  #設置上限
+  limit:
+    - 'CLAY_BRICK,45'
+    - 'IRON_INGOT,30'
+    - 'GOLD_INGOT,5'
+    - 'DIAMOND,8'
+    - 'EMERALD,4'
+
+
+#均勻地散布隊伍資源點(鐵鍛爐)
+spread_resource:
+
+  #是否啟用
+  enabled: true
+
+  #鎖定玩家拋射物品(適用於大範圍散布)
+  launch: false
+
+  #半徑範圍
+  range: 1.0
+
+
+#個人、隊伍箱子
+game_chest:
+
+  #是否啟用
+  enabled: true
+
+  #箱子與出生點距離
+  #用於自動檢測箱子位置
+  range: 10
+
+  #當打開未被淘汰隊伍箱子時
+  message: "&c{team} 團隊還未被淘汰，你無法打開這個箱子！"
+
+
+#隱藏隱身玩家(喝隱身藥水時觸發)
+invisibility_player:
+
+  #是否啟用
+  enabled: true
+
+  #顯示足跡
+  footstep: true
+
+  #隱藏藥水效果
+  hide_particles: true
+
+  #隱身玩家被攻擊時顯示身體(默認只顯示盔甲)
+  damage_show_player: false
+
+
+#凋零弓
+witherbow:
+
+  #是否啟用
+  #禁用後倒計時任然繼續，但不會開啟凋零弓
+  enabled: true
+
+  #當遊戲剩餘多少秒時開啟
+  gametime: 2400
+
+  #當凋零弓開啟後變量 {bowtime} 的值
+  already_starte: "已開啟"
+
+  #凋零弓開啟時的大標題
+  title: "&b&l凋零弓"
+
+  #凋零弓開啟時的小標題
+  subtitle: "&f所有箭矢將替換為凋零頭顱"
+
+  #凋零弓開啟時的提示
+  message: "&b凋零弓已開啟，所有箭矢將替換為凋零頭顱！"
+
+
+#死亡模式
+deathmode:
+
+  #是否啟用
+  enabled: true
+
+  #當遊戲剩餘多少秒時開啟
+  gametime: 900
+
+  #顯示大標題消息
+  title: "&c&l死亡模式"
+
+  #顯示小標題消息
+  subtitle: "&f所有隊伍床被破壞！"
+
+  #顯示的信息
+  message: "&f死亡模式開啟，所有隊伍床被破壞！"
+
+
+#擊殺資源搶奪
+deathitem:
+
+  #是否啟用
+  enabled: true
+
+  #啟用物品
+  items:
+    - 'CLAY_BRICK'
+    - 'IRON_INGOT'
+    - 'GOLD_INGOT'
+    - 'EMERALD'
+    - 'DIAMOND'
+
+  #漢化物品名稱
+  item_name_chinesize: true
+
+  #顯示的信息
+  #變量:
+  # {amount}           物品數量
+  # {item}             物品名稱
+  message: "+{amount} {item}"
+
+
+#禁止摧毀床
+nobreakbed:
+
+  #是否啟用
+  enabled: false
+
+  #當遊戲剩餘多少秒時取消禁止
+  gametime: 3300
+
+  #顯示的信息
+  nobreakmessage: "&f遊戲開始後5分鐘內禁止破壞床！"
+
+  #顯示大標題消息
+  title: ""
+
+  #顯示小標題消息
+  subtitle: ""
+
+  #顯示的信息
+  message: "&f已允許破壞敵方的床！"
+
+
+#出生點、資源點保護
+spawn_no_build:
+
+  #出生點保護
+  spawn:
+
+    #是否啟用
+    enabled: true
+
+    #範圍
+    range: 2
+
+  #資源點保護
+  resource:
+
+    #是否啟用
+    enabled: true
+
+    #範圍
+    range: 2
+
+  #提示
+  message: "&c你不能在這裡放置方塊！"
+
+
+#全息顯示圖
+holographic:
+
+  #資源生成點全息顯示
+  resource:
+
+    #是否啟用
+    enabled: true
+
+    #旋轉速度
+    speed: 1.0
+
+    #資源生成點
+    resources:
+
+      #格式:
+      #
+      #資源名稱(可自定義)
+      #diamond:
+      #
+      #  資源的物品ID
+      #  item: 264
+      #
+      #  顯示的全息方塊ID
+      #  block: 57
+      #
+      #  全息圖距離資源點的高度
+      #  height: 1.5
+      #
+      #  物品從上方掉落
+      #  drop: true
+      #
+      #  顯示全息標題文字
+      #  title:
+      #    - "資源生成點"
+      diamond:
+        item: 264
+        block: 57
+        height: 1.5
+        drop: true
+        title:
+          - "&e等級 &c{level}"
+          - "&b&l鑽石"
+          - "&e將在 &c{generate_time} &e秒後產出"
+      emerald:
+        item: 388
+        block: 133
+        height: 1.5
+        drop: true
+        title:
+          - "&e等級 &c{level}"
+          - "&2&l綠寶石"
+          - "&e將在 &c{generate_time} &e秒後產出"
+
+  #床全息顯示
+  bed_title:
+
+    #床未被摧毀時
+    bed_alive:
+
+      #是否啟用
+      enabled: true
+
+      #標題
+      title: "&c保護你的床！"
+
+    #床被摧毀時
+    bed_destroyed:
+
+      #是否啟用
+      enabled: true
+
+      #標題
+      title: "&7該隊伍床已被 {player} &7所摧毀"
+
+
+#遊戲結束時信息統計
+overstats:
+
+  #是否啟用
+  enabled: true
+
+  #顯示信息
+  #變量:
+  # {win_team}               勝利隊伍
+  # {color}                  勝利隊伍顏色
+  # {win_team_players}       勝利隊伍剩餘玩家列表
+  # {first_1_kills_player}   總擊殺數第一玩家名稱
+  # {first_2_kills_player}   總擊殺數第二玩家名稱
+  # {first_3_kills_player}   總擊殺數第三玩家名稱
+  # {first_1_kills}          總擊殺數第一玩家擊殺數
+  # {first_2_kills}          總擊殺數第二玩家擊殺數
+  # {first_3_kills}          總擊殺數第三玩家擊殺數
+  message:
+    - "&a\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac"
+    - "                             &e&l起床戰爭"
+    - ""
+    - "                             {color}{win_team}"
+    - "                             {win_team_players}"
+    - ""
+    - "    &e&l第一擊殺者&7 - &f{first_1_kills_player} &7- &f{first_1_kills}"
+    - "    &6&l第二擊殺者&7 - &f{first_2_kills_player} &7- &f{first_2_kills}"
+    - "    &c&l第三擊殺者&7 - &f{first_3_kills_player} &7- &f{first_3_kills}"
+    - ""
+    - "&a\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac\u25ac"
+
+
+#物品欄上方信息
+#變量:
+# {team}               玩家隊伍
+# {range}              玩家與隊伍重生點的距離
+# {color}              玩家隊伍顏色
+# {bowtime}            凋零弓時間
+# {date}               日期
+# {online}             玩家在線人數
+# {time}               遊戲時間(分鐘)
+# {formattime}         格式化遊戲時間
+# {game}               遊戲地圖
+# {team_peoples}       玩家隊伍人數
+# {alive_players}      存活玩家數量
+actionbar: "&f隊伍: {color}{team} &f凋零弓: {color}{bowtime} &f追蹤: {color}{range}米"
+
+
+#自定義倒計時
+#格式:
+#  編號: 時間
+timer:
+  1: 3600
+
+
+#設定計劃信息
+#變量 {plan_<編號>} 的內容 
+#
+#格式:
+# 編號
+# 0:
+#
+#   #當遊戲剩餘多少時間時開始
+#   start_time: 3600
+#  
+#   #當遊戲剩餘多少時間時結束
+#   end_time: 0
+#
+#   #設置變量 {plan_<編號>} 的內容
+#   plans:
+#     <編號1>: "文本2"
+#     <編號2>: "文本2"
+planinfo:
+
+  1:
+    start_time: 3600
+    end_time: 3240
+    plans:
+      plan_1: "鑽石生成點II級"
+      plan_2: "{resource_upgrade_1}"
+
+  2:
+    start_time: 3240
+    end_time: 2880
+    plans:
+      plan_1: "綠寶石生成點II級"
+      plan_2: "{resource_upgrade_2}"
+
+  3:
+    start_time: 2880
+    end_time: 2700
+    plans:
+      plan_1: "血量提升I級"
+      plan_2: "{sethealthtime_1}"
+
+  4:
+    start_time: 2700
+    end_time: 2520
+    plans:
+      plan_1: "鑽石生成點III級"
+      plan_2: "{resource_upgrade_3}"
+
+  5:
+    start_time: 2520
+    end_time: 2400
+    plans:
+      plan_1: "凋零弓"
+      plan_2: "{bowtime}"
+
+  6:
+    start_time: 2400
+    end_time: 2160
+    plans:
+      plan_1: "綠寶石生成點III級"
+      plan_2: "{resource_upgrade_4}"
+
+  7:
+    start_time: 2160
+    end_time: 1800
+    plans:
+      plan_1: "鑽石生成點IV級"
+      plan_2: "{resource_upgrade_5}"
+
+  8:
+    start_time: 1800
+    end_time: 1500
+    plans:
+      plan_1: "血量提升II級"
+      plan_2: "{sethealthtime_2}"
+
+  9:
+    start_time: 1500
+    end_time: 1440
+    plans:
+      plan_1: "綠寶石生成點IV級"
+      plan_2: "{resource_upgrade_6}"
+
+  10:
+    start_time: 1440
+    end_time: 1080
+    plans:
+      plan_1: "鑽石生成點V級"
+      plan_2: "{resource_upgrade_7}"
+
+  11:
+    start_time: 1080
+    end_time: 900
+    plans:
+      plan_1: "死亡模式"
+      plan_2: "{death_mode}"
+
+  12:
+    start_time: 900
+    end_time: 720
+    plans:
+      plan_1: "綠寶石生成點V級"
+      plan_2: "{resource_upgrade_8}"
+
+  13:
+    start_time: 720
+    end_time: 0
+    plans:
+      plan_1: "遊戲結束"
+      plan_2: "{formattime}"
+
+
+#玩家頭頂名稱稱號
+#變量:
+# {team}               玩家隊伍名稱
+# {team_initials}      玩家隊伍名稱首字母
+# {color}              玩家隊伍顏色
+# {color_name}         玩家隊伍顏色名稱
+# {color_initials}     玩家隊伍顏色名稱首字母
+playertag:
+
+  #前綴
+  prefix: "{color}{team} &f| {color}"
+
+  #後綴
+  suffix: ""
+
+
+#日期格式
+date_format: "MM/dd/yy"
+
+#等待大廳計分板
+lobby_scoreboard:
+
+  #是否啟用
+  enabled: true
+
+  #計分板刷新間隔(tick)
+  # 1 秒 = 20 tick
+  interval: 2
+
+  #計分板標題
+  #變量:
+  # {game}             遊戲名稱
+  title:
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&6&l起&e&l床戰爭"
+    - "&f&l起&6&l床&e&l戰爭"
+    - "&e&l起&f&l床&6&l戰&e&l爭"
+    - "&e&l起床&f&l戰&6&l爭"
+    - "&e&l起床戰&f&l爭"
+    - "&e&l起床戰爭"
+    - "&f&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&f&l起床戰爭"
+
+  #等待狀態
+  state:
+
+    #等待
+    waiting: "&f等待中..."
+
+    #開始倒計時
+    countdown: "&F即將在&a{countdown}秒後開始"
+
+  #計分板信息
+  #變量:
+  # {date}                    日期
+  # {state}                   等待狀態
+  # {game}                    遊戲地圖
+  # {players}                 遊戲玩家
+  # {maxplayers}              最大遊戲玩家
+  # {minplayers}             最小遊戲玩家
+  # {needplayers}             離倒計時開始所需玩家
+  # {countdown}               遊戲開始倒計時
+  lines:
+    - "&7{date}"
+    - ""
+    - "&f地圖:&a{game}"
+    - "&f玩家:&a{players}/{maxplayers}"
+    - ""
+    - "{state}"
+    - ""
+    - "&f模式:&a4v4v4v4"
+    - "&f版本:&7v1.0"
+    - ""
+    - "&ewww.minecraft.net"
+
+
+#計分板設置
+scoreboard:
+
+  #計分板刷新間隔(tick)
+  # 1 秒 = 20 tick
+  interval: 2
+
+  #計分板標題
+  #變量:
+  # {game}             遊戲名稱
+  # {time}             遊戲時間
+  title:
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&6&l起&e&l床戰爭"
+    - "&f&l起&6&l床&e&l戰爭"
+    - "&e&l起&f&l床&6&l戰&e&l爭"
+    - "&e&l起床&f&l戰&6&l爭"
+    - "&e&l起床戰&f&l爭"
+    - "&e&l起床戰爭"
+    - "&f&l起床戰爭"
+    - "&e&l起床戰爭"
+    - "&f&l起床戰爭"
+
+  #變量 {you} 的值
+  you: "&7(你)"
+
+  #隊伍床狀態
+  team_bed_status:
+
+    #床存在
+    bed_alive: "&a\u2714"
+
+    #床被摧毀
+    bed_destroyed: "&c\u2718"
+
+  #隊伍狀態格式
+  #變量:
+  # {color}            隊伍顏色
+  # {color_name}       隊伍顏色名稱
+  # {color_initials}   隊伍顏色名稱首字母
+  # {team}             隊伍名稱
+  # {team_initials}    隊伍名稱首字母
+  # {players}          隊伍人數
+  # {bed_status}       隊伍床狀態
+  team_status_format:
+
+    #床存在
+    bed_alive: "{color} {team} &a\u2714 &8(&f&l{players}&8) {you}"
+
+    #床被摧毀
+    bed_destroyed: "{color} {team} &c\u2718 &8(&f&l{players}&8) {you}"
+
+    #隊伍被消滅
+    team_dead: "{color} {team} &c\u2718 &8(&f&l{players}&8) {you}"
+
+  #計分板信息
+  #變量:
+  # {date}                    日期
+  # {time}                    遊戲時間(分鐘)
+  # {formattime}              格式化遊戲時間
+  # {game}                    遊戲地圖
+  # {online}                  當局遊戲人數
+  # {bowtime}                 凋零弓時間
+  # {sethealthtime_<編號>}    指定編號血量設置時間
+  # {plan_<編號>}                計劃信息
+  # {kills}                   擊殺數
+  # {finalkills}              最終擊殺數
+  # {totalkills}              總擊殺數
+  # {dies}                    死亡數
+  # {beds}                    破壞床數
+  # {team}                    玩家隊伍名稱
+  # {color}                   玩家隊伍顏色
+  # {teams}                   隊伍數量
+  # {player_name}             玩家名稱
+  # {team_peoples}            玩家隊伍人數
+  # {team_bed_status}         玩家隊伍床狀態
+  # {remain_teams}            未被消滅隊伍數量
+  # {alive_teams}             床存在的隊伍數量
+  # {alive_players}           存活玩家數量
+  # {team_status}             所有隊伍狀態
+  # {no_break_bed}            允許破壞床倒計時
+  # {resource_upgrade_<編號>} 資源生成點升級時間
+  # {team_<team>_status}      指定隊伍狀態
+  # {team_<team>_bed_status}  指定隊伍床狀態
+  # {team_<team>_peoples}     指定隊伍人數
+  # {timer_<編號>}            自定義倒計時
+  lines:
+
+    #默認
+    default:
+      - "&7{date}"
+      - ""
+      - "&f{plan_plan_1} &f- &a{plan_plan_2}"
+      - ""
+      - "{team_status}"
+      - ""
+      - "&f擊殺數: &a{kills}"
+      - "&f最終擊殺: &a{finalkills}"
+      - "&f已破壞床數: &a{beds}"
+      - ""
+      - "&ewww.minecraft.net"
+
+    #當8個隊伍時
+    8:
+      - "&7{date}"
+      - ""
+      - "&f{plan_plan_1} &f- &a{plan_plan_2}"
+      - ""
+      - "{team_status}"
+      - ""
+      - "&ewww.minecraft.net"
