@@ -121,7 +121,7 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/set_shop.png)
 
 ```ini
-2.执行命令 "/bw join <游戏>" 就行测试
+2.执行命令 "/bw join <游戏>" 进行测试
 2.Use command "/bw join <Game>" to test
 ```
 
@@ -155,7 +155,7 @@ This is a plugin running on BedwarsRel. It can expand your BedWars function. Mak
 ![](https://raw.githubusercontent.com/TheRamU/BedwarsScoreBoardAddon/master/images/add_diamond.png)
 
 ```ini
-2.执行命令 "/bw join <游戏>" 就行测试
+2.执行命令 "/bw join <游戏>" 进行测试
 2.Use command "/bw join <Game>" to test
 ```
 
